@@ -1,6 +1,10 @@
 ﻿using System;
+using Projektni_FMSI;
 
-namespace Projektni_FMSI
+Automat a = new Automat();
+a.makeAutomata();
+
+/*namespace Projektni_FMSI
 {
     class Program
     {
@@ -11,4 +15,4 @@ namespace Projektni_FMSI
             Console.WriteLine("Hello three");
         }
     }
-}
+}*/
