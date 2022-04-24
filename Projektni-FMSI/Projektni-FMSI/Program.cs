@@ -8,6 +8,7 @@ namespace Projektni_FMSI
         {
             Console.WriteLine("Hello World!");
             Console.WriteLine("Hello two");
+            Console.WriteLine("Hello three");
         }
     }
 }
