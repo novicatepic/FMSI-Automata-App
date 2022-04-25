@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Projektni_FMSI;
 
 namespace Projektni_FMSI
 {
@@ -14,6 +15,8 @@ namespace Projektni_FMSI
         private string StartState { get; set; }
         private HashSet<char> alphabet = new();
         private HashSet<string> states = new();
+        private List<string>[] listsOfStrings;
+        private static int counter = 0;
 
         public void makeAutomata()
         {
@@ -37,11 +40,11 @@ namespace Projektni_FMSI
                 {
                     if (AcceptsDKA(inputWord))
                     {
-                        Console.WriteLine("Accepted!");
+                        Console.WriteLine("DKA accepted this word ;)!");
                     }
                     else
                     {
-                        Console.WriteLine("Not accepted!");
+                        Console.WriteLine("DKA didn't accept this word :(!");
                     }
                 } 
                 else
@@ -144,6 +147,7 @@ namespace Projektni_FMSI
                     throw new Exception("I can't merge two languages that don't have the same alphabet, sorry!");
                 }
                 result.StartState = this.StartState;
+                result.alphabet = alphabet;
                 foreach(var finalState in other.finalStates)
                 {
                     result.finalStates.Add(finalState);
@@ -156,6 +160,10 @@ namespace Projektni_FMSI
                 {
                     result.states.Add(state);
                 }
+                if(!result.alphabet.Contains('E'))
+                {
+                    result.alphabet.Add('E');
+                }
                 foreach(var state in this.states)
                 {
                     foreach(var symbol in this.alphabet)
@@ -163,11 +171,16 @@ namespace Projektni_FMSI
                         if(!this.finalStates.Contains(state))
                         {
                             //if(this.delta.TryGetValue())
-                            result.delta[(state, symbol)] = this.delta[(state, symbol)];
+                            //result.delta[(state, symbol)] = this.delta[(state, symbol)];
+                            if(symbol != 'E')
+                            {
+                                result.addTransitionENKA(state, symbol, delta[(state, symbol)]);
+                            }                         
                         }
                         else
                         {
-                            result.delta[(state, symbol)] = other.StartState;
+                            //result.delta[(state, symbol)] = other.StartState;
+                            result.addTransitionENKA(state, 'E', other.StartState);
                         }
                     }
                 }
@@ -175,10 +188,10 @@ namespace Projektni_FMSI
                 {
                     foreach(var symbol in other.alphabet)
                     {
-                        result.delta[(state, symbol)] = other.delta[(state, symbol)];
+                        //result.delta[(state, symbol)] = other.delta[(state, symbol)];
+                        result.addTransitionENKA(state, symbol, other.delta[(state, symbol)]);
                     }
                 }
-                
             } catch(Exception e)
             {
                 Console.WriteLine(e.Message);
@@ -188,6 +201,7 @@ namespace Projektni_FMSI
         }
 
         //PROBLEM SA FUNKCIJOM PRELAZA, KAD SLIKA IZ EPSILON U VISE STANJA, UVIJEK UZME ONO ZADNJE!
+        //NAPRAVIO DA RADI, ISPROVJERAVATI!
         public Automat applyKleeneStar()
         {
             Automat result = new();
@@ -201,7 +215,7 @@ namespace Projektni_FMSI
             {
                 result.states.Add(state);
             }
-            if(!alphabet.Contains('E'))
+            if(!result.alphabet.Contains('E'))
             {
                 result.alphabet.Add('E');
             }
@@ -210,26 +224,28 @@ namespace Projektni_FMSI
             {
                 foreach(var symbol in alphabet)
                 {
-                    if (state != "NSS" && state != "NFS")
+                    if(symbol != 'E')
                     {
-                        string s = delta[(state, symbol)];
-                        //Console.Write(s);
-                        //result.deltaForEpsilon[(state, symbol)].Add(s);
-                        
-                        //result.deltaForEpsilon[(state, symbol)] = 
+                        result.addTransitionENKA(state, symbol, this.delta[(state, symbol)]);
                     }
+                     
                 }              
             }
 
-            result.deltaForEpsilon[("NSS", 'E')].Add(result.finalStates.ElementAt(0));
-            result.deltaForEpsilon[("NSS", 'E')].Add(this.StartState);
+            result.addTransitionENKA(result.StartState, 'E', result.finalStates.ElementAt(0));
+            result.addTransitionENKA(result.StartState, 'E', StartState);
+            //result.deltaForEpsilon[("NSS", 'E')].Add(result.finalStates.ElementAt(0));
+            //result.deltaForEpsilon[("NSS", 'E')].Add(this.StartState);
 
 
             
             foreach(var finalState in this.finalStates)
             {
-                result.deltaForEpsilon[(finalState, 'E')].Add("NFS");
-                result.deltaForEpsilon[(finalState, 'E')].Add(this.StartState);
+                result.addTransitionENKA(finalState, 'E', "NFS");
+                result.addTransitionENKA(finalState, 'E', StartState);
+
+                //result.deltaForEpsilon[(finalState, 'E')].Add("NFS");
+                //result.deltaForEpsilon[(finalState, 'E')].Add(this.StartState);
             }
 
             return result;
@@ -390,6 +406,14 @@ namespace Projektni_FMSI
                         }
                         else
                         {
+                            if (counter == 0) {
+                                listsOfStrings = new List<string>[states.Count];
+                                for(int i = 0; i < states.Count; i++)
+                                {
+                                    listsOfStrings[i] = new List<string>();
+                                }
+                                counter++;
+                            }
                             addTransitionENKA(state, symbol, nextState);
                         }
                     }
@@ -397,9 +421,40 @@ namespace Projektni_FMSI
             }
         }
 
+        //static int i = 0;
         private void addTransitionENKA(string currentState, char symbol, string nextState)
         {
-            deltaForEpsilon[(currentState, symbol)].Add(nextState);
+            if (counter == 0)
+            {
+                listsOfStrings = new List<string>[states.Count];
+                for (int j = 0; j < states.Count; j++)
+                {
+                    listsOfStrings[j] = new List<string>();
+                }
+                counter++;
+            }
+
+            int i;
+            string[] array = states.ToArray<string>();
+            for(i = 0; i < states.Count; i++)
+            {
+                if(currentState == array[i]) {
+                    deltaForEpsilon[(currentState, symbol)] = listsOfStrings[i];
+                    break;
+                }
+            }
+
+            if(symbol == 'E')
+            {
+               // if(!deltaForEpsilon.ContainsKey((currentState, symbol)))
+                    //deltaForEpsilon[(currentState, symbol)] = listsOfStrings[i];
+                if(!deltaForEpsilon[(currentState, symbol)].Contains(nextState))
+                    deltaForEpsilon[(currentState, symbol)].Add(nextState);
+            }
+            else
+            {
+                delta[(currentState, symbol)] = nextState;
+            }
         }
 
         private void listStatesAndAlphabet()
@@ -420,13 +475,22 @@ namespace Projektni_FMSI
 
         public void printStates()
         {
+            Console.WriteLine("STATES: ");
             foreach(var state in states)
             {
                 Console.Write(state + " ");
                 
             }
             Console.WriteLine();
-            Console.Write(deltaForEpsilon[("NSS", 'E')]);
+            Console.WriteLine("E STUFF: ");
+            for(int i = 0; i < states.Count; i++)
+            {
+                foreach(var s in listsOfStrings[i])
+                {
+                    Console.Write(s + " ");
+                }
+                Console.WriteLine();
+            }
         }
 
         private int getNumberOfStates()
@@ -455,7 +519,82 @@ namespace Projektni_FMSI
             return result;
         }
 
+        public int findShortestPath()
+        {
+            int shortestPathLength = 0;
 
+            if(finalStates.Contains(StartState))
+            {
+                return shortestPathLength;
+            }
+
+            Queue<string> queue = new();
+            queue.Enqueue(StartState);
+
+            while(queue.Count > 0)
+            {
+                string temp = queue.Dequeue();
+                foreach(char symbol in alphabet)
+                {
+                    if(delta[(temp, symbol)] != temp)
+                    {
+                        string nextState = delta[(temp, symbol)];
+                        if(finalStates.Contains(nextState))
+                        {
+                            shortestPathLength++;
+                            return shortestPathLength;
+                        }
+                        else
+                        {
+                            queue.Enqueue(nextState);
+                        }
+                    }                 
+                }
+                shortestPathLength++;
+            }
+
+            return -1;
+        }
+
+        public void callGraph()
+        {
+            AutomatGraph automatGraph = new(states.Count);
+
+            int[,] ms = new int[states.Count, states.Count];
+            string[] nodes = new string[states.Count];
+
+            int i = 0, j = 0;
+            foreach(var state in states)
+            {
+                nodes[i++] = state;
+            }
+            i = 0;
+            for(i = 0; i < states.Count; i++)
+            {
+                for(j = 0; j < states.Count; j++)
+                {
+                    if(deltaForEpsilon.ContainsKey((nodes[i], 'E')) && deltaForEpsilon[(nodes[i], 'E')].Contains(nodes[j]))
+                    {
+                        ms[i, j] = 1;
+                    }
+                    else
+                    {
+                        ms[i, j] = 0;
+                    }
+                }
+            }
+            automatGraph.ms = ms;
+            automatGraph.nodes = nodes;
+
+            for(int a = 0; a < states.Count; a++, Console.WriteLine())
+            {
+                for(int b = 0; b < states.Count; b++)
+                {
+                    Console.Write(ms[a, b] + " ");
+                }
+            }
+
+        }
 
     }
 

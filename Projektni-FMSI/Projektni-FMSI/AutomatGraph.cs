@@ -6,22 +6,47 @@ using System.Threading.Tasks;
 
 namespace Projektni_FMSI
 {
-    class AutomatGraph : Automat
+    public class AutomatGraph
     {
         private int size;
-        int[,] ms; //= new int[MAX, MAX];
-        string[] states;// = new string[MAX];
+        public int[,] ms { get; set; }
+        public string[] nodes { get; set; }
 
-        AutomatGraph() { }
+        public AutomatGraph() { }
 
-        AutomatGraph(int size)
+        public AutomatGraph(int size)
         {
             this.size = size;
             ms = new int[size, size];
-            states = new string[size];
+            nodes = new string[size];
         }
 
-        void bfsTraversal(Automat automata, int startingNode)
+        HashSet<string> dfs()
+        {
+            bool[] visit = new bool[size];
+            for(int i = 0; i < size; i++)
+            {
+                visit[i] = false;
+            }
+            HashSet<string> set = new();
+            void dfs_visit(int u)
+            {
+                int v;
+                visit[u] = true;
+                set.Add(nodes[u]);
+                for(v = 0; v < size; v++)
+                {
+                    if(ms[u,v] == 1 && !visit[v])
+                    {
+                        dfs_visit(v);
+                    }
+                }
+            }
+            dfs_visit(0);
+            return set;
+        }
+
+        /*void bfsTraversal(Automat automata, int startingNode)
         {
             int shortestWord = 0, longestWord = 0;
             int helpCounter = 0;
@@ -52,7 +77,7 @@ namespace Projektni_FMSI
                     }
                 }
             }
-        }
+        }*/
 
     }
 }
