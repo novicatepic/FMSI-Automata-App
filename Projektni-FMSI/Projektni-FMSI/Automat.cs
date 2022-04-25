@@ -9,6 +9,7 @@ namespace Projektni_FMSI
     public class Automat
     {
         private Dictionary<(string, char), string> delta = new();
+        private Dictionary<(string, char), List<string>> deltaForEpsilon = new();
         private HashSet<string> finalStates = new();
         private string StartState { get; set; }
         private HashSet<char> alphabet = new();
@@ -54,6 +55,204 @@ namespace Projektni_FMSI
             }
         }
 
+        public Automat findUnion(Automat other)
+        {
+            Automat result = new Automat();
+            foreach (var state1 in this.states)
+            {
+                foreach (var state2 in other.states)
+                {
+                    string newState = state1 + state2;
+                    result.states.Add(newState);
+
+                    if (this.finalStates.Contains(state1) || other.finalStates.Contains(state2))
+                    {
+                        result.finalStates.Add(newState);
+                    }
+
+                    foreach (var symbol in alphabet)
+                    {
+                        result.delta[(newState, symbol)] = this.delta[(state1, symbol)] + other.delta[(state2, symbol)];
+                    }
+
+                }
+            }
+
+            return result;
+        }
+
+        public Automat findIntersection(Automat other)
+        {
+            Automat result = new Automat();
+            foreach (var state1 in this.states)
+            {
+                foreach (var state2 in other.states)
+                {
+                    string newState = state1 + state2;
+                    result.states.Add(newState);
+
+                    if (this.finalStates.Contains(state1) && other.finalStates.Contains(state2))
+                    {
+                        result.finalStates.Add(newState);
+                    }
+
+                    foreach (var symbol in alphabet)
+                    {
+                        result.delta[(newState, symbol)] = this.delta[(state1, symbol)] + other.delta[(state2, symbol)];
+                    }
+
+                }
+            }
+
+            return result;
+        }
+
+        public Automat findDifference(Automat other)
+        {
+            Automat result = new Automat();
+            foreach (var state1 in this.states)
+            {
+                foreach (var state2 in other.states)
+                {
+                    string newState = state1 + state2;
+                    result.states.Add(newState);
+
+                    if ((this.finalStates.Contains(state1) && !other.finalStates.Contains(state2)) || (!this.finalStates.Contains(state1) && other.finalStates.Contains(state2)))
+                    {
+                        result.finalStates.Add(newState);
+                    }
+
+                    foreach (var symbol in alphabet)
+                    {
+                        result.delta[(newState, symbol)] = this.delta[(state1, symbol)] + other.delta[(state2, symbol)];
+                    }
+
+                }
+            }
+
+            return result;
+        }
+
+        public Automat connectLanguages(Automat other)
+        {
+            Automat result = new();
+
+            try
+            {
+                if(!checkIfAlphabetIsTheSame(other))
+                {
+                    throw new Exception("I can't merge two languages that don't have the same alphabet, sorry!");
+                }
+                result.StartState = this.StartState;
+                foreach(var finalState in other.finalStates)
+                {
+                    result.finalStates.Add(finalState);
+                }
+                foreach(var state in this.states)
+                {
+                    result.states.Add(state);
+                }
+                foreach(var state in other.states)
+                {
+                    result.states.Add(state);
+                }
+                foreach(var state in this.states)
+                {
+                    foreach(var symbol in this.alphabet)
+                    {
+                        if(!this.finalStates.Contains(state))
+                        {
+                            //if(this.delta.TryGetValue())
+                            result.delta[(state, symbol)] = this.delta[(state, symbol)];
+                        }
+                        else
+                        {
+                            result.delta[(state, symbol)] = other.StartState;
+                        }
+                    }
+                }
+                foreach(var state in other.states)
+                {
+                    foreach(var symbol in other.alphabet)
+                    {
+                        result.delta[(state, symbol)] = other.delta[(state, symbol)];
+                    }
+                }
+                
+            } catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            return result;
+        }
+
+        //PROBLEM SA FUNKCIJOM PRELAZA, KAD SLIKA IZ EPSILON U VISE STANJA, UVIJEK UZME ONO ZADNJE!
+        public Automat applyKleeneStar()
+        {
+            Automat result = new();
+
+            result.StartState = "NSS"; //new start state
+            result.finalStates.Add("NFS"); //new final state
+            result.states.Add(result.StartState);
+            result.states.Add("NFS");
+            result.alphabet = alphabet;
+            foreach(var state in this.states)
+            {
+                result.states.Add(state);
+            }
+            if(!alphabet.Contains('E'))
+            {
+                result.alphabet.Add('E');
+            }
+            
+            foreach(var state in this.states)
+            {
+                foreach(var symbol in alphabet)
+                {
+                    if (state != "NSS" && state != "NFS")
+                    {
+                        string s = delta[(state, symbol)];
+                        //Console.Write(s);
+                        //result.deltaForEpsilon[(state, symbol)].Add(s);
+                        
+                        //result.deltaForEpsilon[(state, symbol)] = 
+                    }
+                }              
+            }
+
+            result.deltaForEpsilon[("NSS", 'E')].Add(result.finalStates.ElementAt(0));
+            result.deltaForEpsilon[("NSS", 'E')].Add(this.StartState);
+
+
+            
+            foreach(var finalState in this.finalStates)
+            {
+                result.deltaForEpsilon[(finalState, 'E')].Add("NFS");
+                result.deltaForEpsilon[(finalState, 'E')].Add(this.StartState);
+            }
+
+            return result;
+        }
+
+        private bool checkIfAlphabetIsTheSame(Automat other)
+        {
+            if(this.alphabet.Count != other.alphabet.Count)
+            {
+                return false;
+            }
+
+            foreach(var symbol in this.alphabet)
+            {
+                if(!other.alphabet.Contains(symbol))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private bool checkIfInputWordIsCorrect(string word)
         {
             foreach(var symbol in word)
@@ -71,7 +270,7 @@ namespace Projektni_FMSI
             return alphabet.Contains('E');
         }
 
-        private void addTransition(string currentState, char symbol, string nextState)
+        private void addTransitionDKA(string currentState, char symbol, string nextState)
         {
             try
             {
@@ -101,34 +300,6 @@ namespace Projektni_FMSI
             }
             return finalStates.Contains(currentState);
         }
-
-        /*public Automat convertDKAtoENKA()
-        {
-            Automat result = new Automat();
-            foreach(var state in states)
-            {
-
-            }
-
-            return result;
-        }*/
-
-        /*private HashSet<string> returnEClosure(string state)
-        {
-            HashSet<string> result = new();
-            int size = states.Count;
-            String[] array = states.ToArray();
-            int[] visit = new int[size];
-
-            for(int i = 0; i < states.Count; i++)
-            {
-                visit[i] = 0;
-            }
-
-
-
-            return result;
-        } */
 
         public Automat constructComplement()
         {
@@ -213,10 +384,22 @@ namespace Projektni_FMSI
                         symbol = char.Parse(inputHelp);
                         Console.WriteLine("Enter destination state: ");
                         nextState = Console.ReadLine();
-                        addTransition(state, symbol, nextState);
+                        if(!checkIfIsENKA())
+                        {
+                            addTransitionDKA(state, symbol, nextState);
+                        }
+                        else
+                        {
+                            addTransitionENKA(state, symbol, nextState);
+                        }
                     }
                 } while (inputHelp != "--exit");            
             }
+        }
+
+        private void addTransitionENKA(string currentState, char symbol, string nextState)
+        {
+            deltaForEpsilon[(currentState, symbol)].Add(nextState);
         }
 
         private void listStatesAndAlphabet()
@@ -235,9 +418,45 @@ namespace Projektni_FMSI
             Console.WriteLine();
         }
 
+        public void printStates()
+        {
+            foreach(var state in states)
+            {
+                Console.Write(state + " ");
+                
+            }
+            Console.WriteLine();
+            Console.Write(deltaForEpsilon[("NSS", 'E')]);
+        }
+
+        private int getNumberOfStates()
+        {
+            int counter = 0;
+            foreach(var state in states)
+            {
+                counter++;
+            }
+            return counter;
+        }
+
+        public bool isLanguageFinal()
+        {
+            bool result = true;
+            foreach(var finalState in finalStates)
+            {
+                foreach(var symbol in alphabet)
+                {
+                    if(delta[(finalState, symbol)] == finalState)
+                    {
+                        result = false;
+                    }
+                }
+            }
+            return result;
+        }
+
+
+
     }
-
-
-
 
 }
