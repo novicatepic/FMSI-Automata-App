@@ -15,7 +15,8 @@ namespace Projektni_FMSI
         private string StartState { get; set; }
         private HashSet<char> alphabet = new();
         private HashSet<string> states = new();
-        private List<string>[] listsOfStrings;
+        private List<string>[] listsOfStringsENKA;
+        
         private static int counter = 0;
 
         public void makeAutomata()
@@ -49,7 +50,7 @@ namespace Projektni_FMSI
                 } 
                 else
                 {
-                    
+                    //PRETVORITI PRAVILNO U DKA PA IZVRSITI E-NKA
                 }
             }
             catch(Exception e)
@@ -170,8 +171,6 @@ namespace Projektni_FMSI
                     {
                         if(!this.finalStates.Contains(state))
                         {
-                            //if(this.delta.TryGetValue())
-                            //result.delta[(state, symbol)] = this.delta[(state, symbol)];
                             if(symbol != 'E')
                             {
                                 result.addTransitionENKA(state, symbol, delta[(state, symbol)]);
@@ -179,7 +178,6 @@ namespace Projektni_FMSI
                         }
                         else
                         {
-                            //result.delta[(state, symbol)] = other.StartState;
                             result.addTransitionENKA(state, 'E', other.StartState);
                         }
                     }
@@ -188,7 +186,6 @@ namespace Projektni_FMSI
                 {
                     foreach(var symbol in other.alphabet)
                     {
-                        //result.delta[(state, symbol)] = other.delta[(state, symbol)];
                         result.addTransitionENKA(state, symbol, other.delta[(state, symbol)]);
                     }
                 }
@@ -234,18 +231,11 @@ namespace Projektni_FMSI
 
             result.addTransitionENKA(result.StartState, 'E', result.finalStates.ElementAt(0));
             result.addTransitionENKA(result.StartState, 'E', StartState);
-            //result.deltaForEpsilon[("NSS", 'E')].Add(result.finalStates.ElementAt(0));
-            //result.deltaForEpsilon[("NSS", 'E')].Add(this.StartState);
-
-
-            
+        
             foreach(var finalState in this.finalStates)
             {
                 result.addTransitionENKA(finalState, 'E', "NFS");
-                result.addTransitionENKA(finalState, 'E', StartState);
-
-                //result.deltaForEpsilon[(finalState, 'E')].Add("NFS");
-                //result.deltaForEpsilon[(finalState, 'E')].Add(this.StartState);
+                result.addTransitionENKA(finalState, 'E', StartState);;
             }
 
             return result;
@@ -407,10 +397,10 @@ namespace Projektni_FMSI
                         else
                         {
                             if (counter == 0) {
-                                listsOfStrings = new List<string>[states.Count];
+                                listsOfStringsENKA = new List<string>[states.Count];
                                 for(int i = 0; i < states.Count; i++)
                                 {
-                                    listsOfStrings[i] = new List<string>();
+                                    listsOfStringsENKA[i] = new List<string>();
                                 }
                                 counter++;
                             }
@@ -421,15 +411,14 @@ namespace Projektni_FMSI
             }
         }
 
-        //static int i = 0;
         private void addTransitionENKA(string currentState, char symbol, string nextState)
         {
             if (counter == 0)
             {
-                listsOfStrings = new List<string>[states.Count];
+                listsOfStringsENKA = new List<string>[states.Count];
                 for (int j = 0; j < states.Count; j++)
                 {
-                    listsOfStrings[j] = new List<string>();
+                    listsOfStringsENKA[j] = new List<string>();
                 }
                 counter++;
             }
@@ -439,15 +428,13 @@ namespace Projektni_FMSI
             for(i = 0; i < states.Count; i++)
             {
                 if(currentState == array[i]) {
-                    deltaForEpsilon[(currentState, symbol)] = listsOfStrings[i];
+                    deltaForEpsilon[(currentState, symbol)] = listsOfStringsENKA[i];
                     break;
                 }
             }
 
             if(symbol == 'E')
             {
-               // if(!deltaForEpsilon.ContainsKey((currentState, symbol)))
-                    //deltaForEpsilon[(currentState, symbol)] = listsOfStrings[i];
                 if(!deltaForEpsilon[(currentState, symbol)].Contains(nextState))
                     deltaForEpsilon[(currentState, symbol)].Add(nextState);
             }
@@ -493,16 +480,6 @@ namespace Projektni_FMSI
             }*/
         }
 
-        private int getNumberOfStates()
-        {
-            int counter = 0;
-            foreach(var state in states)
-            {
-                counter++;
-            }
-            return counter;
-        }
-
         public bool isLanguageFinal()
         {
             bool result = true;
@@ -512,7 +489,7 @@ namespace Projektni_FMSI
                 {
                     if(delta[(finalState, symbol)] == finalState)
                     {
-                        result = false;
+                        return false;
                     }
                 }
             }
@@ -587,20 +564,12 @@ namespace Projektni_FMSI
             automatGraph.ms = ms;
             automatGraph.nodes = nodes;
 
-            /*for(int a = 0; a < states.Count; a++, Console.WriteLine())
-            {
-                for(int b = 0; b < states.Count; b++)
-                {
-                    Console.Write(ms[a, b] + " ");
-                }
-            }*/
-
             //RADI
-            SortedSet<string> dfsSet = automatGraph.dfs("q1");
+            /*SortedSet<string> dfsSet = automatGraph.dfs("q1");
             foreach(var state in dfsSet)
             {
                 Console.Write(state + " ");
-            }
+            }*/
 
         }
 
@@ -636,9 +605,9 @@ namespace Projektni_FMSI
             automatGraph.ms = ms;
             automatGraph.nodes = nodes;
 
-            for(int a = 0; a < states.Count; a++, Console.WriteLine())
+            for (int a = 0; a < states.Count; a++, Console.WriteLine())
             {
-                for(int b = 0; b < states.Count; b++)
+                for (int b = 0; b < states.Count; b++)
                 {
                     Console.Write(ms[a, b] + " ");
                 }
@@ -650,52 +619,122 @@ namespace Projektni_FMSI
             DKA.StartState = this.StartState;
             DKA.states.Add(StartState);
 
-            SortedSet<string> holderSet = new();
-
-            for(int g = 0; g < DKA.states.Count; g++)
-            //foreach(var state in DKA.states)
+            for (int g = 0; g < DKA.states.Count; g++)
             {
                 var state = DKA.states.ElementAt(g);
-                SortedSet<string> getDFStraversal = automatGraph.dfs(state);
-               
-                foreach(var symbol in alphabet)
+
+                SortedSet<string> getDFStraversal = new();
+
+                string[] splitStates = DKA.states.ElementAt(g).Split(':');
+
+                if(splitStates.Length == 1)
                 {
-                    bool isFinalState = false;
-                    string temp = "";
-                    if (symbol != 'E')
+                    getDFStraversal = automatGraph.dfs(state);
+                    foreach (var symbol in alphabet)
                     {
-                        //int numOfStates = getDFStraversal.Count;
-                        //SortedSet<string> secondTraversal = new();
-                        //temp += stateVisited;
-                        foreach (var stateVisited in getDFStraversal)
+                        bool isFinalState = false;
+                        string temp = "";
+                        int helpCounter = 0;
+                        if (symbol != 'E')
                         {
-                            string goToState = delta[(stateVisited, symbol)];
-                            SortedSet<string> tempTraversal = automatGraph.dfs(goToState);
-                            foreach (var finalConnection in tempTraversal)
+                            foreach (var stateVisited in getDFStraversal)
                             {
-                                if(finalStates.Contains(finalConnection))
+                                string goToState = delta[(stateVisited, symbol)];
+                                SortedSet<string> tempTraversal = automatGraph.dfs(goToState);
+                                foreach (var finalConnection in tempTraversal)
                                 {
-                                    isFinalState = true;
-                                }
-                                if(!temp.Contains(finalConnection))
-                                {
-                                    holderSet.Add(finalConnection);
-                                    temp += finalConnection;
+                                    if (finalStates.Contains(finalConnection))
+                                    {
+                                        isFinalState = true;
+                                    }
+                                    if (!temp.Contains(finalConnection))
+                                    {
+                                        helpCounter++;
+                                        if (helpCounter > 1)
+                                        {
+                                            temp += ":";
+                                            temp += finalConnection;
+                                        }
+                                        else
+                                        {
+                                            temp += finalConnection;
+                                        }
+                                    }
                                 }
                             }
                         }
-                    }
-                    if(isFinalState)
-                    {
-                        DKA.finalStates.Add(temp);
-                    }
-                    if(temp != "")
-                    {
-                        Console.WriteLine(temp);
-                        DKA.states.Add(temp);
-                        DKA.delta[(state, symbol)] = temp;
+                        if (isFinalState)
+                        {
+                            DKA.finalStates.Add(temp);
+                        }
+                        if (temp != "")
+                        {
+                            DKA.states.Add(temp);
+                            DKA.delta[(state, symbol)] = temp;
+                        }
                     }
                 }
+                else
+                {
+                    SortedSet<string> dfsTraversalHelper = new();
+                    foreach(var s in splitStates)
+                    {
+                        getDFStraversal = automatGraph.dfs(s);
+                        foreach(var elem in getDFStraversal)
+                        {
+                            dfsTraversalHelper.Add(elem);
+                        }
+                    }
+                    foreach (var symbol in alphabet)
+                    {
+                        bool isFinalState = false;
+                        string temp = "";
+                        int helpCounter = 0;
+                        if (symbol != 'E')
+                        {
+                            foreach (var stateVisited in dfsTraversalHelper)
+                            {
+                                string goToState = delta[(stateVisited, symbol)];
+                                Console.WriteLine("goToState: " + goToState);
+                                SortedSet<string> tempTraversal = automatGraph.dfs(goToState);
+                                foreach (var finalConnection in tempTraversal)
+                                {
+                                    if (finalStates.Contains(finalConnection))
+                                    {
+                                        isFinalState = true;
+                                    }
+                                    if (!temp.Contains(finalConnection))
+                                    {
+                                        helpCounter++;
+                                        if (helpCounter > 1)
+                                        {
+                                            temp += ":";
+                                            temp += finalConnection;
+                                        }
+                                        else
+                                        {
+                                            temp += finalConnection;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (isFinalState)
+                        {
+                            DKA.finalStates.Add(temp);
+                        }
+                        if (temp != "")
+                        {
+                            if(!DKA.states.Contains(temp))
+                            {
+                                DKA.states.Add(temp);
+                                
+                            }
+                            DKA.delta[(state, symbol)] = temp;
+                        }
+                    }
+                }
+             
             }
 
             return DKA;

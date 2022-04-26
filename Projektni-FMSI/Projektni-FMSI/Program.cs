@@ -6,7 +6,7 @@ a.makeAutomata();
 //a.callGraph();
 Automat res = a.convertENKAtoDKA();
 res.printStates();
-if(res.AcceptsDKA("a"))
+if(res.AcceptsDKA("aaa"))
 {
     Console.WriteLine("Word accepted!");
 }
