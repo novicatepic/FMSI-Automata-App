@@ -16,6 +16,7 @@ namespace Projektni_FMSI
         private HashSet<char> alphabet = new();
         private HashSet<string> states = new();
         private List<string>[] listsOfStringsENKA;
+        private List<string>[] listOfStringsOtherStates;
         
         private static int counter = 0;
 
@@ -398,13 +399,21 @@ namespace Projektni_FMSI
                         {
                             if (counter == 0) {
                                 listsOfStringsENKA = new List<string>[states.Count];
+                                listOfStringsOtherStates = new List<string>[states.Count * (alphabet.Count - 1)];
                                 for(int i = 0; i < states.Count; i++)
                                 {
                                     listsOfStringsENKA[i] = new List<string>();
                                 }
+                                for(int i = 0; i < states.Count * (alphabet.Count - 1); i++)
+                                {
+                                    listOfStringsOtherStates[i] = new List<string>();
+                                }
                                 counter++;
                             }
-                            addTransitionENKA(state, symbol, nextState);
+                            //RADI
+                            //addTransitionENKA(state, symbol, nextState);
+                            //RADI!!!
+                            testFuncForESwitching(state, symbol, nextState);
                         }
                     }
                 } while (inputHelp != "--exit");            
@@ -440,8 +449,111 @@ namespace Projektni_FMSI
             }
             else
             {
+                //POTREBNO IMPLEMENTIRATI DODATNU LOGIKU, I IZMIJENITI ODREDJENA MJESTA U KODU!
                 delta[(currentState, symbol)] = nextState;
             }
+        }
+
+        //HOW IT SHOULD GO!
+        private void testFuncForESwitching(string currentState, char symbol, string nextState)
+        {
+            if (counter == 0)
+            {
+                listsOfStringsENKA = new List<string>[states.Count];
+                listOfStringsOtherStates = new List<string>[states.Count * (alphabet.Count - 1)];
+                for (int j = 0; j < states.Count; j++)
+                {
+                    listsOfStringsENKA[j] = new List<string>();
+                }
+                for(int j = 0; j < states.Count * (alphabet.Count - 1); j++)
+                {
+                    listOfStringsOtherStates[j] = new();
+                }
+                counter++;
+            }
+
+            int i;
+            string[] array = states.ToArray<string>();
+            int helpCounter = 0;
+            for (i = 0; i < states.Count; i++)
+            {
+                if (currentState == array[i])
+                {
+                    deltaForEpsilon[(currentState, 'E')] = listsOfStringsENKA[i];
+                    for(int j = helpCounter; j < helpCounter + howManyDifferentSymbolsInAlphabet(); j++)
+                    {
+                        foreach(var thing in alphabet)
+                        {
+                            if(thing != 'E')
+                            {
+                                deltaForEpsilon[(currentState, thing)] = listOfStringsOtherStates[j];
+                            }
+                        }
+                    }
+                    break;
+                }
+                helpCounter += howManyDifferentSymbolsInAlphabet();
+            }
+
+            if (symbol == 'E')
+            {
+                if (!deltaForEpsilon[(currentState, symbol)].Contains(nextState))
+                    deltaForEpsilon[(currentState, symbol)].Add(nextState);
+            }
+            else
+            {
+                //STARA IMPLEMENTACIJA
+                //delta[(currentState, symbol)] = nextState;
+                if(!deltaForEpsilon[(currentState, symbol)].Contains(nextState))
+                    deltaForEpsilon[(currentState, symbol)].Add(nextState);
+            }
+        }
+
+        public void printENKAEverything()
+        {
+            Console.WriteLine("E prelazi: ");
+            foreach(var state in states)
+            {
+                if(deltaForEpsilon.ContainsKey((state, 'E')))
+                {
+                    foreach(var s in deltaForEpsilon[(state, 'E')])
+                    {
+                        Console.Write(s + " ");
+                    }
+                }
+                Console.WriteLine();
+            }
+            Console.WriteLine("Ostali prelazi: ");
+            foreach(var state in states)
+            {
+                foreach(var symbol in alphabet)
+                {
+                    if(symbol != 'E')
+                    {
+                        if(deltaForEpsilon.ContainsKey((state, symbol)))
+                        {
+                            foreach(var s in deltaForEpsilon[(state, symbol)])
+                            {
+                                Console.Write(state + "+" + symbol + "->" + s);
+                            }
+                        }
+                    }
+                }
+                Console.WriteLine();
+            }
+        }
+
+        private int howManyDifferentSymbolsInAlphabet()
+        {
+            int numOfSymbols = 0;
+            foreach(var symbol in alphabet)
+            {
+                if(symbol != 'E')
+                {
+                    numOfSymbols++;
+                }
+            }
+            return numOfSymbols;
         }
 
         private void listStatesAndAlphabet()
