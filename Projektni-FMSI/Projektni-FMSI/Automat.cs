@@ -372,7 +372,17 @@ namespace Projektni_FMSI
             } while (state != "--exit");
 
         }
+        
+        private bool checkIfStateExists(string state)
+        {
+            return states.Contains(state);
+        }
 
+        private bool checkIfSymbolIsInAlphabet(char symbol)
+        {
+            return alphabet.Contains(symbol);
+        }
+        
         private void addTransitions()
         {
             listStatesAndAlphabet();
@@ -386,35 +396,50 @@ namespace Projektni_FMSI
                 {
                     Console.WriteLine("Enter --exit to stop entering transitions for current state or enter symbol from alphabet for transition: ");
                     inputHelp = Console.ReadLine();
-                    if(inputHelp != "--exit")
+                    
+                    if(inputHelp != "--exit" && checkIfSymbolIsInAlphabet(char.Parse(inputHelp)))
                     {
                         symbol = char.Parse(inputHelp);
                         Console.WriteLine("Enter destination state: ");
                         nextState = Console.ReadLine();
-                        if(!checkIfIsENKA())
+                        
+                        if(checkIfStateExists(nextState))
                         {
-                            addTransitionDKA(state, symbol, nextState);
+                            if (!checkIfIsENKA())
+                            {
+                                addTransitionDKA(state, symbol, nextState);
+                            }
+                            else
+                            {
+                                if (counter == 0)
+                                {
+                                    listsOfStringsENKA = new List<string>[states.Count];
+                                    listOfStringsOtherStates = new List<string>[states.Count * (alphabet.Count - 1)];
+                                    for (int i = 0; i < states.Count; i++)
+                                    {
+                                        listsOfStringsENKA[i] = new List<string>();
+                                    }
+                                    for (int i = 0; i < states.Count * (alphabet.Count - 1); i++)
+                                    {
+                                        listOfStringsOtherStates[i] = new List<string>();
+                                    }
+                                    counter++;
+                                }
+                                //RADI
+                                //addTransitionENKA(state, symbol, nextState);
+                                //RADI!!!
+                                ESwitching(state, symbol, nextState);
+                            }
                         }
                         else
                         {
-                            if (counter == 0) {
-                                listsOfStringsENKA = new List<string>[states.Count];
-                                listOfStringsOtherStates = new List<string>[states.Count * (alphabet.Count - 1)];
-                                for(int i = 0; i < states.Count; i++)
-                                {
-                                    listsOfStringsENKA[i] = new List<string>();
-                                }
-                                for(int i = 0; i < states.Count * (alphabet.Count - 1); i++)
-                                {
-                                    listOfStringsOtherStates[i] = new List<string>();
-                                }
-                                counter++;
-                            }
-                            //RADI
-                            //addTransitionENKA(state, symbol, nextState);
-                            //RADI!!!
-                            testFuncForESwitching(state, symbol, nextState);
+                            Console.WriteLine("Destination state doesn't exists, couldn't do what you wanted, sorry!");
                         }
+                        
+                    }
+                    else if(inputHelp != "--exit")
+                    {
+                        Console.WriteLine("That symbol doesn't exist in this alphabet!");
                     }
                 } while (inputHelp != "--exit");            
             }
@@ -454,8 +479,21 @@ namespace Projektni_FMSI
             }
         }
 
+
+        private int ESwitchingHelper(char symbol)
+        {
+            for(int i = 0; i < alphabet.Count; i++)
+            {
+                if(symbol == alphabet.ElementAt(i))
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
         //HOW IT SHOULD GO!
-        private void testFuncForESwitching(string currentState, char symbol, string nextState)
+        private void ESwitching(string currentState, char symbol, string nextState)
         {
             if (counter == 0)
             {
@@ -479,17 +517,27 @@ namespace Projektni_FMSI
             {
                 if (currentState == array[i])
                 {
-                    deltaForEpsilon[(currentState, 'E')] = listsOfStringsENKA[i];
-                    for(int j = helpCounter; j < helpCounter + howManyDifferentSymbolsInAlphabet(); j++)
+                    if(symbol == 'E')
                     {
-                        foreach(var thing in alphabet)
+                        deltaForEpsilon[(currentState, 'E')] = listsOfStringsENKA[i];
+                    }
+                    else
+                    {
+                        for (int j = helpCounter; j < helpCounter + howManyDifferentSymbolsInAlphabet(); j+=howManyDifferentSymbolsInAlphabet())
                         {
-                            if(thing != 'E')
+                            foreach (var thing in alphabet)
                             {
-                                deltaForEpsilon[(currentState, thing)] = listOfStringsOtherStates[j];
+                                if (!thing.Equals('E') && thing.Equals(symbol))
+                                {
+                                    //Console.WriteLine(helpCounter + "   " + (ESwitchingHelper(symbol) - 1));
+                                    //Console.WriteLine(j + (ESwitchingHelper(symbol) - 1));
+                                    deltaForEpsilon[(currentState, thing)] = listOfStringsOtherStates[j + (ESwitchingHelper(symbol) - 1)];
+                                    break;
+                                }
                             }
                         }
                     }
+                    
                     break;
                 }
                 helpCounter += howManyDifferentSymbolsInAlphabet();
@@ -751,28 +799,33 @@ namespace Projektni_FMSI
                         {
                             foreach (var stateVisited in getDFStraversal)
                             {
-                                string goToState = delta[(stateVisited, symbol)];
-                                SortedSet<string> tempTraversal = automatGraph.dfs(goToState);
-                                foreach (var finalConnection in tempTraversal)
+                                //string goToState = delta[(stateVisited, symbol)];
+                                List<string> goToStates = deltaForEpsilon[(stateVisited, symbol)];
+                                foreach(var goToState in goToStates)
                                 {
-                                    if (finalStates.Contains(finalConnection))
+                                    SortedSet<string> tempTraversal = automatGraph.dfs(goToState);
+                                    foreach (var finalConnection in tempTraversal)
                                     {
-                                        isFinalState = true;
-                                    }
-                                    if (!temp.Contains(finalConnection))
-                                    {
-                                        helpCounter++;
-                                        if (helpCounter > 1)
+                                        if (finalStates.Contains(finalConnection))
                                         {
-                                            temp += ":";
-                                            temp += finalConnection;
+                                            isFinalState = true;
                                         }
-                                        else
+                                        if (!temp.Contains(finalConnection))
                                         {
-                                            temp += finalConnection;
+                                            helpCounter++;
+                                            if (helpCounter > 1)
+                                            {
+                                                temp += ":";
+                                                temp += finalConnection;
+                                            }
+                                            else
+                                            {
+                                                temp += finalConnection;
+                                            }
                                         }
                                     }
                                 }
+                                
                             }
                         }
                         if (isFinalState)
@@ -806,29 +859,34 @@ namespace Projektni_FMSI
                         {
                             foreach (var stateVisited in dfsTraversalHelper)
                             {
-                                string goToState = delta[(stateVisited, symbol)];
-                                Console.WriteLine("goToState: " + goToState);
-                                SortedSet<string> tempTraversal = automatGraph.dfs(goToState);
-                                foreach (var finalConnection in tempTraversal)
+                                //string goToState = delta[(stateVisited, symbol)];
+                                List<string> goToStates = deltaForEpsilon[(stateVisited, symbol)];
+                                foreach(var goToState in goToStates)
                                 {
-                                    if (finalStates.Contains(finalConnection))
+                                    Console.WriteLine("goToState: " + goToState);
+                                    SortedSet<string> tempTraversal = automatGraph.dfs(goToState);
+                                    foreach (var finalConnection in tempTraversal)
                                     {
-                                        isFinalState = true;
-                                    }
-                                    if (!temp.Contains(finalConnection))
-                                    {
-                                        helpCounter++;
-                                        if (helpCounter > 1)
+                                        if (finalStates.Contains(finalConnection))
                                         {
-                                            temp += ":";
-                                            temp += finalConnection;
+                                            isFinalState = true;
                                         }
-                                        else
+                                        if (!temp.Contains(finalConnection))
                                         {
-                                            temp += finalConnection;
+                                            helpCounter++;
+                                            if (helpCounter > 1)
+                                            {
+                                                temp += ":";
+                                                temp += finalConnection;
+                                            }
+                                            else
+                                            {
+                                                temp += finalConnection;
+                                            }
                                         }
                                     }
                                 }
+                                
                             }
                         }
                         if (isFinalState)
