@@ -21,14 +21,14 @@ namespace Projektni_FMSI
             nodes = new string[size];
         }
 
-        HashSet<string> dfs()
+        public SortedSet<string> dfs(string startState)
         {
             bool[] visit = new bool[size];
             for(int i = 0; i < size; i++)
             {
                 visit[i] = false;
             }
-            HashSet<string> set = new();
+            SortedSet<string> set = new();
             void dfs_visit(int u)
             {
                 int v;
@@ -42,7 +42,14 @@ namespace Projektni_FMSI
                     }
                 }
             }
-            dfs_visit(0);
+            for(int i = 0; i < size; i++)
+            {
+                if(startState.Equals(nodes[i]))
+                {
+                    dfs_visit(i);
+                }
+            }
+            //dfs_visit(0);
             return set;
         }
 

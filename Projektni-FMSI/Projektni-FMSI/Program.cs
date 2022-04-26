@@ -3,6 +3,13 @@ using Projektni_FMSI;
 
 Automat a = new Automat();
 a.makeAutomata();
+//a.callGraph();
+Automat res = a.convertENKAtoDKA();
+res.printStates();
+if(res.AcceptsDKA("a"))
+{
+    Console.WriteLine("Word accepted!");
+}
 //Automat b = new();
 //b.makeAutomata();
 //a.printStates();

@@ -307,7 +307,7 @@ namespace Projektni_FMSI
             finalStates.Add(state);
         }
 
-        private bool AcceptsDKA(string input)
+        public bool AcceptsDKA(string input)
         {
             var currentState = StartState;
             foreach (var symbol in input)
@@ -482,7 +482,7 @@ namespace Projektni_FMSI
                 
             }
             Console.WriteLine();
-            Console.WriteLine("E STUFF: ");
+            /*Console.WriteLine("E STUFF: ");
             for(int i = 0; i < states.Count; i++)
             {
                 foreach(var s in listsOfStrings[i])
@@ -490,7 +490,7 @@ namespace Projektni_FMSI
                     Console.Write(s + " ");
                 }
                 Console.WriteLine();
-            }
+            }*/
         }
 
         private int getNumberOfStates()
@@ -556,6 +556,7 @@ namespace Projektni_FMSI
             return -1;
         }
 
+        //TEST FUNCTION
         public void callGraph()
         {
             AutomatGraph automatGraph = new(states.Count);
@@ -586,6 +587,55 @@ namespace Projektni_FMSI
             automatGraph.ms = ms;
             automatGraph.nodes = nodes;
 
+            /*for(int a = 0; a < states.Count; a++, Console.WriteLine())
+            {
+                for(int b = 0; b < states.Count; b++)
+                {
+                    Console.Write(ms[a, b] + " ");
+                }
+            }*/
+
+            //RADI
+            SortedSet<string> dfsSet = automatGraph.dfs("q1");
+            foreach(var state in dfsSet)
+            {
+                Console.Write(state + " ");
+            }
+
+        }
+
+        public Automat convertENKAtoDKA()
+        {
+            Automat DKA = new();
+
+            AutomatGraph automatGraph = new(states.Count);
+
+            int[,] ms = new int[states.Count, states.Count];
+            string[] nodes = new string[states.Count];
+
+            int i = 0, j = 0;
+            foreach (var state in states)
+            {
+                nodes[i++] = state;
+            }
+            i = 0;
+            for (i = 0; i < states.Count; i++)
+            {
+                for (j = 0; j < states.Count; j++)
+                {
+                    if (deltaForEpsilon.ContainsKey((nodes[i], 'E')) && deltaForEpsilon[(nodes[i], 'E')].Contains(nodes[j]))
+                    {
+                        ms[i, j] = 1;
+                    }
+                    else
+                    {
+                        ms[i, j] = 0;
+                    }
+                }
+            }
+            automatGraph.ms = ms;
+            automatGraph.nodes = nodes;
+
             for(int a = 0; a < states.Count; a++, Console.WriteLine())
             {
                 for(int b = 0; b < states.Count; b++)
@@ -593,7 +643,62 @@ namespace Projektni_FMSI
                     Console.Write(ms[a, b] + " ");
                 }
             }
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
 
+            DKA.StartState = this.StartState;
+            DKA.states.Add(StartState);
+
+            SortedSet<string> holderSet = new();
+
+            for(int g = 0; g < DKA.states.Count; g++)
+            //foreach(var state in DKA.states)
+            {
+                var state = DKA.states.ElementAt(g);
+                SortedSet<string> getDFStraversal = automatGraph.dfs(state);
+               
+                foreach(var symbol in alphabet)
+                {
+                    bool isFinalState = false;
+                    string temp = "";
+                    if (symbol != 'E')
+                    {
+                        //int numOfStates = getDFStraversal.Count;
+                        //SortedSet<string> secondTraversal = new();
+                        //temp += stateVisited;
+                        foreach (var stateVisited in getDFStraversal)
+                        {
+                            string goToState = delta[(stateVisited, symbol)];
+                            SortedSet<string> tempTraversal = automatGraph.dfs(goToState);
+                            foreach (var finalConnection in tempTraversal)
+                            {
+                                if(finalStates.Contains(finalConnection))
+                                {
+                                    isFinalState = true;
+                                }
+                                if(!temp.Contains(finalConnection))
+                                {
+                                    holderSet.Add(finalConnection);
+                                    temp += finalConnection;
+                                }
+                            }
+                        }
+                    }
+                    if(isFinalState)
+                    {
+                        DKA.finalStates.Add(temp);
+                    }
+                    if(temp != "")
+                    {
+                        Console.WriteLine(temp);
+                        DKA.states.Add(temp);
+                        DKA.delta[(state, symbol)] = temp;
+                    }
+                }
+            }
+
+            return DKA;
         }
 
     }
