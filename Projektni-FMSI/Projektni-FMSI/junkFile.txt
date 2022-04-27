@@ -164,3 +164,133 @@
 
             return DKA;
         }
+
+
+
+
+               //TEST FUNCTION
+        public void callGraph()
+        {
+            AutomatGraph automatGraph = new(states.Count);
+
+            int[,] ms = new int[states.Count, states.Count];
+            string[] nodes = new string[states.Count];
+
+            int i = 0, j = 0;
+            foreach(var state in states)
+            {
+                nodes[i++] = state;
+            }
+            i = 0;
+            for(i = 0; i < states.Count; i++)
+            {
+                for(j = 0; j < states.Count; j++)
+                {
+                    if(deltaForEpsilon.ContainsKey((nodes[i], 'E')) && deltaForEpsilon[(nodes[i], 'E')].Contains(nodes[j]))
+                    {
+                        ms[i, j] = 1;
+                    }
+                    else
+                    {
+                        ms[i, j] = 0;
+                    }
+                }
+            }
+            automatGraph.ms = ms;
+            automatGraph.nodes = nodes;
+
+            //RADI
+            /*SortedSet<string> dfsSet = automatGraph.dfs("q1");
+            foreach(var state in dfsSet)
+            {
+                Console.Write(state + " ");
+            }*/
+
+        }
+
+
+        498
+        addTransitionENKA bespotrebna funkcija
+        414
+
+
+
+
+
+
+
+
+
+
+        if(this.checkIfIsENKA())
+                                {
+                                    if(deltaForEpsilon.ContainsKey((state, symbol))) 
+                                    {
+                                        foreach(var s in deltaForEpsilon[(state, symbol)])
+                                        {
+                                            result.ESwitching(state, symbol, s);
+                                        }
+                                        
+                                    }
+                                }
+                                else
+                                {
+                                    if(delta.ContainsKey((state, symbol)))
+                                    {
+                                        result.ESwitching(state, symbol, delta[(state, symbol)]);
+                                    }
+                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                private void addTransitionENKA(string currentState, char symbol, string nextState)
+        {
+            if (counter == 0)
+            {
+                listsOfStringsENKA = new List<string>[states.Count];
+                for (int j = 0; j < states.Count; j++)
+                {
+                    listsOfStringsENKA[j] = new List<string>();
+                }
+                counter++;
+            }
+
+            int i;
+            string[] array = states.ToArray<string>();
+            for(i = 0; i < states.Count; i++)
+            {
+                if(currentState == array[i]) {
+                    deltaForEpsilon[(currentState, symbol)] = listsOfStringsENKA[i];
+                    break;
+                }
+            }
+
+            if(symbol == 'E')
+            {
+                if(!deltaForEpsilon[(currentState, symbol)].Contains(nextState))
+                    deltaForEpsilon[(currentState, symbol)].Add(nextState);
+            }
+            else
+            {
+                //POTREBNO IMPLEMENTIRATI DODATNU LOGIKU, I IZMIJENITI ODREDJENA MJESTA U KODU!
+                delta[(currentState, symbol)] = nextState;
+            }
+        }

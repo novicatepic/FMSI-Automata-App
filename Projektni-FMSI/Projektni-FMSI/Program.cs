@@ -2,17 +2,14 @@
 using Projektni_FMSI;
 
 Automat a = new Automat();
+Automat b = new();
 a.makeAutomata();
+b.makeAutomata();
+//b.makeAutomata();
+a.compareTwoAutomatas(b);
 //Automat res = a.convertENKAtoDKA();
 //res.printStates();
-a.printENKAEverything();
 //a.callGraph();
-Automat res = a.convertENKAtoDKA();
-res.printStates();
-if(res.AcceptsDKA("abbbba"))
-{
-    Console.WriteLine("Word accepted!");
-}
 //Automat b = new();
 //b.makeAutomata();
 //a.printStates();
