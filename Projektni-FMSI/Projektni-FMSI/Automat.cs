@@ -855,6 +855,17 @@ namespace Projektni_FMSI
             return true;
         }
 
+        //NECE MOCI OVAKO
+        /*public Automat fullyMinimiseAutomata()
+        {
+            Automat min = minimiseAutomata();
+            if(!this.compareTwoAutomatas(min))
+            {
+                min.fullyMinimiseAutomata();
+            }
+            return min;
+        } */
+
         public Automat minimiseAutomata()
         {
             Automat minimized = new();
@@ -957,30 +968,57 @@ namespace Projektni_FMSI
                 {
                     string stateToGoTo = "";
                     bool flag = false;
-                    for(int i = 0; i < statesToMinimize.Count; i++)
-                    {
+                    //for(int i = 0; i < statesToMinimize.Count; i++)
+                    //{
                         foreach(var symbol in alphabet)
+                        {
+                            for (int i = 0; i < statesToMinimize.Count; i++)
                         {
                             if (statesToMinimize.ElementAt(i).Contains(delta[(state, symbol)]))
                             {
                                 stateToGoTo = statesToMinimize.ElementAt(i);
                                 flag = true;
+                                break;
                             }
+                        }
+                            
                             if (!flag)
                             {
                                 minimized.delta[(state, symbol)] = delta[(state, symbol)];
                             }
                             else
                             {
-                                minimized.delta[(state, symbol)] = delta[(state, symbol)];
+                                minimized.delta[(state, symbol)] = stateToGoTo;
+                                flag = false;
                             }
                         }
                         
-                    }
+                    //}
                 }
                 else
                 {
-
+                    string[] splitStates = state.Split(':');
+                    foreach(var symbol in alphabet)
+                    {
+                        bool flag = false;
+                        foreach(var splitState in splitStates)
+                        {
+                            if(state.Contains(delta[(splitState, symbol)]))
+                            {
+                                flag = true;
+                            }
+                        }
+                        if(flag)
+                        {
+                            minimized.delta[(state, symbol)] = state;
+                            flag = false;
+                        }
+                        else
+                        {
+                            //AKO SE NE PRESLIKAVA SAM U SEBE, MORA U SLIKANJE OD BILO KOJEG
+                            minimized.delta[(state, symbol)] = delta[(splitStates[0], symbol)];
+                        }
+                    }
                 }
             }
 

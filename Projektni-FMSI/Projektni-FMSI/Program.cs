@@ -5,6 +5,10 @@ Automat a = new Automat();
 Automat b = new();
 a.makeAutomata();
 a.minimiseAutomata();
+if (a.AcceptsDKA("abbbb"))
+{
+    Console.WriteLine("true");
+}
 //b.makeAutomata();
 //b.makeAutomata();
 //a.compareTwoAutomatas(b);
