@@ -652,6 +652,44 @@ namespace Projektni_FMSI
         {
             Automat DKA = new();
             AutomatGraph automatGraph = new(states.Count);
+            makeGraphFromAutomataWithEClosures(automatGraph);
+            DKA.StartState = this.StartState;
+            DKA.states.Add(StartState);
+
+            for (int g = 0; g < DKA.states.Count; g++)
+            {
+                var state = DKA.states.ElementAt(g);
+
+                SortedSet<string> getDFStraversal = new();
+
+                string[] splitStates = DKA.states.ElementAt(g).Split(':');
+
+                if (splitStates.Length == 1)
+                {
+                    getDFStraversal = automatGraph.dfs(state);
+                    helpMethodForConversion(DKA, automatGraph, state, getDFStraversal);
+                }
+                else
+                {
+                    SortedSet<string> dfsTraversalHelper = new();
+                    foreach (var s in splitStates)
+                    {
+                        getDFStraversal = automatGraph.dfs(s);
+                        foreach (var elem in getDFStraversal)
+                        {
+                            dfsTraversalHelper.Add(elem);
+                        }
+                    }
+                    helpMethodForConversion(DKA, automatGraph, state, dfsTraversalHelper);
+                }
+
+            }
+
+            return DKA;
+        }
+
+        private void makeGraphFromAutomataWithEClosures(AutomatGraph automatGraph)
+        {
             int[,] ms = new int[states.Count, states.Count];
             string[] nodes = new string[states.Count];
             int i = 0, j = 0;
@@ -676,39 +714,6 @@ namespace Projektni_FMSI
             }
             automatGraph.ms = ms;
             automatGraph.nodes = nodes;
-            DKA.StartState = this.StartState;
-            DKA.states.Add(StartState);
-
-            for (int g = 0; g < DKA.states.Count; g++)
-            {
-                var state = DKA.states.ElementAt(g);
-
-                SortedSet<string> getDFStraversal = new();
-
-                string[] splitStates = DKA.states.ElementAt(g).Split(':');
-
-                if(splitStates.Length == 1)
-                {
-                    getDFStraversal = automatGraph.dfs(state);
-                    helpMethodForConversion(DKA, automatGraph, state, getDFStraversal);
-                }
-                else
-                {
-                    SortedSet<string> dfsTraversalHelper = new();
-                    foreach(var s in splitStates)
-                    {
-                        getDFStraversal = automatGraph.dfs(s);
-                        foreach(var elem in getDFStraversal)
-                        {
-                            dfsTraversalHelper.Add(elem);
-                        }
-                    }
-                    helpMethodForConversion(DKA, automatGraph, state, dfsTraversalHelper);
-                }
-             
-            }
-
-            return DKA;
         }
 
         private void helpMethodForConversion(Automat DKA, AutomatGraph automatGraph, string state, SortedSet<string> getDFStraversal)
@@ -848,6 +853,193 @@ namespace Projektni_FMSI
 
             Console.WriteLine("Isti!");
             return true;
+        }
+
+        public Automat minimiseAutomata()
+        {
+            Automat minimized = new();
+
+            if(finalStates.Count == states.Count)
+            {
+                minimized.finalStates.Add("q0");
+                helpForMinimization(minimized);
+                return minimized;
+            }
+
+            if (finalStates.Count == 0)
+            {
+                helpForMinimization(minimized);
+                return minimized;
+            }
+
+            int[,] ms = new int[states.Count, states.Count];
+            string[] nodes = new string[states.Count];
+            for(int i = 0; i < states.Count; i++)
+            {
+                nodes[i] = states.ElementAt(i);
+                for(int j = 0; j < states.Count; j++)
+                {
+                    if (i <= j || i == 0 || j == states.Count - 1)
+                    {
+                        ms[i, j] = -1;
+                    }
+                    else
+                    {
+                        if ((finalStates.Contains(states.ElementAt(i)) && !finalStates.Contains(states.ElementAt(j))) ||
+                            (!finalStates.Contains(states.ElementAt(i)) && finalStates.Contains(states.ElementAt(j))))
+                        {
+                            ms[i, j] = 1;
+                        }
+                        else
+                        {
+                            ms[i, j] = 0;
+                        }
+                    }
+                }
+            }
+            AutomatGraph automatGraph = new(states.Count);
+            automatGraph.ms = ms;
+            automatGraph.nodes = nodes;
+            while(automatGraph.minimiseAutomataHelper(this)) { }
+
+            HashSet<string> statesToMinimize = new();
+            HashSet<string> fullMinimization = new();
+            SortedSet<string> sortedMinimization = new();
+            for(int i = 0; i < states.Count; i++)
+            {
+                for(int j = 0; j < states.Count; j++)
+                {
+                    string temp = "";
+                    if(ms[i, j] == 0)
+                    {
+                        temp = states.ElementAt(i) + ":" + states.ElementAt(j);
+                        statesToMinimize.Add(temp);
+                    }
+                }
+            }
+
+            //RADI
+            /*foreach (var element in statesToMinimize)
+            {
+                Console.Write(element + " ");
+            }*/
+
+            foreach(var state in states)
+            {
+                bool flag = false;
+                for(int i = 0; i < statesToMinimize.Count; i++)
+                {
+                    if(statesToMinimize.ElementAt(i).Contains(state))
+                    {
+                        flag = true;
+                    }
+                }
+
+                if(!flag)
+                {
+                    minimized.states.Add(state);
+                }
+            }
+            foreach(var state in statesToMinimize)
+            {
+                minimized.states.Add(state);
+            }
+
+            foreach(var state in minimized.states)
+            {
+                Console.Write(state + " ");
+            }
+            minimized.alphabet = this.alphabet;
+
+            foreach(var state in minimized.states)
+            {
+                if(!statesToMinimize.Contains(state))
+                {
+                    string stateToGoTo = "";
+                    bool flag = false;
+                    for(int i = 0; i < statesToMinimize.Count; i++)
+                    {
+                        foreach(var symbol in alphabet)
+                        {
+                            if (statesToMinimize.ElementAt(i).Contains(delta[(state, symbol)]))
+                            {
+                                stateToGoTo = statesToMinimize.ElementAt(i);
+                                flag = true;
+                            }
+                            if (!flag)
+                            {
+                                minimized.delta[(state, symbol)] = delta[(state, symbol)];
+                            }
+                            else
+                            {
+                                minimized.delta[(state, symbol)] = delta[(state, symbol)];
+                            }
+                        }
+                        
+                    }
+                }
+                else
+                {
+
+                }
+            }
+
+            /*for (int i = 0; i < statesToMinimize.Count; i++)
+            {
+                string[] splitNewStates = statesToMinimize.ElementAt(i).Split(':');
+                foreach (var splitState in splitNewStates)
+                {
+                    int counter = 0;
+                    for (int j = 0; j < statesToMinimize.Count; j++)
+                    {
+                        if(j != i)
+                        {
+                            string temp = "";
+                            string temp2 = "";
+                            if (statesToMinimize.ElementAt(j).Contains(splitState))
+                            {
+                                temp += splitState;
+                                temp += ":";
+                                temp += statesToMinimize.ElementAt(j);
+                                temp2 = temp;
+                                String.Concat(temp2.OrderBy(c => c));
+                            }
+                            if (temp != "")
+                            {
+                                if (!sortedMinimization.Contains(temp2) && temp2 != "")
+                                {
+                                    sortedMinimization.Add(temp2);
+                                    fullMinimization.Add(temp);
+                                }
+                            }
+                            else
+                            {
+                                fullMinimization.Add(statesToMinimize.ElementAt(i));
+                            }
+                        }
+                    }
+                    
+                }
+            }*/
+            
+            foreach(var element in fullMinimization)
+            {
+                //Console.Write(element + " ");
+            }
+
+            return minimized;
+
+        }
+
+        private void helpForMinimization(Automat minimized)
+        {
+            minimized.StartState = "q0";
+            minimized.states.Add("q0");
+            foreach (var symbol in alphabet)
+            {
+                minimized.alphabet.Add(symbol);
+                minimized.delta[("q0", symbol)] = "q0";
+            }
         }
     }
 

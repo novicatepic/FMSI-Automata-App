@@ -109,5 +109,49 @@ namespace Projektni_FMSI
  
             return resultAutomat;
         }
+
+        public bool minimiseAutomataHelper(Automat a)
+        {
+            bool checkIfThereIsNone = false;
+            for(int i = 0; i < a.states.Count; i++)
+            {
+                for(int j = 0; j < a.states.Count; j++)
+                {
+                    if(ms[i, j] != -1 && ms[i, j] != 1)
+                    {
+                        foreach(var symbol in a.alphabet)
+                        {
+                            if(nodes.Contains(a.delta[(nodes.ElementAt(i), symbol)]) && nodes.Contains(a.delta[(nodes.ElementAt(j), symbol)]))
+                            {
+                                string firstState = a.delta[(nodes.ElementAt(i), symbol)];
+                                string secondState = a.delta[(nodes.ElementAt(j), symbol)];
+                                int position1, position2;
+                                for(position1 = 0; position1 < a.states.Count; position1++)
+                                {
+                                    if(nodes.ElementAt(position1) == firstState)
+                                    {
+                                        break;
+                                    }
+                                }
+                                for (position2 = 0; position2 < a.states.Count; position2++)
+                                {
+                                    if (nodes.ElementAt(position2) == secondState)
+                                    {
+                                        break;
+                                    }
+                                }
+                                if(ms[position1, position2] == 1)
+                                {
+                                    checkIfThereIsNone = true;
+                                    ms[i, j] = 1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return checkIfThereIsNone;
+        }
+
     }
 }
