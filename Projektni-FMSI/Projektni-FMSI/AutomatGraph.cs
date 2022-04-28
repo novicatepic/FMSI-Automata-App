@@ -121,8 +121,8 @@ namespace Projektni_FMSI
                     {
                         foreach(var symbol in a.alphabet)
                         {
-                            if(nodes.Contains(a.delta[(nodes.ElementAt(i), symbol)]) && nodes.Contains(a.delta[(nodes.ElementAt(j), symbol)]))
-                            {
+                            //if(nodes.Contains(a.delta[(nodes.ElementAt(i), symbol)]) && nodes.Contains(a.delta[(nodes.ElementAt(j), symbol)]))
+                            //{
                                 string firstState = a.delta[(nodes.ElementAt(i), symbol)];
                                 string secondState = a.delta[(nodes.ElementAt(j), symbol)];
                                 int position1, position2;
@@ -140,12 +140,13 @@ namespace Projektni_FMSI
                                         break;
                                     }
                                 }
-                                if(ms[position1, position2] == 1)
+                                if(ms[position1, position2] == 1 || ms[position2, position1] == 1)
                                 {
+                                    Console.WriteLine(i + " " + j);
                                     checkIfThereIsNone = true;
                                     ms[i, j] = 1;
                                 }
-                            }
+                            //}
                         }
                     }
                 }

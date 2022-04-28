@@ -870,7 +870,7 @@ namespace Projektni_FMSI
         {
             Automat minimized = new();
 
-            if(finalStates.Count == states.Count)
+            if (finalStates.Count == states.Count)
             {
                 minimized.finalStates.Add("q0");
                 helpForMinimization(minimized);
@@ -885,10 +885,10 @@ namespace Projektni_FMSI
 
             int[,] ms = new int[states.Count, states.Count];
             string[] nodes = new string[states.Count];
-            for(int i = 0; i < states.Count; i++)
+            for (int i = 0; i < states.Count; i++)
             {
                 nodes[i] = states.ElementAt(i);
-                for(int j = 0; j < states.Count; j++)
+                for (int j = 0; j < states.Count; j++)
                 {
                     if (i <= j || i == 0 || j == states.Count - 1)
                     {
@@ -911,104 +911,164 @@ namespace Projektni_FMSI
             AutomatGraph automatGraph = new(states.Count);
             automatGraph.ms = ms;
             automatGraph.nodes = nodes;
-            while(automatGraph.minimiseAutomataHelper(this)) { }
-
-            HashSet<string> statesToMinimize = new();
-            HashSet<string> fullMinimization = new();
-            SortedSet<string> sortedMinimization = new();
-            for(int i = 0; i < states.Count; i++)
+            while (automatGraph.minimiseAutomataHelper(this))
             {
-                for(int j = 0; j < states.Count; j++)
+                //Console.WriteLine("YAS");
+            }
+
+            for (int i = 0; i < states.Count; i++)
+            {
+                for (int j = 0; j < states.Count; j++)
                 {
-                    string temp = "";
-                    if(ms[i, j] == 0)
+                    if(automatGraph.ms[i, j] == 0)
                     {
-                        temp = states.ElementAt(i) + ":" + states.ElementAt(j);
-                        statesToMinimize.Add(temp);
+                        //Console.WriteLine(i + " " + j);
                     }
                 }
             }
 
-            //RADI
-            /*foreach (var element in statesToMinimize)
+            HashSet<string> statesToMinimize = new();
+            HashSet<string> fullMinimization = new();
+            SortedSet<string> sortedMinimization = new();
+            for (int i = 0; i < states.Count; i++)
             {
-                Console.Write(element + " ");
-            }*/
+                for (int j = 0; j < states.Count; j++)
+                {
+                    string temp = "";
+                    if (automatGraph.ms[i, j] == 0)
+                    {
+                        if(String.Compare(states.ElementAt(i), states.ElementAt(j)) < 0) 
+                        {
+                            temp = states.ElementAt(i) + ":" + states.ElementAt(j);
+                        }
+                        else
+                        {
+                            temp = states.ElementAt(j) + ":" + states.ElementAt(i);
+                        }
+                        statesToMinimize.Add(temp);
+                    }
+                    //Console.WriteLine(temp);
+                }
+            }
 
-            foreach(var state in states)
+
+
+            minimized.alphabet = this.alphabet;
+
+
+            for (int i = 0; i < statesToMinimize.Count; i++)
+            {
+                string temp = "";
+                SortedSet<string> matches = new();
+                string[] splitNewStates = statesToMinimize.ElementAt(i).Split(':');
+                foreach (var splitState in splitNewStates)
+                {
+                    for (int j = 0; j < statesToMinimize.Count; j++)
+                    {
+                        if (j != i)
+                        {
+
+                            if (statesToMinimize.ElementAt(j).Contains(splitState))
+                            {
+                                //Console.WriteLine("YES");
+                                foreach (var splSt in splitNewStates)
+                                {
+                                    matches.Add(splSt);
+                                }
+                                string[] splitMatches = statesToMinimize.ElementAt(j).Split(':');
+                                foreach (var splitMatch in splitMatches)
+                                {
+                                    matches.Add(splitMatch);
+                                }
+                            }
+                        }
+
+                    }
+                    foreach (var match in matches)
+                    {
+                        temp += match;
+                        temp += ":";
+                    }
+                    if (matches.Count == 0)
+                    {
+                        Console.WriteLine(statesToMinimize.ElementAt(i));
+                        fullMinimization.Add(statesToMinimize.ElementAt(i));
+                    }
+                    else
+                    {
+                        temp.Remove(temp.Length - 1);
+                        Console.WriteLine(temp);
+                        fullMinimization.Add(temp);
+                    }
+                }
+            }
+
+            foreach (var state in states)
             {
                 bool flag = false;
-                for(int i = 0; i < statesToMinimize.Count; i++)
+                for (int i = 0; i < fullMinimization.Count; i++)
                 {
-                    if(statesToMinimize.ElementAt(i).Contains(state))
+                    if (fullMinimization.ElementAt(i).Contains(state))
                     {
                         flag = true;
                     }
                 }
 
-                if(!flag)
+                if (!flag)
                 {
                     minimized.states.Add(state);
                 }
             }
-            foreach(var state in statesToMinimize)
+            foreach(var state in fullMinimization)
             {
                 minimized.states.Add(state);
             }
 
-            foreach(var state in minimized.states)
+            foreach (var state in minimized.states)
             {
-                Console.Write(state + " ");
-            }
-            minimized.alphabet = this.alphabet;
-
-            foreach(var state in minimized.states)
-            {
-                if(!statesToMinimize.Contains(state))
+                if (!fullMinimization.Contains(state))
                 {
                     string stateToGoTo = "";
                     bool flag = false;
-                    //for(int i = 0; i < statesToMinimize.Count; i++)
-                    //{
-                        foreach(var symbol in alphabet)
+                    foreach (var symbol in alphabet)
+                    {
+                        for (int i = 0; i < fullMinimization.Count; i++)
                         {
-                            for (int i = 0; i < statesToMinimize.Count; i++)
-                        {
-                            if (statesToMinimize.ElementAt(i).Contains(delta[(state, symbol)]))
+                            if (fullMinimization.ElementAt(i).Contains(delta[(state, symbol)]))
                             {
-                                stateToGoTo = statesToMinimize.ElementAt(i);
+                                stateToGoTo = fullMinimization.ElementAt(i);
                                 flag = true;
                                 break;
                             }
                         }
-                            
-                            if (!flag)
-                            {
-                                minimized.delta[(state, symbol)] = delta[(state, symbol)];
-                            }
-                            else
-                            {
-                                minimized.delta[(state, symbol)] = stateToGoTo;
-                                flag = false;
-                            }
+
+                        if (!flag)
+                        {
+                            minimized.delta[(state, symbol)] = delta[(state, symbol)];
                         }
-                        
+                        else
+                        {
+                            minimized.delta[(state, symbol)] = stateToGoTo;
+                            flag = false;
+                        }
+                    }
+
                     //}
                 }
                 else
                 {
                     string[] splitStates = state.Split(':');
-                    foreach(var symbol in alphabet)
+                    foreach (var symbol in alphabet)
                     {
                         bool flag = false;
-                        foreach(var splitState in splitStates)
+                        foreach (var splitState in splitStates)
                         {
-                            if(state.Contains(delta[(splitState, symbol)]))
+                            if (splitState != "" && state.Contains(delta[(splitState, symbol)]))
                             {
                                 flag = true;
                             }
                         }
-                        if(flag)
+                        if (flag)
                         {
                             minimized.delta[(state, symbol)] = state;
                             flag = false;
@@ -1022,51 +1082,14 @@ namespace Projektni_FMSI
                 }
             }
 
-            /*for (int i = 0; i < statesToMinimize.Count; i++)
-            {
-                string[] splitNewStates = statesToMinimize.ElementAt(i).Split(':');
-                foreach (var splitState in splitNewStates)
-                {
-                    int counter = 0;
-                    for (int j = 0; j < statesToMinimize.Count; j++)
-                    {
-                        if(j != i)
-                        {
-                            string temp = "";
-                            string temp2 = "";
-                            if (statesToMinimize.ElementAt(j).Contains(splitState))
-                            {
-                                temp += splitState;
-                                temp += ":";
-                                temp += statesToMinimize.ElementAt(j);
-                                temp2 = temp;
-                                String.Concat(temp2.OrderBy(c => c));
-                            }
-                            if (temp != "")
-                            {
-                                if (!sortedMinimization.Contains(temp2) && temp2 != "")
-                                {
-                                    sortedMinimization.Add(temp2);
-                                    fullMinimization.Add(temp);
-                                }
-                            }
-                            else
-                            {
-                                fullMinimization.Add(statesToMinimize.ElementAt(i));
-                            }
-                        }
-                    }
-                    
-                }
-            }*/
-            
-            foreach(var element in fullMinimization)
+
+
+            foreach (var element in minimized.states)
             {
                 //Console.Write(element + " ");
             }
 
             return minimized;
-
         }
 
         private void helpForMinimization(Automat minimized)
