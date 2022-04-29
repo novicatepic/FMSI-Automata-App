@@ -19,6 +19,14 @@ namespace Projektni_FMSI
             this.size = size;
             ms = new int[size, size];
             nodes = new string[size];
+            for(int i = 0; i < size; i++)
+            {
+                for(int j = 0; j < size; j++)
+                {
+                    ms[i, j] = 0;
+                }
+            }
+
         }
 
         public SortedSet<string> dfs(string startState)

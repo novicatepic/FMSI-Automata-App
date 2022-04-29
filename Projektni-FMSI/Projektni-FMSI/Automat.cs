@@ -855,17 +855,6 @@ namespace Projektni_FMSI
             return true;
         }
 
-        //NECE MOCI OVAKO
-        /*public Automat fullyMinimiseAutomata()
-        {
-            Automat min = minimiseAutomata();
-            if(!this.compareTwoAutomatas(min))
-            {
-                min.fullyMinimiseAutomata();
-            }
-            return min;
-        } */
-
         public Automat minimiseAutomata()
         {
             Automat minimized = new();
@@ -882,6 +871,36 @@ namespace Projektni_FMSI
                 helpForMinimization(minimized);
                 return minimized;
             }
+
+            SortedSet<string> getReachableStates = makeGraphForMinimization();
+            this.states.Clear();
+            foreach(var state in getReachableStates)
+            {
+                this.states.Add(state);
+            }
+            HashSet<string> newFinalStates = new();
+            foreach(var state in finalStates)
+            {
+                if(this.states.Contains(state))
+                {
+                    newFinalStates.Add(state);
+                }
+            }
+            finalStates.Clear();
+            finalStates = newFinalStates;
+
+            Console.WriteLine("STATES");
+            foreach(var state in states)
+            {
+                Console.Write(state + " ");
+            }
+            Console.WriteLine();
+            Console.WriteLine("FINALSTATES");
+            foreach (var state in finalStates)
+            {
+                Console.Write(state + " ");
+            }
+            Console.WriteLine();
 
             int[,] ms = new int[states.Count, states.Count];
             string[] nodes = new string[states.Count];
@@ -916,7 +935,7 @@ namespace Projektni_FMSI
                 //Console.WriteLine("YAS");
             }
 
-            for (int i = 0; i < states.Count; i++)
+            /*for (int i = 0; i < states.Count; i++)
             {
                 for (int j = 0; j < states.Count; j++)
                 {
@@ -925,7 +944,7 @@ namespace Projektni_FMSI
                         //Console.WriteLine(i + " " + j);
                     }
                 }
-            }
+            }*/
 
             HashSet<string> statesToMinimize = new();
             HashSet<string> fullMinimization = new();
@@ -951,7 +970,14 @@ namespace Projektni_FMSI
                 }
             }
 
-
+            Console.WriteLine("STATES TO MINIMIZE: ");
+            foreach(var state in statesToMinimize)
+            {
+                Console.Write(state + " ");
+            }
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
 
             minimized.alphabet = this.alphabet;
 
@@ -963,6 +989,7 @@ namespace Projektni_FMSI
                 string[] splitNewStates = statesToMinimize.ElementAt(i).Split(':');
                 foreach (var splitState in splitNewStates)
                 {
+                    temp = "";
                     for (int j = 0; j < statesToMinimize.Count; j++)
                     {
                         if (j != i)
@@ -996,10 +1023,53 @@ namespace Projektni_FMSI
                     }
                     else
                     {
-                        temp.Remove(temp.Length - 1);
-                        Console.WriteLine(temp);
-                        fullMinimization.Add(temp);
+                        string temp2 = "";
+                        for(int g = 0; g < temp.Length - 1; g++)
+                        {
+                            temp2 += temp[g];
+                        }
+                        //Console.WriteLine(temp2);
+                        fullMinimization.Add(temp2);
                     }
+                }
+            }
+
+            Console.WriteLine("States to fully minimize: ");
+            foreach(var state in fullMinimization)
+            {
+                Console.Write(state + " ");
+            }
+            Console.WriteLine();
+
+            bool flagForStartState = false;
+            foreach(var state in fullMinimization)
+            {
+                if(state.Contains(StartState))
+                {
+                    flagForStartState = true;
+                    minimized.StartState = state;
+                }
+            }
+            if(!flagForStartState)
+            {
+                minimized.StartState = StartState;
+            }
+
+            bool flagForFinalState = false;
+            foreach(var state in finalStates)
+            {
+                flagForFinalState = false;
+                foreach (var s in fullMinimization)
+                {
+                    if(s.Contains(state))
+                    {
+                        flagForFinalState = true;
+                        minimized.finalStates.Add(s);
+                    }
+                }
+                if(!flagForFinalState)
+                {
+                    minimized.finalStates.Add(state);
                 }
             }
 
@@ -1014,14 +1084,17 @@ namespace Projektni_FMSI
                     }
                 }
 
-                if (!flag)
+                if (!flag && state != "")
                 {
                     minimized.states.Add(state);
                 }
             }
             foreach(var state in fullMinimization)
             {
-                minimized.states.Add(state);
+                if(state != "")
+                {
+                    minimized.states.Add(state);
+                }
             }
 
             foreach (var state in minimized.states)
@@ -1082,11 +1155,13 @@ namespace Projektni_FMSI
                 }
             }
 
-
-
-            foreach (var element in minimized.states)
+            minimized.printStatesAndAlphabet();
+            foreach(var state in minimized.states)
             {
-                //Console.Write(element + " ");
+                foreach(var symbol in alphabet)
+                {
+                    Console.WriteLine(state + "->" + symbol + " = " + minimized.delta[(state, symbol)]);
+                }
             }
 
             return minimized;
@@ -1101,6 +1176,37 @@ namespace Projektni_FMSI
                 minimized.alphabet.Add(symbol);
                 minimized.delta[("q0", symbol)] = "q0";
             }
+        }
+
+        private SortedSet<string> makeGraphForMinimization()
+        {
+            AutomatGraph automatGraph = new(states.Count);
+            int[,] ms = new int[states.Count, states.Count];
+            string[] nodes = new string[states.Count];
+            int i = 0;
+            foreach(var state in states)
+            {
+                nodes[i++] = state;
+            }
+            automatGraph.nodes = nodes;
+
+            for(i = 0; i < states.Count; i++)
+            {
+                for(int j = 0; j < states.Count; j++)
+                {
+                    foreach(var symbol in alphabet)
+                    {
+                        if(delta.ContainsKey((nodes[i], symbol)) && states.Contains(delta[(nodes[i], symbol)]))
+                        {
+                            ms[i, j] = 1;
+                        }
+                    }
+                }
+            }
+            automatGraph.ms = ms;
+
+            SortedSet<string> nodesVisited = automatGraph.dfs(StartState);
+            return nodesVisited;
         }
     }
 
