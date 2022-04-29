@@ -42,6 +42,7 @@ namespace Projektni_FMSI
                 int v;
                 visit[u] = true;
                 set.Add(nodes[u]);
+                //Console.Write(nodes[u] + " ");
                 for (v = 0; v < size; v++)
                 {
                     if (ms[u, v] == 1 && !visit[v])
@@ -150,7 +151,7 @@ namespace Projektni_FMSI
                                 }
                                 if(ms[position1, position2] == 1 || ms[position2, position1] == 1)
                                 {
-                                    Console.WriteLine(i + " " + j);
+                                    //Console.WriteLine(i + " " + j);
                                     checkIfThereIsNone = true;
                                     ms[i, j] = 1;
                                 }

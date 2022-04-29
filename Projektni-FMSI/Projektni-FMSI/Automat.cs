@@ -1125,8 +1125,6 @@ namespace Projektni_FMSI
                             flag = false;
                         }
                     }
-
-                    //}
                 }
                 else
                 {
@@ -1139,17 +1137,34 @@ namespace Projektni_FMSI
                             if (splitState != "" && state.Contains(delta[(splitState, symbol)]))
                             {
                                 flag = true;
+                                break;
                             }
                         }
                         if (flag)
                         {
+                            //PRESLIKAVA SE SAM U SEBE
                             minimized.delta[(state, symbol)] = state;
                             flag = false;
                         }
                         else
                         {
                             //AKO SE NE PRESLIKAVA SAM U SEBE, MORA U SLIKANJE OD BILO KOJEG
-                            minimized.delta[(state, symbol)] = delta[(splitStates[0], symbol)];
+                            string temp = delta[(splitStates[0], symbol)];
+                            bool flag2 = false;
+                            foreach(var st in fullMinimization)
+                            {
+                                flag2 = false;
+                                if(st.Contains(temp))
+                                {
+                                    flag2 = true;
+                                    minimized.delta[(state, symbol)] = st;
+                                    break;
+                                }
+                            }
+                            if(!flag2)
+                            {
+                                minimized.delta[(state, symbol)] = delta[(splitStates[0], symbol)];
+                            }
                         }
                     }
                 }
@@ -1196,16 +1211,41 @@ namespace Projektni_FMSI
                 {
                     foreach(var symbol in alphabet)
                     {
-                        if(delta.ContainsKey((nodes[i], symbol)) && states.Contains(delta[(nodes[i], symbol)]))
+                        if(delta.ContainsKey((nodes[i], symbol)) && delta[(nodes[i], symbol)] == nodes[j])//states.Contains(delta[(nodes[i], symbol)]))
                         {
                             ms[i, j] = 1;
                         }
                     }
                 }
             }
+
             automatGraph.ms = ms;
 
+            Console.WriteLine("NODES: ");
+            for(int k = 0; k < automatGraph.nodes.Length; k++)
+            {
+                Console.Write(automatGraph.nodes[k] + " ");
+            }
+            Console.WriteLine();
+
+            Console.WriteLine("MS: ");
+            for(int k = 0; k < nodes.Length; k++, Console.WriteLine())
+            {
+                for(int j = 0; j < nodes.Length; j++)
+                {
+                    Console.Write(ms[k, j] + " ");
+                }
+            }
+
+
             SortedSet<string> nodesVisited = automatGraph.dfs(StartState);
+            Console.WriteLine("REACHABLE STATES");
+            foreach(var state in nodesVisited)
+            {
+                Console.Write(state + " ");
+            }
+            Console.WriteLine();
+            
             return nodesVisited;
         }
     }
