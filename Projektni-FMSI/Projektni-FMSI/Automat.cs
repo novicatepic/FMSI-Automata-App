@@ -17,8 +17,16 @@ namespace Projektni_FMSI
         public HashSet<string> states = new();
         private List<string>[] listsOfStringsENKA;
         private List<string>[] listOfStringsOtherStates;
-        
+        //bool connectFlag = false;
+        static int counter2 = 0;
+        string id = "_";
         private static int counter = 0;
+
+        public Automat()
+        {
+            id += counter2.ToString();
+            counter2++;
+        }
 
         public void makeAutomata()
         {
@@ -158,7 +166,15 @@ namespace Projektni_FMSI
                     throw new Exception("I can't merge two languages that don't have the same alphabet, sorry!");
                 }
                 result.StartState = this.StartState;
-                result.alphabet = alphabet;
+                if (!result.alphabet.Contains('E'))
+                {
+                    result.alphabet.Add('E');
+                }
+                foreach(var symbol in this.alphabet)
+                {
+                    result.alphabet.Add(symbol);
+                }
+               
                 foreach(var finalState in other.finalStates)
                 {
                     result.finalStates.Add(finalState);
@@ -171,10 +187,7 @@ namespace Projektni_FMSI
                 {
                     result.states.Add(state);
                 }
-                if(!result.alphabet.Contains('E'))
-                {
-                    result.alphabet.Add('E');
-                }
+
                 foreach(var state in this.states)
                 {
                     foreach(var symbol in this.alphabet)
@@ -183,20 +196,32 @@ namespace Projektni_FMSI
                         {
                             if(symbol != 'E')
                             {
+                                //DOESNT WORK
                                 helpForConnectingAndStuff(result, state, symbol);
                             }
                         }
                         else
                         {
+                            //NAH
                             result.ESwitching(state, 'E', other.StartState);
+                            foreach(var symb in alphabet)
+                            {
+                                if(symb != 'E')
+                                {
+                                    helpForConnectingAndStuff(result, state, symbol);
+                                }
+                            }
                         }
                     }
                 }
+
                 foreach(var state in other.states)
                 {
                     foreach(var symbol in other.alphabet)
                     {
-                        helpForConnectingAndStuff(result, state, symbol);                       
+                        //NOT WORKING
+                        //connectFlag = true;
+                        other.helpForConnectingAndStuff(result, state, symbol);                       
                     }
                 }
             } catch(Exception e)
@@ -207,6 +232,10 @@ namespace Projektni_FMSI
             return result;
         }
 
+        /*private void helpForConnecting(Automat result, string state, char symbol)
+        {
+
+        }*/
         private void helpForConnectingAndStuff(Automat result, string state, char symbol)
         {
             if (this.checkIfIsENKA())
@@ -229,6 +258,97 @@ namespace Projektni_FMSI
             }
         }
 
+        public static Automat chainOperations()
+        {
+            Automat result = new();
+
+            Console.WriteLine("Options for chaining operations:\n1-Union\n2-Intersection\n3-Difference\n4-Complement\n5-Connection\n6-KleeneStar\n");
+            string input;
+            Console.WriteLine("Enter your options until it becomes boring for you, if it becomes boring, input --exit: ");
+
+            Automat a1 = new Automat();
+            a1.makeAutomata();
+            Automat a2 = new();
+            a2.makeAutomata();
+            Automat res = null;
+
+            do
+            {
+                input = Console.ReadLine();
+                if (input == "1")
+                {
+                    if(res == null)
+                        res = a1.findUnion(a2);
+                    else
+                    {
+                        a1 = null;
+                        a1 = new();
+                        res = res.findUnion(a1);
+                    } 
+                        
+                }
+                else if(input == "2")
+                {
+                    if (res == null)
+                        res = a1.findIntersection(a2);
+                    else
+                    {
+                        a1 = null;
+                        a1 = new();
+                        res = res.findIntersection(a1);
+                    }
+                }
+                else if(input == "3")
+                {
+                    if (res == null)
+                        res = a1.findDifference(a2);
+                    else
+                    {
+                        a1 = null;
+                        a1 = new();
+                        res = res.findDifference(a1);
+                    }
+                }
+                else if(input == "4")
+                {
+                    if (res == null)
+                        res = a1.constructComplement();
+                    else
+                        res = res.constructComplement();
+                }
+                else if(input == "5")
+                {
+                    if(res == null)
+                        res = a1.connectLanguages(a2);
+                    else
+                    {
+                        a1 = null;
+                        a1 = new();
+                        res = res.connectLanguages(a1);
+                    }
+                }
+                else if(input == "6")
+                {
+                    if(res == null)
+                        res = a1.applyKleeneStar();
+                    else
+                    {
+                        res = res.applyKleeneStar();
+                    }
+                }
+                else if(input == "--exit")
+                {
+
+                }
+                else
+                {
+                    Console.WriteLine("Incorrent entry, try again!");
+                }
+            } while (input != "--exit");
+
+            return result;
+        }
+
         //PROBLEM SA FUNKCIJOM PRELAZA, KAD SLIKA IZ EPSILON U VISE STANJA, UVIJEK UZME ONO ZADNJE!
         //NAPRAVIO DA RADI, ISPROVJERAVATI!
         public Automat applyKleeneStar()
@@ -239,15 +359,22 @@ namespace Projektni_FMSI
             result.finalStates.Add("NFS"); //new final state
             result.states.Add(result.StartState);
             result.states.Add("NFS");
-            result.alphabet = alphabet;
+
+            if (!result.alphabet.Contains('E'))
+            {
+                result.alphabet.Add('E');
+            }
+
+            foreach(var symbol in alphabet)
+            {
+                result.alphabet.Add(symbol);
+            }
+
             foreach(var state in this.states)
             {
                 result.states.Add(state);
             }
-            if(!result.alphabet.Contains('E'))
-            {
-                result.alphabet.Add('E');
-            }
+
             
             foreach(var state in this.states)
             {
@@ -366,16 +493,19 @@ namespace Projektni_FMSI
             Console.Write("NOTE: First state you add is the initial state!");
             Console.WriteLine("--exit to exit input loop!\nEnter states: ");
             string state;
+            string initState;
             bool isFirst = true;
             do
             {
                 state = Console.ReadLine();
+                initState = state;
+                state += id;
                 if (isFirst)
                 {
                     StartState = state;
                     isFirst = false;
                 }
-                if(state != "--exit")
+                if(initState != "--exit")
                 {
                     states.Add(state);
                     string extraInput;
@@ -392,7 +522,7 @@ namespace Projektni_FMSI
                     }
                     
                 }
-            } while (state != "--exit");
+            } while (initState != "--exit");
 
         }
         
@@ -414,7 +544,8 @@ namespace Projektni_FMSI
                 char symbol;
                 string inputHelp;
                 string nextState;
-                Console.WriteLine("State: " + state);
+                int substring = state.IndexOf('_');
+                Console.WriteLine("State: " + state.Substring(0, substring));
                 do
                 {
                     Console.WriteLine("Enter --exit to stop entering transitions for current state or enter symbol from alphabet for transition: ");
@@ -426,16 +557,16 @@ namespace Projektni_FMSI
                         Console.WriteLine("Enter destination state: ");
                         nextState = Console.ReadLine();
                         
-                        if(checkIfStateExists(nextState))
+                        if(checkIfStateExists(nextState + id))
                         {
                             if (!checkIfIsENKA())
                             {
-                                addTransitionDKA(state, symbol, nextState);
+                                addTransitionDKA(state, symbol, nextState + id);
                             }
                             else
                             {
                                 helpMethodForESwitching();
-                                ESwitching(state, symbol, nextState);
+                                ESwitching(state, symbol, nextState + id);
                             }
                         }
                         else
@@ -488,6 +619,9 @@ namespace Projektni_FMSI
                             {
                                 if (!thing.Equals('E') && thing.Equals(symbol))
                                 {
+                                    int pos = j + ESwitchingHelper(symbol) - 1;
+                                    //Console.WriteLine(currentState + " + " + thing + "->" + pos);
+                                    //Console.WriteLine(listOfStringsOtherStates.Length);
                                     deltaForEpsilon[(currentState, thing)] = listOfStringsOtherStates[j + (ESwitchingHelper(symbol) - 1)];
                                     break;
                                 }
@@ -530,41 +664,6 @@ namespace Projektni_FMSI
             }
         }
 
-        //TEST FUNKCIJA, RADI
-        public void printENKAEverything()
-        {
-            Console.WriteLine("E prelazi: ");
-            foreach(var state in states)
-            {
-                if(deltaForEpsilon.ContainsKey((state, 'E')))
-                {
-                    foreach(var s in deltaForEpsilon[(state, 'E')])
-                    {
-                        Console.Write(s + " ");
-                    }
-                }
-                Console.WriteLine();
-            }
-            Console.WriteLine("Ostali prelazi: ");
-            foreach(var state in states)
-            {
-                foreach(var symbol in alphabet)
-                {
-                    if(symbol != 'E')
-                    {
-                        if(deltaForEpsilon.ContainsKey((state, symbol)))
-                        {
-                            foreach(var s in deltaForEpsilon[(state, symbol)])
-                            {
-                                Console.Write(state + "+" + symbol + "->" + s);
-                            }
-                        }
-                    }
-                }
-                Console.WriteLine();
-            }
-        }
-
         private int howManyDifferentSymbolsInAlphabet()
         {
             int numOfSymbols = 0;
@@ -580,10 +679,13 @@ namespace Projektni_FMSI
 
         public void printStatesAndAlphabet()
         {
+            
+            //Console.WriteLine("State: " + state.Substring(0, substring));
             Console.WriteLine("STATES: ");
             foreach(var state in states)
             {
-                Console.Write(state + " ");
+                int substring = state.IndexOf('_');
+                Console.Write(state.Substring(0, substring) + " ");
             }
             Console.WriteLine();
             Console.WriteLine("ALPHABET: ");
@@ -592,6 +694,39 @@ namespace Projektni_FMSI
                 Console.Write(symbol + " ");
             }
             Console.WriteLine();
+            Console.WriteLine("DELTA TRANSITIONS: ");
+            if(!checkIfIsENKA())
+            {
+                foreach (var symbol in alphabet)
+                {
+                    foreach (var state in states)
+                    {
+                        int substring = state.IndexOf('_');
+                        if (delta.ContainsKey((state, symbol)))
+                            Console.WriteLine(state.Substring(0, substring) + " + " + symbol + " -> " + delta[(state, symbol)].Substring(0, substring));
+                    }
+                }
+            }
+            else
+            {
+                foreach(var symbol in alphabet)
+                {
+                    foreach(var state in states)
+                    {
+                        int substring = state.IndexOf('_');
+                        //deltaForEpsilon
+                        if (deltaForEpsilon.ContainsKey((state, symbol)))
+                        {
+                            List<string> goTo = deltaForEpsilon[(state, symbol)];
+                            foreach (var s in goTo)
+                            {
+                                Console.WriteLine(state + " + " + symbol + " -> " + s.Substring(0, substring));
+                            }
+                        }
+                    }
+                }
+            }
+            
         }
 
         //NIJE DOVOLJNO DOBRO
@@ -655,6 +790,13 @@ namespace Projektni_FMSI
             makeGraphFromAutomataWithEClosures(automatGraph);
             DKA.StartState = this.StartState;
             DKA.states.Add(StartState);
+            foreach(var symbol in alphabet)
+            {
+                if(symbol != 'E')
+                {
+                    DKA.alphabet.Add(symbol);
+                }
+            }
 
             for (int g = 0; g < DKA.states.Count; g++)
             {
@@ -684,6 +826,8 @@ namespace Projektni_FMSI
                 }
 
             }
+
+            //DKA.minimiseAutomata();
 
             return DKA;
         }
@@ -722,13 +866,18 @@ namespace Projektni_FMSI
             {
                 bool isFinalState = false;
                 string temp = "";
+                SortedSet<string> statesSorted = new();
                 int helpCounter = 0;
                 if (symbol != 'E')
                 {
                     foreach (var stateVisited in getDFStraversal)
                     {
+                        List<string> goToStates = new();
+
                         //string goToState = delta[(stateVisited, symbol)];
-                        List<string> goToStates = deltaForEpsilon[(stateVisited, symbol)];
+                        if(deltaForEpsilon.ContainsKey((stateVisited, symbol)))
+                            goToStates = deltaForEpsilon[(stateVisited, symbol)];
+                        //goToStates.Sort();
                         foreach (var goToState in goToStates)
                         {
                             SortedSet<string> tempTraversal = automatGraph.dfs(goToState);
@@ -743,12 +892,11 @@ namespace Projektni_FMSI
                                     helpCounter++;
                                     if (helpCounter > 1)
                                     {
-                                        temp += ":";
-                                        temp += finalConnection;
+                                        statesSorted.Add(finalConnection);
                                     }
                                     else
                                     {
-                                        temp += finalConnection;
+                                        statesSorted.Add(finalConnection);
                                     }
                                 }
                             }
@@ -756,6 +904,27 @@ namespace Projektni_FMSI
 
                     }
                 }
+                temp = "";
+                if(statesSorted.Count > 1)
+                {
+                    int counter = 0;
+                    foreach (var s in statesSorted) {
+                        
+                        temp += s;
+                        counter++;
+                        if (counter != statesSorted.Count)
+                        {
+                            temp += ":";
+                        }
+
+                    }
+                }
+                else
+                {
+                    if(statesSorted.Count == 1)
+                        temp = statesSorted.ElementAt(0);
+                }
+
                 if (isFinalState)
                 {
                     DKA.finalStates.Add(temp);
