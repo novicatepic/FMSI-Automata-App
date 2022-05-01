@@ -24,15 +24,20 @@ g.delta[("q2", 'a')] = "q3";
 g.delta[("q2", 'b')] = "q2";
 g.delta[("q3", 'a')] = "q5";
 g.delta[("q3", 'b')] = "q5";
-g.delta[("q4", 'a')] = "q0";
+//g.delta[("q4", 'a')] = "q0";
+//g.finalStates.Add("q4");
+//g.finalStates.Add("q2");
+//g.finalStates.Add("q0");
+Console.WriteLine(g.isLanguageFinal());
+
 //g.delta[("q5", 'a')] = "q2";
 //g.delta[("q4", 'a')] = "p2";
 //g.delta[("q4", 'b')] = "p1";
 
-g.finalStates.Add("q4");
-g.finalStates.Add("q5");
 
-Console.WriteLine(g.findLongestPath());
+//g.finalStates.Add("q5");
+
+Console.WriteLine(g.findShortestPath());
 
 //a.makeAutomata();
 //g.makeAutomata();

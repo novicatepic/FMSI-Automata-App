@@ -196,13 +196,11 @@ namespace Projektni_FMSI
                         {
                             if(symbol != 'E')
                             {
-                                //DOESNT WORK
                                 helpForConnectingAndStuff(result, state, symbol);
                             }
                         }
                         else
                         {
-                            //NAH
                             result.ESwitching(state, 'E', other.StartState);
                             foreach(var symb in alphabet)
                             {
@@ -219,8 +217,6 @@ namespace Projektni_FMSI
                 {
                     foreach(var symbol in other.alphabet)
                     {
-                        //NOT WORKING
-                        //connectFlag = true;
                         other.helpForConnectingAndStuff(result, state, symbol);                       
                     }
                 }
@@ -232,10 +228,6 @@ namespace Projektni_FMSI
             return result;
         }
 
-        /*private void helpForConnecting(Automat result, string state, char symbol)
-        {
-
-        }*/
         private void helpForConnectingAndStuff(Automat result, string state, char symbol)
         {
             if (this.checkIfIsENKA())
@@ -349,8 +341,6 @@ namespace Projektni_FMSI
             return result;
         }
 
-        //PROBLEM SA FUNKCIJOM PRELAZA, KAD SLIKA IZ EPSILON U VISE STANJA, UVIJEK UZME ONO ZADNJE!
-        //NAPRAVIO DA RADI, ISPROVJERAVATI!
         public Automat applyKleeneStar()
         {
             Automat result = new();
@@ -457,7 +447,6 @@ namespace Projektni_FMSI
             return finalStates.Contains(currentState);
         }
 
-        //DOBRA
         public Automat constructComplement()
         {
             Automat result = new();
@@ -732,8 +721,46 @@ namespace Projektni_FMSI
             
         }
 
-        //NIJE DOVOLJNO DOBRO
         public bool isLanguageFinal()
+        {
+            Automat convert = new();
+
+            if(checkIfIsENKA())
+            {
+                convert = convertENKAtoDKA();    
+            }
+            else
+            {
+                convert = this;
+            }
+
+            if(convert.finalStates.Count == 0 || convert.finalStates.Count == convert.states.Count)
+            {
+                return false;
+            }
+
+            if(!isLanguageFinalHelpFunc())
+            {
+                return false;
+            }
+
+            AutomatGraph automatGraph = new(convert.states.Count);
+            convert.makeGraphFromAutomataWithAllConnections(automatGraph);
+
+            foreach(var finalState in convert.finalStates)
+            {
+                if (automatGraph.dfsForLongestWord(finalState))
+                {
+                    return false;
+                }
+
+            }
+
+
+            return true;
+        }
+
+        private bool isLanguageFinalHelpFunc()
         {
             bool result = true;
             foreach(var finalState in finalStates)
@@ -756,6 +783,12 @@ namespace Projektni_FMSI
             if(finalStates.Contains(StartState))
             {
                 return shortestPathLength;
+            }
+
+            if(finalStates.Count == 0)
+            {
+                Console.WriteLine("There is no shortest path because there is no entry state, returning -1");
+                return -1;
             }
 
             Queue<string> queue = new();
@@ -851,9 +884,9 @@ namespace Projektni_FMSI
                 possibleDKA = this;
             }
 
-            if(!isLanguageFinal())
+            if(!isLanguageFinalHelpFunc())
             {
-                Console.WriteLine("It's infinity, even thought here we don't have infinity");
+                Console.WriteLine("It's infinity, even thought here we don't have infinity, I'll just print out the biggest possible number");
                 return int.MaxValue;
             }
 
@@ -863,7 +896,7 @@ namespace Projektni_FMSI
             {
                 if(automatGraph.dfsForLongestWord(finalState))
                 {
-                    Console.WriteLine("It's infinity, even thought here we don't have infinity");
+                    Console.WriteLine("It's infinity, even thought here we don't have infinity, I'll just print out the biggest possible number");
                     return int.MaxValue;
                 }
             }
@@ -904,14 +937,6 @@ namespace Projektni_FMSI
                                 doesContain = true;
                             }
                         }
-                        /*else
-                        {
-                            if (deltaForEpsilon.ContainsKey((nodes[i], symbol)) && deltaForEpsilon[(nodes[i], symbol)].Contains(nodes[j]))
-                            {
-                                ms[i, j] = 1;
-                                doesContain = true;
-                            }
-                        }*/
                     }
                     if(!doesContain)
                     {
@@ -1080,8 +1105,6 @@ namespace Projektni_FMSI
             {
                 second = graph.bfsTraversal(convertSecond);
             }
-            //first.printStatesAndAlphabet();
-            //second.printStatesAndAlphabet();
 
             if(first.states.Count != second.states.Count)
             {
@@ -1196,17 +1219,6 @@ namespace Projektni_FMSI
             {
                 //Console.WriteLine("YAS");
             }
-
-            /*for (int i = 0; i < states.Count; i++)
-            {
-                for (int j = 0; j < states.Count; j++)
-                {
-                    if(automatGraph.ms[i, j] == 0)
-                    {
-                        //Console.WriteLine(i + " " + j);
-                    }
-                }
-            }*/
 
             HashSet<string> statesToMinimize = new();
             HashSet<string> fullMinimization = new();
@@ -1510,6 +1522,161 @@ namespace Projektni_FMSI
             
             return nodesVisited;
         }
+
+        private int checkHowManyBrackets(string input, char symbol)
+        {
+            int bracketCounter = 0;
+            for(int i = 0; i < input.Length; i++)
+            {
+                if(input[i] == symbol)
+                {
+                    bracketCounter++;
+                }
+            }
+            return bracketCounter;
+        }
+
+        private bool checkIfRegularExpressionIsCorrect(string input)
+        {
+            for(int i = 0; i < input.Length; i++)
+            {
+                if(input[i] == '*' || input[i] == '+' || input[i] == '(' || input[i] == ')' || alphabet.Contains(input[i]))
+                {
+                    continue;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private bool checkPositionOfBrackets(string input)
+        {
+            if(input[0] == ')' || input[input.Length - 1] == '(')
+            {
+                return false;
+            }
+            for (int i = 0; i < input.Length - 1; i++) {
+                if(input[i] == '(' && input[i + 1] == ')')
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private bool checkIfStartsWithPlus(string input)
+        {
+            return input[0] == '+';
+        }
+
+        private bool checkIfPlusIsBeforeClosedBracket(string input)
+        {
+            for(int i = 0; i < input.Length - 1; i++)
+            {
+                if(input[i] == '+' && input[i + 1] == ')')
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool checkIfEndsWithPlus(string input)
+        {
+            return (input[input.Length - 1] == '+');
+        }
+
+        private bool checkIfTwoPlusesAreNextToEachOther(string input)
+        {
+            for(int i = 0; i < input.Length - 1; i++) {
+                if(input[i] == '+' && input[i + 1] == '+')
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static Automat errorInTransformatingRegExpToAutomata()
+        {
+            Console.WriteLine("Automata not created, returning null");
+            return null;
+        }
+
+        private Automat findUnionBetweenTwoLanguages(Automat other)
+        {
+            Automat result = new();
+
+            result.alphabet = this.alphabet;
+            result.alphabet.Add('E');
+            result.StartState = "NSS" + id;
+            result.finalStates.Add("NFS" + id);
+            foreach(var state in states)
+            {
+                result.states.Add(state);
+            }
+            foreach(var state in other.states)
+            {
+                result.states.Add(state);
+            }
+
+            foreach(var symbol in alphabet)
+            {
+                foreach(var state in states)
+                {
+                    helpForConnectingAndStuff(result, state, symbol);
+                }
+            }
+
+            foreach(var symbol in other.alphabet)
+            {
+                foreach(var state in other.states)
+                {
+                    other.helpForConnectingAndStuff(result, state, symbol);
+                }
+            }
+
+            result.deltaForEpsilon[(result.StartState, 'E')].Add(this.StartState);
+            result.deltaForEpsilon[(result.StartState, 'E')].Add(other.StartState);
+            foreach(var finalState in finalStates)
+            {
+                result.deltaForEpsilon[(finalState, 'E')].Add(result.finalStates.ElementAt(0));
+            }
+            foreach(var finalState in other.finalStates)
+            {
+                result.deltaForEpsilon[(finalState, 'E')].Add(result.finalStates.ElementAt(0));
+            }
+
+            return result;
+        }
+
+
+
+        public Automat transformRegularExpressionToAutomata(string regularExpression)
+        {
+            Automat result = new();
+
+            if(checkHowManyBrackets(regularExpression, '(') != checkHowManyBrackets(regularExpression, ')'))
+            {
+                return errorInTransformatingRegExpToAutomata();
+            }
+
+            if (!checkIfRegularExpressionIsCorrect(regularExpression) || !checkPositionOfBrackets(regularExpression) || 
+                checkIfStartsWithPlus(regularExpression) || checkIfPlusIsBeforeClosedBracket(regularExpression) || 
+                checkIfEndsWithPlus(regularExpression) || checkIfTwoPlusesAreNextToEachOther(regularExpression))
+            {
+                return errorInTransformatingRegExpToAutomata();
+            }
+
+            
+
+            return result;
+        }
+
+
     }
 
 }

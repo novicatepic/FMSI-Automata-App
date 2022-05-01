@@ -67,10 +67,12 @@ namespace Projektni_FMSI
             {
                 int v;
                 visit[u] = true;
-                Console.Write(nodes[u] + " ");
+                //Console.Write(nodes[u] + " ");
+                
                 if(set.Contains(nodes[u]))
                 {
                     isThereACycle = true;
+                    return;
                 }
                 set.Add(nodes[u]);
                 
@@ -78,7 +80,7 @@ namespace Projektni_FMSI
 
                 for (v = 0; v < size; v++)
                 {
-                    if (ms[u, v] == 1 && !visit[v])
+                    if (ms[u, v] == 1 && (!visit[v] || nodes[v] == startState))
                     {
                         dfs_visit(v);
                     }
@@ -89,10 +91,6 @@ namespace Projektni_FMSI
             {
                 if (startState.Equals(nodes[i]))
                 {
-                    /*if(isThereACycle)
-                    {
-                        return true;
-                    }*/
                     dfs_visit(i);
                 }
             }
@@ -116,18 +114,15 @@ namespace Projektni_FMSI
             whichOnesWereVisited.ElementAt(0).Add(visit.StartState);
 
             queue.Enqueue(visit.StartState);
-
-            //int howManyWerePutIntoQueue = 0;
             int counterForSortedSet = 1;
 
             while(queue.Count > 0)
             {
                 string state = queue.Dequeue();
-                //Console.Write(state + " ");
+
                 rememberAllAlreadyVisited.Add(state);
                 int position = findPositionOfState(state);
-                //for(int i = 0; i < size; i++)
-                //{
+
                     for(int j = 0; j < size; j++)
                     {
                         if(ms[position, j] == 1 && !rememberAllAlreadyVisited.Contains(findStateBasedOnPosition(j)))
@@ -135,27 +130,15 @@ namespace Projektni_FMSI
                             string element = findStateBasedOnPosition(j);
                             queue.Enqueue(element);
                             rememberAllAlreadyVisited.Add(element);
-                            //Console.Write(findStateBasedOnPosition(j) + " ");
-                            //Console.Write(rememberAllAlreadyVisited.Contains(findStateBasedOnPosition(j)));
-                            //bool contains = false;
                             for(int g = 0; g < whichOnesWereVisited.Count; g++) {
                                 if(whichOnesWereVisited.ElementAt(g).Contains(state))
                                 {
                                     whichOnesWereVisited.ElementAt(g + 1).Add(element);
-                                    //contains = true;
                                     break;
                                 }
                             }
-                            /*if(!contains)
-                            {
-                                whichOnesWereVisited.ElementAt(counterForSortedSet).Add(findStateBasedOnPosition(j));
-                            }*/
-
-                            //whichOnesWereVisited.ElementAt(counterForSortedSet).Add(findStateBasedOnPosition(j));
-                            //howManyWerePutIntoQueue++;
                         }
                     }
-                //}
                 counterForSortedSet++;
 
                 foreach(var element in queue)
@@ -177,24 +160,6 @@ namespace Projektni_FMSI
                     }
                 }
 
-            }
-
-            Console.WriteLine();
-            foreach(var element in rememberAllAlreadyVisited)
-            {
-                Console.Write(element + " ");
-            }
-
-            Console.WriteLine();
-            Console.WriteLine();
-            Console.WriteLine();
-            for (int i = 0; i < whichOnesWereVisited.Count; i++, Console.WriteLine())
-            {
-                foreach(var elem in whichOnesWereVisited.ElementAt(i))
-                {
-                    Console.Write(elem + " ");
-                }   
-                //Console.Write(whichOnesWereVisited.ElementAt(i))
             }
 
             return longestWord;
@@ -326,20 +291,5 @@ namespace Projektni_FMSI
             }
             return checkIfThereIsNone;
         }
-
-        public override bool Equals(object obj)
-        {
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
-        /*public override string ToString()
-        {
-            return base.ToString();
-        }*/
     }
 }
