@@ -4,19 +4,36 @@ using Projektni_FMSI;
 Automat a = new Automat();
 Automat b = new();
 Automat g = new();
-Automat f = new();
-Automat.chainOperations();
+//Automat f = new();
+//Automat.chainOperations();
 
-g.StartState = "p1";
-g.states.Add("p1");
-g.states.Add("p2");
+g.StartState = "q0";
+g.states.Add("q0");
+g.states.Add("q1");
+g.states.Add("q2");
+g.states.Add("q3");
+g.states.Add("q4");
+g.states.Add("q5");
 g.alphabet.Add('a');
 g.alphabet.Add('b');
-g.delta[("p1", 'a')] = "p2";
-g.delta[("p1", 'b')] = "p1";
-g.delta[("p2", 'a')] = "p2";
-g.delta[("p2", 'b')] = "p2";
-g.finalStates.Add("p2");
+g.delta[("q0", 'a')] = "q1";
+g.delta[("q0", 'b')] = "q2";
+g.delta[("q1", 'a')] = "q4";
+g.delta[("q1", 'b')] = "q1";
+g.delta[("q2", 'a')] = "q3";
+g.delta[("q2", 'b')] = "q2";
+g.delta[("q3", 'a')] = "q5";
+g.delta[("q3", 'b')] = "q5";
+g.delta[("q4", 'a')] = "q0";
+//g.delta[("q5", 'a')] = "q2";
+//g.delta[("q4", 'a')] = "p2";
+//g.delta[("q4", 'b')] = "p1";
+
+g.finalStates.Add("q4");
+g.finalStates.Add("q5");
+
+Console.WriteLine(g.findLongestPath());
+
 //a.makeAutomata();
 //g.makeAutomata();
 a.StartState = "q1";

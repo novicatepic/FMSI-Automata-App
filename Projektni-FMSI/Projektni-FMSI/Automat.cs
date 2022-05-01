@@ -556,17 +556,20 @@ namespace Projektni_FMSI
                         symbol = char.Parse(inputHelp);
                         Console.WriteLine("Enter destination state: ");
                         nextState = Console.ReadLine();
-                        
+
                         if(checkIfStateExists(nextState + id))
+                        //if(checkIfStateExists(nextState))
                         {
                             if (!checkIfIsENKA())
                             {
                                 addTransitionDKA(state, symbol, nextState + id);
+                                //addTransitionDKA(state, symbol, nextState);
                             }
                             else
                             {
                                 helpMethodForESwitching();
                                 ESwitching(state, symbol, nextState + id);
+                                //ESwitching(state, symbol, nextState);
                             }
                         }
                         else
@@ -737,7 +740,7 @@ namespace Projektni_FMSI
             {
                 foreach(var symbol in alphabet)
                 {
-                    if(delta[(finalState, symbol)] == finalState)
+                    if(delta.ContainsKey((finalState, symbol)) && delta[(finalState, symbol)] == finalState)
                     {
                         return false;
                     }
@@ -830,6 +833,96 @@ namespace Projektni_FMSI
             //DKA.minimiseAutomata();
 
             return DKA;
+        }
+
+        public int findLongestPath()
+        {
+            //int pathSize = 0;
+            AutomatGraph automatGraph = new(states.Count);
+
+            Automat possibleDKA = new();
+
+            if(checkIfIsENKA())
+            {
+                possibleDKA = convertENKAtoDKA();
+            }
+            else
+            {
+                possibleDKA = this;
+            }
+
+            if(!isLanguageFinal())
+            {
+                Console.WriteLine("It's infinity, even thought here we don't have infinity");
+                return int.MaxValue;
+            }
+
+            possibleDKA.makeGraphFromAutomataWithAllConnections(automatGraph);
+
+            foreach(var finalState in possibleDKA.finalStates)
+            {
+                if(automatGraph.dfsForLongestWord(finalState))
+                {
+                    Console.WriteLine("It's infinity, even thought here we don't have infinity");
+                    return int.MaxValue;
+                }
+            }
+
+            if(possibleDKA.finalStates.Count == 0)
+            {
+                Console.WriteLine("There is no final state, returning -1!");
+                return -1;
+            }
+
+            return automatGraph.bfsFindLongestWord(possibleDKA);
+
+            //return pathSize;
+        }
+
+        private void makeGraphFromAutomataWithAllConnections(AutomatGraph automatGraph)
+        {
+            int[,] ms = new int[states.Count, states.Count];
+            string[] nodes = new string[states.Count];
+            int i = 0, j = 0;
+            foreach (var state in states)
+            {
+                nodes[i++] = state;
+            }
+            i = 0;
+            for(i = 0; i < states.Count; i++)
+            {
+                for(j = 0; j < states.Count; j++)
+                {
+                    bool doesContain = false;
+                    foreach(var symbol in alphabet)
+                    {
+                        if(!checkIfIsENKA())
+                        {
+                            if(delta.ContainsKey((nodes[i], symbol)) && delta[(nodes[i], symbol)].Contains(nodes[j]))
+                            {
+                                ms[i, j] = 1;
+                                doesContain = true;
+                            }
+                        }
+                        /*else
+                        {
+                            if (deltaForEpsilon.ContainsKey((nodes[i], symbol)) && deltaForEpsilon[(nodes[i], symbol)].Contains(nodes[j]))
+                            {
+                                ms[i, j] = 1;
+                                doesContain = true;
+                            }
+                        }*/
+                    }
+                    if(!doesContain)
+                    {
+                        ms[i, j] = 0;
+                    }
+                }
+            }
+
+            automatGraph.ms = ms;
+            automatGraph.nodes = nodes;
+
         }
 
         private void makeGraphFromAutomataWithEClosures(AutomatGraph automatGraph)
