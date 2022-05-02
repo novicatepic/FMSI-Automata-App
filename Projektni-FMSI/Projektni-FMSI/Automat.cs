@@ -1680,6 +1680,50 @@ namespace Projektni_FMSI
             return howMany;
         }
 
+        private int numberOfValidExpressions(string regexp)
+        {
+            int number = 0;
+            int bracketCounter = 0;
+            int i = 0;
+            bool foundOne = false;
+            do
+            {
+                foundOne = false;
+                if(regexp[i] == '(')
+                {
+                    bracketCounter++;
+                    number++;
+                    i++;
+                    while(bracketCounter > 0)
+                    {
+                        if(regexp[i] == '(')
+                        {
+                            bracketCounter++;
+                        }
+                        if(regexp[i] == ')')
+                        {
+                            bracketCounter--;
+                        }
+                        i++;
+                    }
+                }
+                else
+                {
+                    if(!foundOne) { 
+                        while(i != regexp.Length - 1 && regexp[i] != '(')
+                        {
+                            i++;
+                        }
+                        number++;
+                    }
+                    foundOne = true;
+                }
+
+            } while (i != regexp.Length - 1);
+
+            return number;
+        }
+
         public Automat transformRegularExpressionToAutomata(string regularExpression)
         {
             Automat result = new();
@@ -1776,14 +1820,18 @@ namespace Projektni_FMSI
             tmp = "";
 
             Console.WriteLine(arr);
-            Console.WriteLine("Howmany: " + howManyBeforeInMiddleAndAfter(arr));
-
-            string[] newExpressions = new string[howManyNestedBracketsForReal];
+            //Console.WriteLine("Howmany: " + howManyBeforeInMiddleAndAfter(arr));
+            
+            int num = howManyNestedBracketsForReal + howManyBeforeInMiddleAndAfter(arr);
+            Console.WriteLine("NUM: " + num);
+            string[] newExpressions = new string[num];
 
             bool firstGo = true;
             string tempString = "";
-            while (howManyNestedBracketsForReal > 0 || stack.Count != 0)
+
+            while (num > 0)
             {
+
                 //tempString = "";
                 if (firstGo)
                 {
@@ -1795,23 +1843,37 @@ namespace Projektni_FMSI
                     if(stack.Peek() == ')')
                     {
                         stack.Pop();
-                        howManyNestedBracketsForReal--;
+                        num--;
                         while(stack.Peek() != '(')
                         {
-                            newExpressions[howManyNestedBracketsForReal] += stack.Pop();
+                            if (stack.Peek() != ')')
+                                newExpressions[num] += stack.Pop();
+                            else
+                                break;
                         }
                         stack.Pop();
+                        if (stack.Count == 1)
+                        {
+                            stack.Pop();
+                        }
                     }
                     else
                     {
+                        tempString = "";
                         while(stack.Peek() != ')' && stack.Peek() != '(')
                         {
-                            tempString += stack.Pop();
-
+                            char pop = stack.Pop();
+                            tempString += pop;
                         }
-                        if(stack.Peek() != '(')
-                            tempString += ":";
-                        if (stack.Peek() == '(')
+                        num--;
+                        newExpressions[num] = tempString;
+                        //if(stack.Peek() != '(')
+                            //tempString += ":";
+                        if (stack.Count != 0 && stack.Peek() == '(')
+                        {
+                            stack.Pop();
+                        }
+                        if (stack.Count == 1)
                         {
                             stack.Pop();
                         }
@@ -1819,13 +1881,20 @@ namespace Projektni_FMSI
                 }
             }
 
-            Console.WriteLine(tempString);
+
+            Console.WriteLine();
+
+            //Console.WriteLine(tempString);
             Console.WriteLine(newExpressions[0]);
+            Console.WriteLine(newExpressions[1]);
+            //Console.WriteLine(newExpressions[2]);
 
             char[] charArray = newExpressions[0].ToCharArray();
             Array.Reverse(charArray);
+            string str = new string(charArray);
+            //Console.WriteLine(str);
 
-            Console.WriteLine(charArray);
+            //Console.WriteLine(numberOfValidExpressions(regularExpression));
 
             return result;
         }
