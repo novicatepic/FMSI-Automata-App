@@ -1724,6 +1724,76 @@ namespace Projektni_FMSI
             return number;
         }
 
+        public Automat transform(string regularExpression)
+        {
+            Automat result = new();
+
+            if (checkHowManyBrackets(regularExpression, '(') != checkHowManyBrackets(regularExpression, ')'))
+            {
+                return errorInTransformatingRegExpToAutomata();
+            }
+
+            if (!checkIfRegularExpressionIsCorrect(regularExpression) || !checkPositionOfBrackets(regularExpression) ||
+                checkIfStartsWithPlus(regularExpression) || checkIfPlusIsBeforeClosedBracket(regularExpression) ||
+                checkIfEndsWithPlus(regularExpression) || checkIfTwoPlusesAreNextToEachOther(regularExpression))
+            {
+                return errorInTransformatingRegExpToAutomata();
+            }
+
+            Stack<char> stack = new();
+
+            foreach (var symbol in regularExpression)
+            {
+                stack.Push(symbol);
+            }
+
+            int numberOfValidExp = numberOfValidExpressions(regularExpression);
+            string[] regExp = new string[numberOfValidExp];
+            int bracketsNumber = 0;
+            int helpCounter = 0;
+            while (numberOfValidExp > 0)
+            {
+                string temp = "";
+                int index = numberOfValidExp - 1;
+                while (stack.Count != 0 && stack.Peek() != ')' && bracketsNumber == 0)
+                {
+                    helpCounter++;
+                    regExp[index] += stack.Pop();
+                }
+                if(helpCounter > 0)
+                {
+                    numberOfValidExp--;
+                }
+                if (stack.Count != 0 && stack.Peek() == ')')
+                {
+                    helpCounter = 0;
+                    temp += stack.Pop();
+                    bracketsNumber++;
+                    while (bracketsNumber > 0)
+                    {
+                        if (stack.Peek() == ')')
+                        {
+                            bracketsNumber++;
+                        }
+                        if (stack.Peek() == '(')
+                        {
+                            bracketsNumber--;
+                        }
+                        temp += stack.Pop();
+                    }
+                    regExp[index] = temp;
+                    numberOfValidExp--;
+                }
+            }
+
+            for(int i = 0; i < numberOfValidExp; i++)
+            {
+                Console.WriteLine(regExp[i]);
+            }
+
+            return result;
+        }
+
         public Automat transformRegularExpressionToAutomata(string regularExpression)
         {
             Automat result = new();
@@ -1784,10 +1854,6 @@ namespace Projektni_FMSI
                     countBrackets++;
                 }
             }
-
-            //Automat[] helpAutomatas = new Automat[countBrackets];
-            //string[] tempStrings = new string[countBrackets];
-            //int stringHelper = 0;
 
             int howManyNestedBrackets = 0;
             int howManyNestedBracketsForReal = 0;
@@ -1894,7 +1960,7 @@ namespace Projektni_FMSI
             string str = new string(charArray);
             //Console.WriteLine(str);
 
-            //Console.WriteLine(numberOfValidExpressions(regularExpression));
+            Console.WriteLine(numberOfValidExpressions(regularExpression));
 
             return result;
         }

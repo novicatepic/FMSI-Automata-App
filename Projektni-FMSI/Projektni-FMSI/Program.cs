@@ -34,7 +34,8 @@ g.delta[("q3", 'b')] = "q5";
 //g.delta[("q4", 'a')] = "p2";
 //g.delta[("q4", 'b')] = "p1";
 
-Automat convert = g.transformRegularExpressionToAutomata("ab((a+ab)*b)a+b");
+//Automat convert = g.transformRegularExpressionToAutomata("ab((a+ab)*b)a+b");
+Automat convert = g.transform("ab((a+ab)*b)a+b");
 
 //g.finalStates.Add("q5");
 
