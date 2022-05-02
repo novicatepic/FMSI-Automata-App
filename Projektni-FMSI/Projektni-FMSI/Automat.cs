@@ -1653,7 +1653,32 @@ namespace Projektni_FMSI
             return result;
         }
 
-
+        private int howManyBeforeInMiddleAndAfter(char[] expression)
+        {
+            int howMany = 0;
+            int bracketsOpened = 0;
+            bool doneItOnce = false;
+            for(int i = 1; i < expression.Length - 1; i++)
+            {
+                if(expression[i] != '(' && expression[i] != ')' && bracketsOpened == 0 && !doneItOnce)
+                {
+                    //while(expression[i++] != '(') { }
+                    howMany++;
+                    doneItOnce = true;
+                }
+                if(expression[i] == '(')
+                {
+                    doneItOnce = false;
+                    bracketsOpened++;
+                }
+                if(expression[i] == ')')
+                {
+                    doneItOnce = false;
+                    bracketsOpened--;
+                }
+            }
+            return howMany;
+        }
 
         public Automat transformRegularExpressionToAutomata(string regularExpression)
         {
@@ -1671,7 +1696,136 @@ namespace Projektni_FMSI
                 return errorInTransformatingRegExpToAutomata();
             }
 
-            
+            Stack<char> stack = new();
+            //bool areThereBrackets = false;
+            int countBrackets = 0;
+            int countBracketsInLoop = 0;
+
+            for (int i = 0; i < regularExpression.Length; i++)
+            {
+                if(regularExpression[i] == '(')
+                {
+                    countBracketsInLoop++;
+                    bool firstEncounter = false;
+                    while(countBracketsInLoop > 0)
+                    {
+                        if (i == regularExpression.Length) break;
+                        stack.Push(regularExpression[i]);
+                        if(regularExpression[i] == '(' && firstEncounter)
+                        {
+                            countBracketsInLoop++;
+                        }
+                        if(regularExpression[i] == ')')
+                        {
+                            //stack.Push(regularExpression[i]);
+                            countBracketsInLoop--;
+                        }
+                        firstEncounter = true;
+                        i++;
+                    }
+                }
+
+            }
+
+            foreach(var symbol in stack)
+            {
+                Console.Write(symbol + " ");
+            }
+            Console.WriteLine();
+
+            foreach(var symbol in stack)
+            {
+                if(symbol == '(')
+                {
+                    countBrackets++;
+                }
+            }
+
+            //Automat[] helpAutomatas = new Automat[countBrackets];
+            //string[] tempStrings = new string[countBrackets];
+            //int stringHelper = 0;
+
+            int howManyNestedBrackets = 0;
+            int howManyNestedBracketsForReal = 0;
+            foreach(var symbol in stack)
+            {
+                if(symbol == '(')
+                {
+                    if(howManyNestedBrackets > 1)
+                    {
+                        howManyNestedBracketsForReal++;
+                    }
+                    howManyNestedBrackets--;
+                }
+
+                if(symbol == ')')
+                {
+                    howManyNestedBrackets++;
+                }
+            }
+
+            Console.WriteLine(howManyNestedBracketsForReal);
+
+            string tmp = "";
+            foreach(var symbol in stack)
+            {
+                tmp += symbol;
+            }
+            char[] arr = tmp.ToCharArray();
+            Array.Reverse(arr);
+            tmp = "";
+
+            Console.WriteLine(arr);
+            Console.WriteLine("Howmany: " + howManyBeforeInMiddleAndAfter(arr));
+
+            string[] newExpressions = new string[howManyNestedBracketsForReal];
+
+            bool firstGo = true;
+            string tempString = "";
+            while (howManyNestedBracketsForReal > 0 || stack.Count != 0)
+            {
+                //tempString = "";
+                if (firstGo)
+                {
+                    stack.Pop();
+                    firstGo = false;
+                }
+                else
+                {
+                    if(stack.Peek() == ')')
+                    {
+                        stack.Pop();
+                        howManyNestedBracketsForReal--;
+                        while(stack.Peek() != '(')
+                        {
+                            newExpressions[howManyNestedBracketsForReal] += stack.Pop();
+                        }
+                        stack.Pop();
+                    }
+                    else
+                    {
+                        while(stack.Peek() != ')' && stack.Peek() != '(')
+                        {
+                            tempString += stack.Pop();
+
+                        }
+                        if(stack.Peek() != '(')
+                            tempString += ":";
+                        if (stack.Peek() == '(')
+                        {
+                            stack.Pop();
+                        }
+                    }
+                }
+            }
+
+            Console.WriteLine(tempString);
+            Console.WriteLine(newExpressions[0]);
+
+            char[] charArray = newExpressions[0].ToCharArray();
+            Array.Reverse(charArray);
+
+            Console.WriteLine(charArray);
 
             return result;
         }

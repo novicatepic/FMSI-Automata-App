@@ -28,16 +28,17 @@ g.delta[("q3", 'b')] = "q5";
 //g.finalStates.Add("q4");
 //g.finalStates.Add("q2");
 //g.finalStates.Add("q0");
-Console.WriteLine(g.isLanguageFinal());
+//Console.WriteLine(g.isLanguageFinal());
 
 //g.delta[("q5", 'a')] = "q2";
 //g.delta[("q4", 'a')] = "p2";
 //g.delta[("q4", 'b')] = "p1";
 
+Automat convert = g.transformRegularExpressionToAutomata("ab((a+ab)*b)a+b");
 
 //g.finalStates.Add("q5");
 
-Console.WriteLine(g.findShortestPath());
+//Console.WriteLine(g.findShortestPath());
 
 //a.makeAutomata();
 //g.makeAutomata();
