@@ -31,11 +31,7 @@ namespace Projektni_FMSI
 
         public SortedSet<string> dfs(string startState)
         {
-            bool[] visit = new bool[size];
-            for (int i = 0; i < size; i++)
-            {
-                visit[i] = false;
-            }
+            bool[] visit = initVisit();
             SortedSet<string> set = new();
             void dfs_visit(int u)
             {
@@ -58,8 +54,141 @@ namespace Projektni_FMSI
                     dfs_visit(i);
                 }
             }
-            //dfs_visit(0);
             return set;
+        }
+
+        public bool dfsForLongestWord(string startState)
+        {
+            bool isThereACycle = false;
+            List<string> set = new();
+            bool[] visit = initVisit();
+
+            void dfs_visit(int u)
+            {
+                int v;
+                visit[u] = true;
+                //Console.Write(nodes[u] + " ");
+                
+                if(set.Contains(nodes[u]))
+                {
+                    isThereACycle = true;
+                    return;
+                }
+                set.Add(nodes[u]);
+                
+               
+
+                for (v = 0; v < size; v++)
+                {
+                    if (ms[u, v] == 1 && (!visit[v] || nodes[v] == startState))
+                    {
+                        dfs_visit(v);
+                    }
+                }
+            }
+
+            for (int i = 0; i < size; i++)
+            {
+                if (startState.Equals(nodes[i]))
+                {
+                    dfs_visit(i);
+                }
+            }
+
+            return isThereACycle;
+        }
+
+        public int bfsFindLongestWord(Automat visit)
+        {
+            int longestWord = 0;
+
+            Queue<string> queue = new();
+            HashSet < HashSet<string> > whichOnesWereVisited = new HashSet<HashSet<string>>();
+            HashSet<string> rememberAllAlreadyVisited = new();
+            
+            for(int i = 0; i < visit.states.Count; i++)
+            {
+                whichOnesWereVisited.Add(new HashSet<string>());
+            }
+
+            whichOnesWereVisited.ElementAt(0).Add(visit.StartState);
+
+            queue.Enqueue(visit.StartState);
+            int counterForSortedSet = 1;
+
+            while(queue.Count > 0)
+            {
+                string state = queue.Dequeue();
+
+                rememberAllAlreadyVisited.Add(state);
+                int position = findPositionOfState(state);
+
+                    for(int j = 0; j < size; j++)
+                    {
+                        if(ms[position, j] == 1 && !rememberAllAlreadyVisited.Contains(findStateBasedOnPosition(j)))
+                        {
+                            string element = findStateBasedOnPosition(j);
+                            queue.Enqueue(element);
+                            rememberAllAlreadyVisited.Add(element);
+                            for(int g = 0; g < whichOnesWereVisited.Count; g++) {
+                                if(whichOnesWereVisited.ElementAt(g).Contains(state))
+                                {
+                                    whichOnesWereVisited.ElementAt(g + 1).Add(element);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                counterForSortedSet++;
+
+                foreach(var element in queue)
+                {
+                    int wordLength = 0;
+                    if(visit.finalStates.Contains(element))
+                    {
+                        for(int g = 0; g < whichOnesWereVisited.Count; g++)
+                        {
+                            if(whichOnesWereVisited.ElementAt(g).Contains(element))
+                            {
+                                wordLength = g;
+                            }
+                        }
+                        if(wordLength > longestWord)
+                        {
+                            longestWord = wordLength;
+                        }
+                    }
+                }
+
+            }
+
+            return longestWord;
+        }
+
+        private string findStateBasedOnPosition(int position)
+        {
+            return nodes.ElementAt(position);
+        }
+
+        private int findPositionOfState(string state)
+        {
+            for (int i = 0; i < size; i++) {
+                if (nodes[i] == state)
+                    return i;
+            }
+            return -1;
+        }
+
+
+        private bool[] initVisit()
+        {
+            bool[] visit = new bool[size];
+            for (int i = 0; i < size; i++)
+            {
+                visit[i] = false;
+            }
+
+            return visit;
         }
 
         public Automat bfsTraversal(Automat automata)
@@ -162,6 +291,5 @@ namespace Projektni_FMSI
             }
             return checkIfThereIsNone;
         }
-
     }
 }
