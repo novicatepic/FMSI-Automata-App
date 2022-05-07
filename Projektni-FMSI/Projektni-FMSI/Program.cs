@@ -1,29 +1,211 @@
 ﻿using System;
 using Projektni_FMSI;
+using System.Collections.Generic;
 
-Automat a = new Automat();
-Automat b = new();
-Automat g = new();
+//Automat g = new();
+
+Console.WriteLine("===================================");
+Console.WriteLine("===================================");
+Console.WriteLine("WELCOME: ");
+Console.WriteLine("===================================");
+Console.WriteLine("===================================");
+Console.WriteLine("You have these options: ");
+Console.WriteLine("1-Execute automata\n2-Construct union\n3-Construct intersection\n4-Construct difference\n5-Connect two languages\n6-Apply Kleene star" +
+                    "\n7-Chain operations\n8-Find shortest word\n9-Find longest word\n10-Check out if language is final\n11-Minimise DKA\n" +
+                    "12-Transform ENKA to DKA\n13-Check if two automatas are the same\n14-Print base automata");
+Console.WriteLine("--exit to finish!");
+Console.WriteLine("Construct your base automata: ");
+string input = "";
+Automat a = null, b = null;
+a = new();
+a.makeAutomata();
+do
+{
+    input = Console.ReadLine();
+    if(input == "1")
+    {
+        a.runAutomata();
+    }
+    else if(input == "2")
+    {
+        Console.WriteLine("Construct second automata: ");
+        b = new();
+        b.makeAutomata();
+        Automat res = a.findUnion(b);
+        Console.WriteLine("Result: ");
+        res.printStatesAndAlphabet();
+    }
+    else if (input == "3")
+    {
+        Console.WriteLine("Construct second automata: ");
+        b = new();
+        b.makeAutomata();
+        Automat res = a.findIntersection(b);
+        Console.WriteLine("Result: ");
+        res.printStatesAndAlphabet();
+
+    }
+    else if (input == "4")
+    {
+        Console.WriteLine("Construct second automata: ");
+        b = new();
+        b.makeAutomata();
+        Automat res = a.findDifference(b);
+        Console.WriteLine("Result: ");
+        res.printStatesAndAlphabet();
+    }
+    else if (input == "5")
+    {
+        Console.WriteLine("Construct second automata: ");
+        b = new();
+        b.makeAutomata();
+        Automat res = a.connectLanguages(b);
+        Console.WriteLine("Result: ");
+        res.printStatesAndAlphabet();
+    }
+    else if (input == "6")
+    {
+        Automat res = a.applyKleeneStar();
+        Console.WriteLine("Result: ");
+        res.printStatesAndAlphabet();
+    }
+    else if (input == "7")
+    {
+        Console.WriteLine("Chaining has started: ");
+        Automat.chainOperations();
+    }
+    else if (input == "8")
+    {
+        Console.WriteLine("Shortest word (if it exists) is: " + a.findShortestPath());
+    }
+    else if (input == "9")
+    {
+        Console.WriteLine("Longest word (if it exists) is: " + a.findLongestPath());
+    }
+    else if (input == "10")
+    {
+        if(a.isLanguageFinal())
+        {
+            Console.WriteLine("Language IS final!");
+        } 
+        else
+        {
+            Console.WriteLine("Language is NOT final!");
+        }
+    }
+    else if (input == "11")
+    {
+        Automat res = a.minimiseAutomata();
+        Console.WriteLine("Minimised automata: ");
+        res.printStatesAndAlphabet();
+    }
+    else if (input == "12")
+    {
+        if(a.alphabet.Contains('E'))
+        {
+            Automat rez = a.convertENKAtoDKA();
+            rez.printStatesAndAlphabet();
+        }
+        else
+        {
+            b = new();
+            b.makeAutomata();
+            Automat rez = b.convertENKAtoDKA();
+            rez.printStatesAndAlphabet();
+        }
+    }
+    else if (input == "13")
+    {
+        b = new();
+        b.makeAutomata();
+        if(a.compareTwoAutomatas(b))
+        {
+            Console.WriteLine("Automatas are the same!");
+        }
+        else
+        {
+            Console.WriteLine("Automatas are not the same!");
+        }
+    }
+    else if(input == "14")
+    {
+        a.printStatesAndAlphabet();
+    }
+    else if(input == "--exit")
+    {
+
+    }
+    else
+    {
+        Console.WriteLine("Wrong option, try again!");
+    }
+} while (input != "--exit");
+
+//a.makeAutomata();
+//Automat.chainOperations();
 //Automat f = new();
 //Automat.chainOperations();
 
-g.StartState = "q0";
+/*g.StartState = "q0";
 g.states.Add("q0");
 g.states.Add("q1");
 g.states.Add("q2");
 g.states.Add("q3");
 g.states.Add("q4");
 g.states.Add("q5");
+g.states.Add("q6");
+g.alphabet.Add('E');
 g.alphabet.Add('a');
 g.alphabet.Add('b');
-g.delta[("q0", 'a')] = "q1";
+g.finalStates.Add("q0");
+List<string> tempList = new();
+tempList.Add("q1");
+g.deltaForEpsilon[("q0", 'b')] = tempList;
+tempList.Clear();
+tempList.Add("q2");
+g.deltaForEpsilon[("q1", 'a')] = tempList;
+tempList.Clear();
+tempList.Add("q2");
+g.deltaForEpsilon[("q1", 'b')] = tempList;
+tempList.Clear();
+tempList.Add("q5");
+g.deltaForEpsilon[("q1", 'E')] = tempList;
+tempList.Clear();
+tempList.Add("q5");
+g.deltaForEpsilon[("q2", 'a')] = tempList;
+tempList.Clear();
+tempList.Add("q6");
+g.deltaForEpsilon[("q2", 'E')] = tempList;
+tempList.Clear();
+tempList.Add("q3");
+g.deltaForEpsilon[("q2", 'b')] = tempList;
+tempList.Clear();
+tempList.Add("q6");
+g.deltaForEpsilon[("q3", 'a')] = tempList;
+tempList.Clear();
+tempList.Add("q0");
+g.deltaForEpsilon[("q4", 'b')] = tempList;
+tempList.Clear();
+tempList.Add("q0");
+tempList.Add("q4");
+g.deltaForEpsilon[("q5", 'a')] = tempList;
+tempList.Clear();
+tempList.Add("q5");
+g.deltaForEpsilon[("q6", 'E')] = tempList;
+//g.printStatesAndAlphabet();
+if(g.acceptsENKA("bab"))
+{
+    Console.WriteLine("Accepts!");
+}*/
+
+/*g.delta[("q0", 'a')] = "q1";
 g.delta[("q0", 'b')] = "q2";
 g.delta[("q1", 'a')] = "q4";
 g.delta[("q1", 'b')] = "q1";
 g.delta[("q2", 'a')] = "q3";
 g.delta[("q2", 'b')] = "q2";
 g.delta[("q3", 'a')] = "q5";
-g.delta[("q3", 'b')] = "q5";
+g.delta[("q3", 'b')] = "q5";*/
 //g.delta[("q4", 'a')] = "q0";
 //g.finalStates.Add("q4");
 //g.finalStates.Add("q2");
@@ -35,7 +217,7 @@ g.delta[("q3", 'b')] = "q5";
 //g.delta[("q4", 'b')] = "p1";
 
 //Automat convert = g.transformRegularExpressionToAutomata("ab((a+ab)*b)a+b");
-Automat convert = g.transform("ab((a+ab)*b)a+b");
+//Automat convert = g.transform("ab((a+ab)*b)a+b");
 
 //g.finalStates.Add("q5");
 

@@ -10,7 +10,7 @@ namespace Projektni_FMSI
     public class Automat
     {
         public Dictionary<(string, char), string> delta = new();
-        private Dictionary<(string, char), List<string>> deltaForEpsilon = new();
+        public Dictionary<(string, char), List<string>> deltaForEpsilon = new();
         public HashSet<string> finalStates = new();
         public string StartState { get; set; }
         public HashSet<char> alphabet = new();
@@ -20,7 +20,7 @@ namespace Projektni_FMSI
         //bool connectFlag = false;
         static int counter2 = 0;
         string id = "_";
-        private static int counter = 0;
+        private int counter = 0;
 
         public Automat()
         {
@@ -77,13 +77,74 @@ namespace Projektni_FMSI
             }
         }
 
+        //NISAM JOS UVIJEK STAVIO U FUNKCIJU, RADI
+        public bool acceptsENKA(string word)
+        {
+            AutomatGraph automatGraph = new AutomatGraph(states.Count);
+            makeGraphFromAutomataWithEClosures(automatGraph);
+
+            SortedSet<string> traversals = new();
+            SortedSet<string> addOtherStates = new();
+            traversals = automatGraph.dfs(StartState);
+
+            foreach(var symbol in word)
+            {
+                List<String> goToStates = new();
+                foreach(var state in traversals)
+                {
+                    if(deltaForEpsilon.ContainsKey((state, symbol)))
+                    {
+                        foreach(var s in deltaForEpsilon[(state, symbol)])
+                        {
+                            goToStates.Add(s);
+                        }
+                    }
+                }
+                traversals.Clear();
+                foreach(var state in goToStates)
+                {
+                    SortedSet<string> tempTraversal = automatGraph.dfs(state);
+                    foreach(var tempState in tempTraversal)
+                    {
+                        traversals.Add(tempState);
+                    }
+                }
+            }
+
+            foreach(var finalState in finalStates)
+            {
+                if(traversals.Contains(finalState))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public Automat findUnion(Automat other)
         {
+            if(!this.checkIfAlphabetIsTheSame(other))
+            {
+                throw new Exception("Alphabet is not the same!");
+            }
+
             Automat result = new Automat();
+
+            foreach (var symbol in alphabet)
+            {
+                result.alphabet.Add(symbol);
+            }
+
             foreach (var state1 in this.states)
             {
                 foreach (var state2 in other.states)
                 {
+                    if(StartState == state1 && other.StartState == state2)
+                    {
+                        result.StartState = state1 + state2;
+                    }
+
                     string newState = state1 + state2;
                     result.states.Add(newState);
 
@@ -105,11 +166,29 @@ namespace Projektni_FMSI
 
         public Automat findIntersection(Automat other)
         {
+            if(!checkIfAlphabetIsTheSame(other))
+            {
+                throw new Exception("Alphabet is not the same!");
+            }
+
+            /*Automat temp;
+            if(checkIfIsENKA())
+            {
+                temp = convertENKAtoDKA();
+            }*/
+
             Automat result = new Automat();
+            result.alphabet = alphabet;
+
             foreach (var state1 in this.states)
             {
                 foreach (var state2 in other.states)
                 {
+                    if(StartState == state1 && other.StartState == state2)
+                    {
+                        result.StartState = state1 + state2;
+                    }
+
                     string newState = state1 + state2;
                     result.states.Add(newState);
 
@@ -131,11 +210,28 @@ namespace Projektni_FMSI
 
         public Automat findDifference(Automat other)
         {
+            if (!checkIfAlphabetIsTheSame(other))
+            {
+                throw new Exception("Alphabet is not the same!");
+            }
+
+            /*Automat temp;
+            if(checkIfIsENKA())
+            {
+                temp = convertENKAtoDKA();
+            }*/
+
             Automat result = new Automat();
+            result.alphabet = alphabet;
             foreach (var state1 in this.states)
             {
                 foreach (var state2 in other.states)
                 {
+                    if(StartState == state1 && other.StartState == state2)
+                    {
+                        result.StartState = state1 + state2;
+                    }
+
                     string newState = state1 + state2;
                     result.states.Add(newState);
 
@@ -258,10 +354,12 @@ namespace Projektni_FMSI
             string input;
             Console.WriteLine("Enter your options until it becomes boring for you, if it becomes boring, input --exit: ");
 
+            Console.WriteLine("Make first automata: ");
             Automat a1 = new Automat();
             a1.makeAutomata();
-            Automat a2 = new();
-            a2.makeAutomata();
+            
+            Automat a2 = null;
+
             Automat res = null;
 
             do
@@ -270,62 +368,112 @@ namespace Projektni_FMSI
                 if (input == "1")
                 {
                     if(res == null)
+                    {
+                        Console.WriteLine("Make second automata: ");
+                        a2 = new();
+                        a2.makeAutomata();
                         res = a1.findUnion(a2);
+                        res.printStatesAndAlphabet();
+                    }
+
                     else
                     {
                         a1 = null;
                         a1 = new();
+                        a1.makeAutomata();
                         res = res.findUnion(a1);
+                        res.printStatesAndAlphabet();
                     } 
                         
                 }
                 else if(input == "2")
                 {
                     if (res == null)
+                    {
+                        Console.WriteLine("Make second automata: ");
+                        a2 = new();
+                        a2.makeAutomata();
                         res = a1.findIntersection(a2);
+                        res.printStatesAndAlphabet();
+                    }
+
                     else
                     {
                         a1 = null;
                         a1 = new();
+                        a1.makeAutomata();
                         res = res.findIntersection(a1);
+                        res.printStatesAndAlphabet();
                     }
                 }
                 else if(input == "3")
                 {
                     if (res == null)
+                    {
+                        Console.WriteLine("Make second automata: ");
+                        a2 = new();
+                        a2.makeAutomata();
                         res = a1.findDifference(a2);
+                        res.printStatesAndAlphabet();
+                    }
                     else
                     {
                         a1 = null;
                         a1 = new();
+                        a1.makeAutomata();
                         res = res.findDifference(a1);
+                        res.printStatesAndAlphabet();
                     }
                 }
                 else if(input == "4")
                 {
                     if (res == null)
+                    {
                         res = a1.constructComplement();
+                        res.printStatesAndAlphabet();
+                    }
                     else
-                        res = res.constructComplement();
+                    {
+                        Automat temp = null;
+                        temp = new();
+                        temp = res.constructComplement();
+                        res = temp;
+                        res.printStatesAndAlphabet();
+                    }
+
                 }
                 else if(input == "5")
                 {
                     if(res == null)
+                    {
+                        Console.WriteLine("Make second automata: ");
+                        a2 = new();
+                        a2.makeAutomata();
                         res = a1.connectLanguages(a2);
+                    }
                     else
                     {
                         a1 = null;
                         a1 = new();
+                        a1.makeAutomata();
                         res = res.connectLanguages(a1);
+                        res.printStatesAndAlphabet();
                     }
                 }
                 else if(input == "6")
                 {
                     if(res == null)
+                    {
                         res = a1.applyKleeneStar();
+                        res.printStatesAndAlphabet();
+                    }
                     else
                     {
-                        res = res.applyKleeneStar();
+                        Automat temp = null;
+                        temp = new();
+                        temp = res.applyKleeneStar();
+                        res = temp;
+                        res.printStatesAndAlphabet();
                     }
                 }
                 else if(input == "--exit")
@@ -345,10 +493,10 @@ namespace Projektni_FMSI
         {
             Automat result = new();
 
-            result.StartState = "NSS"; //new start state
-            result.finalStates.Add("NFS"); //new final state
+            result.StartState = "NSS" + id; //new start state
+            result.finalStates.Add("NFS" + id); //new final state
             result.states.Add(result.StartState);
-            result.states.Add("NFS");
+            result.states.Add("NFS" + id);
 
             if (!result.alphabet.Contains('E'))
             {
@@ -676,8 +824,9 @@ namespace Projektni_FMSI
             Console.WriteLine("STATES: ");
             foreach(var state in states)
             {
-                int substring = state.IndexOf('_');
-                Console.Write(state.Substring(0, substring) + " ");
+                //int substring = state.IndexOf('_');
+                //Console.Write(state.Substring(0, substring) + " ");
+                Console.Write(state + " ");
             }
             Console.WriteLine();
             Console.WriteLine("ALPHABET: ");
@@ -695,7 +844,7 @@ namespace Projektni_FMSI
                     {
                         int substring = state.IndexOf('_');
                         if (delta.ContainsKey((state, symbol)))
-                            Console.WriteLine(state.Substring(0, substring) + " + " + symbol + " -> " + delta[(state, symbol)].Substring(0, substring));
+                            Console.WriteLine(state/*.Substring(0, substring)*/ + " + " + symbol + " -> " + delta[(state, symbol)]/*.Substring(0, substring)*/);
                     }
                 }
             }
@@ -712,7 +861,7 @@ namespace Projektni_FMSI
                             List<string> goTo = deltaForEpsilon[(state, symbol)];
                             foreach (var s in goTo)
                             {
-                                Console.WriteLine(state + " + " + symbol + " -> " + s.Substring(0, substring));
+                                Console.WriteLine(state + " + " + symbol + " -> " + s/*.Substring(0, substring)*/);
                             }
                         }
                     }
@@ -1724,7 +1873,7 @@ namespace Projektni_FMSI
             return number;
         }
 
-        public Automat transform(string regularExpression)
+        /*public Automat transform(string regularExpression)
         {
             Automat result = new();
 
@@ -1792,9 +1941,9 @@ namespace Projektni_FMSI
             }
 
             return result;
-        }
+        }*/
 
-        public Automat transformRegularExpressionToAutomata(string regularExpression)
+        /*public Automat transformRegularExpressionToAutomata(string regularExpression)
         {
             Automat result = new();
 
@@ -1963,7 +2112,7 @@ namespace Projektni_FMSI
             Console.WriteLine(numberOfValidExpressions(regularExpression));
 
             return result;
-        }
+        }*/
 
 
     }
