@@ -566,7 +566,12 @@ namespace Projektni_FMSI
 
         private bool checkIfIsENKA()
         {
-            return alphabet.Contains('E');
+            //this.printStatesAndAlphabet();
+            if(alphabet.Contains('E'))
+            {
+                return true;
+            }
+            return false;
         }
 
         private void addTransitionDKA(string currentState, char symbol, string nextState)
@@ -1763,6 +1768,8 @@ namespace Projektni_FMSI
             result.alphabet.Add('E');
             result.StartState = "NSS" + id;
             result.finalStates.Add("NFS" + id);
+            result.states.Add(result.StartState);
+            result.states.Add("NFS" + id);
             foreach(var state in states)
             {
                 result.states.Add(state);
@@ -1788,162 +1795,44 @@ namespace Projektni_FMSI
                 }
             }
 
-            result.deltaForEpsilon[(result.StartState, 'E')].Add(this.StartState);
-            result.deltaForEpsilon[(result.StartState, 'E')].Add(other.StartState);
+            result.ESwitching(result.StartState, 'E', this.StartState);
+            result.ESwitching(result.StartState, 'E', other.StartState);
+
             foreach(var finalState in finalStates)
             {
-                result.deltaForEpsilon[(finalState, 'E')].Add(result.finalStates.ElementAt(0));
+                result.ESwitching(finalState, 'E', result.finalStates.ElementAt(0));
             }
             foreach(var finalState in other.finalStates)
             {
-                result.deltaForEpsilon[(finalState, 'E')].Add(result.finalStates.ElementAt(0));
+                result.ESwitching(finalState, 'E', result.finalStates.ElementAt(0));
             }
 
             return result;
         }
 
-        private int howManyBeforeInMiddleAndAfter(char[] expression)
+        private int findHowManyHashSetsAreNeeded(string regexp)
         {
-            int howMany = 0;
-            int bracketsOpened = 0;
-            bool doneItOnce = false;
-            for(int i = 1; i < expression.Length - 1; i++)
+            int min = 0, counter = 0;
+            for(int i = 0; i < regexp.Length; i++)
             {
-                if(expression[i] != '(' && expression[i] != ')' && bracketsOpened == 0 && !doneItOnce)
-                {
-                    //while(expression[i++] != '(') { }
-                    howMany++;
-                    doneItOnce = true;
-                }
-                if(expression[i] == '(')
-                {
-                    doneItOnce = false;
-                    bracketsOpened++;
-                }
-                if(expression[i] == ')')
-                {
-                    doneItOnce = false;
-                    bracketsOpened--;
-                }
-            }
-            return howMany;
-        }
-
-        private int numberOfValidExpressions(string regexp)
-        {
-            int number = 0;
-            int bracketCounter = 0;
-            int i = 0;
-            bool foundOne = false;
-            do
-            {
-                foundOne = false;
                 if(regexp[i] == '(')
                 {
-                    bracketCounter++;
-                    number++;
-                    i++;
-                    while(bracketCounter > 0)
+                    counter++;
+                    if(counter > min)
                     {
-                        if(regexp[i] == '(')
-                        {
-                            bracketCounter++;
-                        }
-                        if(regexp[i] == ')')
-                        {
-                            bracketCounter--;
-                        }
-                        i++;
+                        min = counter;
                     }
                 }
-                else
+                if(regexp[i] == ')')
                 {
-                    if(!foundOne) { 
-                        while(i != regexp.Length - 1 && regexp[i] != '(')
-                        {
-                            i++;
-                        }
-                        number++;
-                    }
-                    foundOne = true;
+                    counter--;
                 }
-
-            } while (i != regexp.Length - 1);
-
-            return number;
+            }
+            return (min + 1);
         }
 
-        /*public Automat transform(string regularExpression)
-        {
-            Automat result = new();
-
-            if (checkHowManyBrackets(regularExpression, '(') != checkHowManyBrackets(regularExpression, ')'))
-            {
-                return errorInTransformatingRegExpToAutomata();
-            }
-
-            if (!checkIfRegularExpressionIsCorrect(regularExpression) || !checkPositionOfBrackets(regularExpression) ||
-                checkIfStartsWithPlus(regularExpression) || checkIfPlusIsBeforeClosedBracket(regularExpression) ||
-                checkIfEndsWithPlus(regularExpression) || checkIfTwoPlusesAreNextToEachOther(regularExpression))
-            {
-                return errorInTransformatingRegExpToAutomata();
-            }
-
-            Stack<char> stack = new();
-
-            foreach (var symbol in regularExpression)
-            {
-                stack.Push(symbol);
-            }
-
-            int numberOfValidExp = numberOfValidExpressions(regularExpression);
-            string[] regExp = new string[numberOfValidExp];
-            int bracketsNumber = 0;
-            int helpCounter = 0;
-            while (numberOfValidExp > 0)
-            {
-                string temp = "";
-                int index = numberOfValidExp - 1;
-                while (stack.Count != 0 && stack.Peek() != ')' && bracketsNumber == 0)
-                {
-                    helpCounter++;
-                    regExp[index] += stack.Pop();
-                }
-                if(helpCounter > 0)
-                {
-                    numberOfValidExp--;
-                }
-                if (stack.Count != 0 && stack.Peek() == ')')
-                {
-                    helpCounter = 0;
-                    temp += stack.Pop();
-                    bracketsNumber++;
-                    while (bracketsNumber > 0)
-                    {
-                        if (stack.Peek() == ')')
-                        {
-                            bracketsNumber++;
-                        }
-                        if (stack.Peek() == '(')
-                        {
-                            bracketsNumber--;
-                        }
-                        temp += stack.Pop();
-                    }
-                    regExp[index] = temp;
-                    numberOfValidExp--;
-                }
-            }
-
-            for(int i = 0; i < numberOfValidExp; i++)
-            {
-                Console.WriteLine(regExp[i]);
-            }
-
-            return result;
-        }*/
-
-        /*public Automat transformRegularExpressionToAutomata(string regularExpression)
+        
+        public Automat transformRegularExpressionToAutomata(string regularExpression)
         {
             Automat result = new();
 
@@ -1959,160 +1848,147 @@ namespace Projektni_FMSI
                 return errorInTransformatingRegExpToAutomata();
             }
 
-            Stack<char> stack = new();
-            //bool areThereBrackets = false;
-            int countBrackets = 0;
-            int countBracketsInLoop = 0;
+            int num = findHowManyHashSetsAreNeeded(regularExpression);
+            string[] sets = new string[num];
+            int level = 0;
 
-            for (int i = 0; i < regularExpression.Length; i++)
+            for(int i = 0; i < regularExpression.Length; i++)
             {
                 if(regularExpression[i] == '(')
                 {
-                    countBracketsInLoop++;
-                    bool firstEncounter = false;
-                    while(countBracketsInLoop > 0)
+                    int pos = 0;
+                    if(sets[level] != null)
                     {
-                        if (i == regularExpression.Length) break;
-                        stack.Push(regularExpression[i]);
-                        if(regularExpression[i] == '(' && firstEncounter)
-                        {
-                            countBracketsInLoop++;
-                        }
-                        if(regularExpression[i] == ')')
-                        {
-                            //stack.Push(regularExpression[i]);
-                            countBracketsInLoop--;
-                        }
-                        firstEncounter = true;
-                        i++;
+                        pos = sets[level].Length - 1;
+                    }
+                    //if we go level down, '-'
+                    sets[level] += "-";
+                    level++;
+                }
+                if(regularExpression[i] == ')')
+                {
+                    int pos = 0;
+                    if (sets[level] != null)
+                    {
+                        pos = sets[level].Length - 1;
+                    }
+                    if (level != num - 1)
+                    {
+                        //if we go level up, '/'
+                        sets[level] += "/";
+                    }
+                    level--;
+                }
+                if(regularExpression[i] != '(' && regularExpression[i] != ')')
+                {
+                    sets[level] += regularExpression[i];
+                }
+            }
+
+            foreach(var set in sets)
+            {
+                Console.WriteLine(set);
+            }
+
+            //HashSet<HashSet<string>> hashSets = new HashSet<HashSet<string>>();
+
+
+
+            int countHowManyAutomatas = 0;
+
+            for(int i = 0; i < sets.Length; i++)
+            {
+                string temp = sets[i];
+                foreach(var elem in temp)
+                {
+                    if(elem == '+')
+                    {
+                        countHowManyAutomatas += 2;
                     }
                 }
-
             }
 
-            foreach(var symbol in stack)
+            //Console.WriteLine(countHowManyAutomatas);
+            Automat[] automatas = new Automat[countHowManyAutomatas];
+            for(int i = 0; i < automatas.Length; i++)
             {
-                Console.Write(symbol + " ");
+                automatas[i] = new();
             }
-            Console.WriteLine();
 
-            foreach(var symbol in stack)
+            foreach(var automata in automatas)
             {
-                if(symbol == '(')
+                automata.alphabet = alphabet;
+            }
+            int automatCounter = 0;
+            string qString = "q";
+            int stateCounter = 0;
+            bool isFirst = true;
+
+            string[] makeFirst = sets[sets.Length - 1].Split('+');
+            for(int i = 0; i < makeFirst.Length; i++, automatCounter++)
+            {
+                isFirst = true;
+                string str = makeFirst[i];
+                for (int j = 0; j < str.Length; j++)
                 {
-                    countBrackets++;
-                }
-            }
-
-            int howManyNestedBrackets = 0;
-            int howManyNestedBracketsForReal = 0;
-            foreach(var symbol in stack)
-            {
-                if(symbol == '(')
-                {
-                    if(howManyNestedBrackets > 1)
+                    if (isFirst && alphabet.Contains(str[j]))
                     {
-                        howManyNestedBracketsForReal++;
+                        string state = qString + stateCounter + id;
+                        automatas[automatCounter].StartState = state;
+                        automatas[automatCounter].states.Add(state);
+                        isFirst = false;
+                        stateCounter++;
+                        string nextState = qString + stateCounter + id;
+                        automatas[automatCounter].states.Add(nextState);
+                        automatas[automatCounter].delta[(state, str[j])] = nextState;
+                        stateCounter++;
                     }
-                    howManyNestedBrackets--;
+                    if (j > 0 && alphabet.Contains(str[j - 1]) && alphabet.Contains(str[j]))
+                    {
+                        string oldState = qString + (stateCounter - 1) + id;
+                        string state = qString + stateCounter + id;
+                        automatas[automatCounter].states.Add(state);
+                        if (automatas[automatCounter].checkIfIsENKA())
+                        {
+                            ESwitching(oldState, str[j], state);
+                        }
+                        else
+                        {
+                            automatas[automatCounter].delta[(oldState, str[j])] = state;
+                        }
+                        stateCounter++;
+                    }
+                    if (str[j] == '*')
+                    {
+                        automatas[automatCounter].applyKleeneStar();
+                    }
                 }
-
-                if(symbol == ')')
-                {
-                    howManyNestedBrackets++;
-                }
+                 
             }
 
-            Console.WriteLine(howManyNestedBracketsForReal);
+            //automatas[0].printStatesAndAlphabet();
+            //automatas[1].printStatesAndAlphabet();
+            if (automatas[0].alphabet.Contains('E')) Console.WriteLine("CONTAINS!");
+            if (automatas[1].alphabet.Contains('E')) Console.WriteLine("CONTAINS!");
 
-            string tmp = "";
-            foreach(var symbol in stack)
+            bool firstEncounter = true;
+            for(int i = 0; i < makeFirst.Length; i+=2)
             {
-                tmp += symbol;
-            }
-            char[] arr = tmp.ToCharArray();
-            Array.Reverse(arr);
-            tmp = "";
-
-            Console.WriteLine(arr);
-            //Console.WriteLine("Howmany: " + howManyBeforeInMiddleAndAfter(arr));
-            
-            int num = howManyNestedBracketsForReal + howManyBeforeInMiddleAndAfter(arr);
-            Console.WriteLine("NUM: " + num);
-            string[] newExpressions = new string[num];
-
-            bool firstGo = true;
-            string tempString = "";
-
-            while (num > 0)
-            {
-
-                //tempString = "";
-                if (firstGo)
+                if(firstEncounter)
                 {
-                    stack.Pop();
-                    firstGo = false;
+                    automatas[automatCounter] = automatas[automatCounter - 1].findUnionBetweenTwoLanguages(automatas[automatCounter - 2]);
+                    firstEncounter = false;
                 }
                 else
                 {
-                    if(stack.Peek() == ')')
-                    {
-                        stack.Pop();
-                        num--;
-                        while(stack.Peek() != '(')
-                        {
-                            if (stack.Peek() != ')')
-                                newExpressions[num] += stack.Pop();
-                            else
-                                break;
-                        }
-                        stack.Pop();
-                        if (stack.Count == 1)
-                        {
-                            stack.Pop();
-                        }
-                    }
-                    else
-                    {
-                        tempString = "";
-                        while(stack.Peek() != ')' && stack.Peek() != '(')
-                        {
-                            char pop = stack.Pop();
-                            tempString += pop;
-                        }
-                        num--;
-                        newExpressions[num] = tempString;
-                        //if(stack.Peek() != '(')
-                            //tempString += ":";
-                        if (stack.Count != 0 && stack.Peek() == '(')
-                        {
-                            stack.Pop();
-                        }
-                        if (stack.Count == 1)
-                        {
-                            stack.Pop();
-                        }
-                    }
+                    automatas[automatCounter] = automatas[automatCounter].findUnionBetweenTwoLanguages(automatas[automatCounter - i]);
                 }
             }
 
-
-            Console.WriteLine();
-
-            //Console.WriteLine(tempString);
-            Console.WriteLine(newExpressions[0]);
-            Console.WriteLine(newExpressions[1]);
-            //Console.WriteLine(newExpressions[2]);
-
-            char[] charArray = newExpressions[0].ToCharArray();
-            Array.Reverse(charArray);
-            string str = new string(charArray);
-            //Console.WriteLine(str);
-
-            Console.WriteLine(numberOfValidExpressions(regularExpression));
+            automatas[2].printStatesAndAlphabet();
 
             return result;
-        }*/
+        }
 
 
     }

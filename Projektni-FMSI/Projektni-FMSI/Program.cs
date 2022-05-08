@@ -3,8 +3,12 @@ using Projektni_FMSI;
 using System.Collections.Generic;
 
 //Automat g = new();
+Automat a = new(), b = new();
+a.alphabet.Add('a');
+a.alphabet.Add('b');
+a.transformRegularExpressionToAutomata("(b*a)+a*(a+(a+b)b)");
 
-Console.WriteLine("===================================");
+/*Console.WriteLine("===================================");
 Console.WriteLine("===================================");
 Console.WriteLine("WELCOME: ");
 Console.WriteLine("===================================");
@@ -139,7 +143,7 @@ do
     {
         Console.WriteLine("Wrong option, try again!");
     }
-} while (input != "--exit");
+} while (input != "--exit");*/
 
 //a.makeAutomata();
 //Automat.chainOperations();
