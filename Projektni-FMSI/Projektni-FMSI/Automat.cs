@@ -171,14 +171,12 @@ namespace Projektni_FMSI
                 throw new Exception("Alphabet is not the same!");
             }
 
-            /*Automat temp;
-            if(checkIfIsENKA())
-            {
-                temp = convertENKAtoDKA();
-            }*/
-
             Automat result = new Automat();
-            result.alphabet = alphabet;
+            foreach(var element in alphabet)
+            {
+                result.alphabet.Add(element);
+            }
+
 
             foreach (var state1 in this.states)
             {
@@ -215,14 +213,11 @@ namespace Projektni_FMSI
                 throw new Exception("Alphabet is not the same!");
             }
 
-            /*Automat temp;
-            if(checkIfIsENKA())
-            {
-                temp = convertENKAtoDKA();
-            }*/
-
             Automat result = new Automat();
-            result.alphabet = alphabet;
+            foreach(var element in alphabet)
+            {
+                result.alphabet.Add(element);
+            }
             foreach (var state1 in this.states)
             {
                 foreach (var state2 in other.states)
@@ -1762,12 +1757,19 @@ namespace Projektni_FMSI
 
         private Automat findUnionBetweenTwoLanguages(Automat other)
         {
+
             Automat result = new();
 
-            result.alphabet = this.alphabet;
+            foreach(var element in alphabet)
+            {
+                result.alphabet.Add(element);
+            }
+
             result.alphabet.Add('E');
             result.StartState = "NSS" + id;
             result.finalStates.Add("NFS" + id);
+
+
             result.states.Add(result.StartState);
             result.states.Add("NFS" + id);
             foreach(var state in states)
@@ -1778,6 +1780,9 @@ namespace Projektni_FMSI
             {
                 result.states.Add(state);
             }
+
+            //this.printStatesAndAlphabet();
+           // other.printStatesAndAlphabet();
 
             foreach(var symbol in alphabet)
             {
@@ -1831,7 +1836,24 @@ namespace Projektni_FMSI
             return (min + 1);
         }
 
+        private int countNumOfAutomatas(string[] sets)
+        {
+            int counter = 0;
+            for(int i = 1; i < sets.Length; i++)
+            {
+                string str = sets[i];
+                for(int j = 0; j < str.Length; j++)
+                {
+                    if(str[j] == '/')
+                    {
+                        counter++;
+                    }
+                }
+            }
+            return counter;
+        }
         
+        //I'VE GIVEN UP!
         public Automat transformRegularExpressionToAutomata(string regularExpression)
         {
             Automat result = new();
@@ -1856,27 +1878,14 @@ namespace Projektni_FMSI
             {
                 if(regularExpression[i] == '(')
                 {
-                    int pos = 0;
-                    if(sets[level] != null)
-                    {
-                        pos = sets[level].Length - 1;
-                    }
                     //if we go level down, '-'
                     sets[level] += "-";
                     level++;
                 }
                 if(regularExpression[i] == ')')
                 {
-                    int pos = 0;
-                    if (sets[level] != null)
-                    {
-                        pos = sets[level].Length - 1;
-                    }
-                    if (level != num - 1)
-                    {
-                        //if we go level up, '/'
-                        sets[level] += "/";
-                    }
+                    //if we go level up, '/'
+                    sets[level] += "/";
                     level--;
                 }
                 if(regularExpression[i] != '(' && regularExpression[i] != ')')
@@ -1890,102 +1899,224 @@ namespace Projektni_FMSI
                 Console.WriteLine(set);
             }
 
-            //HashSet<HashSet<string>> hashSets = new HashSet<HashSet<string>>();
-
-
-
-            int countHowManyAutomatas = 0;
-
-            for(int i = 0; i < sets.Length; i++)
-            {
-                string temp = sets[i];
-                foreach(var elem in temp)
-                {
-                    if(elem == '+')
-                    {
-                        countHowManyAutomatas += 2;
-                    }
-                }
-            }
-
+            int countHowManyAutomatas = countNumOfAutomatas(sets);
             //Console.WriteLine(countHowManyAutomatas);
-            Automat[] automatas = new Automat[countHowManyAutomatas];
-            for(int i = 0; i < automatas.Length; i++)
+
+            Automat[] realAutomatas = new Automat[countHowManyAutomatas];
+            for(int i = 0; i < realAutomatas.Length; i++)
             {
-                automatas[i] = new();
+                realAutomatas[i] = new();
             }
 
-            foreach(var automata in automatas)
+            bool firstEncounter = true;
+            int pushIntoAutomatas = 0;
+            for(int i = sets.Length - 1; i >= 0; i--)
             {
-                automata.alphabet = alphabet;
-            }
-            int automatCounter = 0;
-            string qString = "q";
-            int stateCounter = 0;
-            bool isFirst = true;
-
-            string[] makeFirst = sets[sets.Length - 1].Split('+');
-            for(int i = 0; i < makeFirst.Length; i++, automatCounter++)
-            {
-                isFirst = true;
-                string str = makeFirst[i];
-                for (int j = 0; j < str.Length; j++)
+                //FIRST ENCOUNTER
+                if(firstEncounter)
                 {
-                    if (isFirst && alphabet.Contains(str[j]))
+                    //string[] splitFirst = sets[i].Split('/');
+                    string[] splitFirst = sets[i].Split(new char[] { '-', '/'});
+
+                    string[] splitReal = new string[splitFirst.Length - 1];
+                    int c = 0;
+                    foreach(var elem in splitFirst)
                     {
-                        string state = qString + stateCounter + id;
-                        automatas[automatCounter].StartState = state;
-                        automatas[automatCounter].states.Add(state);
-                        isFirst = false;
-                        stateCounter++;
-                        string nextState = qString + stateCounter + id;
-                        automatas[automatCounter].states.Add(nextState);
-                        automatas[automatCounter].delta[(state, str[j])] = nextState;
-                        stateCounter++;
-                    }
-                    if (j > 0 && alphabet.Contains(str[j - 1]) && alphabet.Contains(str[j]))
-                    {
-                        string oldState = qString + (stateCounter - 1) + id;
-                        string state = qString + stateCounter + id;
-                        automatas[automatCounter].states.Add(state);
-                        if (automatas[automatCounter].checkIfIsENKA())
+                        if(elem != "")
                         {
-                            ESwitching(oldState, str[j], state);
+                            splitReal[c++] = elem;
+                        }
+                    }
+                    foreach(var str in splitReal)
+                    {
+                        //TODO: for each element check if it contains a plus, if it does, do your stuff, if it doesn't, do other stuff!
+                        //SEEMS IT'S ALREADY DONE!
+                        string[] plusSplit = str.Split('+');
+                        int numberOfTempAutomatas = 0;
+                        foreach(var element in plusSplit)
+                        {
+                            if(element != "")
+                            {
+                                numberOfTempAutomatas++;
+                            }
+                        }
+                        //Console.WriteLine(numberOfTempAutomatas); WORKS
+                        Automat[] tempAutomatas = new Automat[numberOfTempAutomatas];
+                        for(int k = 0; k < tempAutomatas.Length; k++)
+                        {
+                            tempAutomatas[k] = new();
+                        }
+                        c = 0;
+                        foreach(var automata in tempAutomatas)
+                        {
+                            foreach(var symbol in alphabet)
+                            {
+                                automata.alphabet.Add(symbol);
+                            }
+                        }
+                        foreach(var element in plusSplit)
+                        {
+                            if(element != "")
+                            {
+                                int stateNo = 0;
+                                bool first = true;
+
+                                for (int size = 0; size < element.Length; size++)
+                                {
+                                    if (alphabet.Contains(element[size]))
+                                    {
+                                        string newState = "q" + stateNo + tempAutomatas[c].id;
+                                        stateNo++;
+                                        if (first)
+                                        {
+                                            tempAutomatas[c].StartState = newState;
+                                            first = false;
+                                        }
+                                        string newState2 = "q" + stateNo + tempAutomatas[c].id;
+                                        tempAutomatas[c].states.Add(newState);
+                                        tempAutomatas[c].states.Add(newState2);
+                                        stateNo++;
+
+                                        if(size == element.Length - 1)
+                                        {
+                                            tempAutomatas[c].finalStates.Add(newState2);
+                                        }
+
+                                        if (!checkIfIsENKA())
+                                        {
+                                            tempAutomatas[c].delta[(newState, element[size])] = newState2;
+                                        }
+                                        else
+                                        {
+                                            tempAutomatas[c].ESwitching(newState, element[size], newState2);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        tempAutomatas[c].applyKleeneStar();
+                                    }
+                                }
+                                //tempAutomatas[c].printStatesAndAlphabet();
+                                c++;
+                            }
+                            
+                        }
+
+                        if(tempAutomatas.Length == 1)
+                        {
+                            realAutomatas[pushIntoAutomatas] = tempAutomatas[c];
+                            pushIntoAutomatas++;
                         }
                         else
                         {
-                            automatas[automatCounter].delta[(oldState, str[j])] = state;
+                            for (int br = 0; br < tempAutomatas.Length; br++)
+                            {
+                                if (br == 0)
+                                {
+                                    realAutomatas[pushIntoAutomatas] = tempAutomatas[0].findUnionBetweenTwoLanguages(tempAutomatas[1]);
+                                    br++;
+                                }
+                                else
+                                {
+                                    realAutomatas[pushIntoAutomatas] = realAutomatas[pushIntoAutomatas].findUnionBetweenTwoLanguages(tempAutomatas[br]);
+                                }
+                            }
+                            pushIntoAutomatas++;
                         }
-                        stateCounter++;
+                        //RADI
+                        //realAutomatas[0].printStatesAndAlphabet();
                     }
-                    if (str[j] == '*')
-                    {
-                        automatas[automatCounter].applyKleeneStar();
-                    }
-                }
-                 
-            }
-
-            //automatas[0].printStatesAndAlphabet();
-            //automatas[1].printStatesAndAlphabet();
-            if (automatas[0].alphabet.Contains('E')) Console.WriteLine("CONTAINS!");
-            if (automatas[1].alphabet.Contains('E')) Console.WriteLine("CONTAINS!");
-
-            bool firstEncounter = true;
-            for(int i = 0; i < makeFirst.Length; i+=2)
-            {
-                if(firstEncounter)
-                {
-                    automatas[automatCounter] = automatas[automatCounter - 1].findUnionBetweenTwoLanguages(automatas[automatCounter - 2]);
                     firstEncounter = false;
                 }
-                else
+                /*else
                 {
-                    automatas[automatCounter] = automatas[automatCounter].findUnionBetweenTwoLanguages(automatas[automatCounter - i]);
-                }
-            }
 
-            automatas[2].printStatesAndAlphabet();
+                    string[] splitFirst = sets[i].Split('/');
+                    foreach(var elem in splitFirst)
+                    {
+                        int numberOfAutomatas = 0;
+                        //Console.Write(elem + " ");
+                        if(elem != "")
+                        {
+                            string[] plusSplit = elem.Split('+');
+                            foreach(var el in plusSplit) { 
+                                if(el != "")
+                                {
+                                    numberOfAutomatas++;
+                                }
+                            }
+                            //PRINTS OUT CORRECTLY!
+                            //Console.WriteLine(numberOfAutomatas);
+                            Automat[] tempAutomatas = new Automat[numberOfAutomatas];
+                            for (int br = 0; br < tempAutomatas.Length; br++)
+                            {
+                                tempAutomatas[br] = new();
+                            }
+
+                            foreach (var autoamta in tempAutomatas)
+                            {
+                                foreach (var symbol in alphabet)
+                                {
+                                    autoamta.alphabet.Add(symbol);
+                                }
+                            }
+
+                            string element = sets[i];
+
+                            int autoCounter = 0;
+                            int stateCounter = 0;
+                            bool isFirst = true;
+                            for (int k = 0; k < element.Length; k++)
+                            {
+                                if (element[k] == '/' && k != element.Length - 1)
+                                {
+                                    autoCounter++;
+                                    stateCounter = 0;
+                                    isFirst = true;
+                                }
+                                else if (element[k] == '-')
+                                {
+                                    //TODO : implement with multiple stuff!
+
+                                    //autoCounter++;
+
+
+                                    //stateCounter = 0;
+                                    //isFirst = false;
+                                }
+                                else
+                                {
+                                    if (alphabet.Contains(element[k]))
+                                    {
+                                        string oldState = "q" + stateCounter + tempAutomatas[autoCounter].id;
+                                        stateCounter++;
+                                        string newState = "q" + stateCounter + tempAutomatas[autoCounter].id;
+                                        stateCounter++;
+                                        if (isFirst)
+                                        {
+                                            tempAutomatas[autoCounter].StartState = oldState;
+                                            isFirst = false;
+                                        }
+                                        if (tempAutomatas[autoCounter].checkIfIsENKA())
+                                        {
+                                            tempAutomatas[autoCounter].ESwitching(oldState, element[k], newState);
+                                        }
+                                        else
+                                        {
+                                            tempAutomatas[autoCounter].delta[(oldState, element[k])] = newState;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        tempAutomatas[autoCounter].applyKleeneStar();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                }*/
+            }
 
             return result;
         }
