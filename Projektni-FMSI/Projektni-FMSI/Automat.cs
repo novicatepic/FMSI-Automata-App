@@ -42,7 +42,7 @@ namespace Projektni_FMSI
             inputWord = Console.ReadLine();
             try
             {
-                if(!checkIfInputWordIsCorrect(inputWord))
+                if (!checkIfInputWordIsCorrect(inputWord))
                 {
                     throw new Exception("Incorrect input word!");
                 }
@@ -56,12 +56,12 @@ namespace Projektni_FMSI
                     {
                         Console.WriteLine("DKA didn't accept this word :(!");
                     }
-                } 
+                }
                 else
                 {
                     //PRETVORITI PRAVILNO U DKA PA IZVRSITI E-NKA
                     Automat ENKATODKA = this.convertENKAtoDKA();
-                    if(ENKATODKA.AcceptsDKA(inputWord))
+                    if (ENKATODKA.AcceptsDKA(inputWord))
                     {
                         Console.WriteLine("ENKA accepted this word ;)!");
                     }
@@ -71,7 +71,7 @@ namespace Projektni_FMSI
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e);
             }
@@ -87,33 +87,33 @@ namespace Projektni_FMSI
             SortedSet<string> addOtherStates = new();
             traversals = automatGraph.dfs(StartState);
 
-            foreach(var symbol in word)
+            foreach (var symbol in word)
             {
                 List<String> goToStates = new();
-                foreach(var state in traversals)
+                foreach (var state in traversals)
                 {
-                    if(deltaForEpsilon.ContainsKey((state, symbol)))
+                    if (deltaForEpsilon.ContainsKey((state, symbol)))
                     {
-                        foreach(var s in deltaForEpsilon[(state, symbol)])
+                        foreach (var s in deltaForEpsilon[(state, symbol)])
                         {
                             goToStates.Add(s);
                         }
                     }
                 }
                 traversals.Clear();
-                foreach(var state in goToStates)
+                foreach (var state in goToStates)
                 {
                     SortedSet<string> tempTraversal = automatGraph.dfs(state);
-                    foreach(var tempState in tempTraversal)
+                    foreach (var tempState in tempTraversal)
                     {
                         traversals.Add(tempState);
                     }
                 }
             }
 
-            foreach(var finalState in finalStates)
+            foreach (var finalState in finalStates)
             {
-                if(traversals.Contains(finalState))
+                if (traversals.Contains(finalState))
                 {
                     return true;
                 }
@@ -124,7 +124,7 @@ namespace Projektni_FMSI
 
         public Automat findUnion(Automat other)
         {
-            if(!this.checkIfAlphabetIsTheSame(other))
+            if (!this.checkIfAlphabetIsTheSame(other))
             {
                 throw new Exception("Alphabet is not the same!");
             }
@@ -140,7 +140,7 @@ namespace Projektni_FMSI
             {
                 foreach (var state2 in other.states)
                 {
-                    if(StartState == state1 && other.StartState == state2)
+                    if (StartState == state1 && other.StartState == state2)
                     {
                         result.StartState = state1 + state2;
                     }
@@ -166,13 +166,13 @@ namespace Projektni_FMSI
 
         public Automat findIntersection(Automat other)
         {
-            if(!checkIfAlphabetIsTheSame(other))
+            if (!checkIfAlphabetIsTheSame(other))
             {
                 throw new Exception("Alphabet is not the same!");
             }
 
             Automat result = new Automat();
-            foreach(var element in alphabet)
+            foreach (var element in alphabet)
             {
                 result.alphabet.Add(element);
             }
@@ -182,7 +182,7 @@ namespace Projektni_FMSI
             {
                 foreach (var state2 in other.states)
                 {
-                    if(StartState == state1 && other.StartState == state2)
+                    if (StartState == state1 && other.StartState == state2)
                     {
                         result.StartState = state1 + state2;
                     }
@@ -214,7 +214,7 @@ namespace Projektni_FMSI
             }
 
             Automat result = new Automat();
-            foreach(var element in alphabet)
+            foreach (var element in alphabet)
             {
                 result.alphabet.Add(element);
             }
@@ -222,7 +222,7 @@ namespace Projektni_FMSI
             {
                 foreach (var state2 in other.states)
                 {
-                    if(StartState == state1 && other.StartState == state2)
+                    if (StartState == state1 && other.StartState == state2)
                     {
                         result.StartState = state1 + state2;
                     }
@@ -252,7 +252,7 @@ namespace Projektni_FMSI
 
             try
             {
-                if(!checkIfAlphabetIsTheSame(other))
+                if (!checkIfAlphabetIsTheSame(other))
                 {
                     throw new Exception("I can't merge two languages that don't have the same alphabet, sorry!");
                 }
@@ -261,31 +261,31 @@ namespace Projektni_FMSI
                 {
                     result.alphabet.Add('E');
                 }
-                foreach(var symbol in this.alphabet)
+                foreach (var symbol in this.alphabet)
                 {
                     result.alphabet.Add(symbol);
                 }
-               
-                foreach(var finalState in other.finalStates)
+
+                foreach (var finalState in other.finalStates)
                 {
                     result.finalStates.Add(finalState);
                 }
-                foreach(var state in this.states)
+                foreach (var state in this.states)
                 {
                     result.states.Add(state);
                 }
-                foreach(var state in other.states)
+                foreach (var state in other.states)
                 {
                     result.states.Add(state);
                 }
 
-                foreach(var state in this.states)
+                foreach (var state in this.states)
                 {
-                    foreach(var symbol in this.alphabet)
+                    foreach (var symbol in this.alphabet)
                     {
-                        if(!this.finalStates.Contains(state))
+                        if (!this.finalStates.Contains(state))
                         {
-                            if(symbol != 'E')
+                            if (symbol != 'E')
                             {
                                 helpForConnectingAndStuff(result, state, symbol);
                             }
@@ -293,9 +293,9 @@ namespace Projektni_FMSI
                         else
                         {
                             result.ESwitching(state, 'E', other.StartState);
-                            foreach(var symb in alphabet)
+                            foreach (var symb in alphabet)
                             {
-                                if(symb != 'E')
+                                if (symb != 'E')
                                 {
                                     helpForConnectingAndStuff(result, state, symbol);
                                 }
@@ -304,14 +304,15 @@ namespace Projektni_FMSI
                     }
                 }
 
-                foreach(var state in other.states)
+                foreach (var state in other.states)
                 {
-                    foreach(var symbol in other.alphabet)
+                    foreach (var symbol in other.alphabet)
                     {
-                        other.helpForConnectingAndStuff(result, state, symbol);                       
+                        other.helpForConnectingAndStuff(result, state, symbol);
                     }
                 }
-            } catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
@@ -352,7 +353,7 @@ namespace Projektni_FMSI
             Console.WriteLine("Make first automata: ");
             Automat a1 = new Automat();
             a1.makeAutomata();
-            
+
             Automat a2 = null;
 
             Automat res = null;
@@ -362,7 +363,7 @@ namespace Projektni_FMSI
                 input = Console.ReadLine();
                 if (input == "1")
                 {
-                    if(res == null)
+                    if (res == null)
                     {
                         Console.WriteLine("Make second automata: ");
                         a2 = new();
@@ -378,10 +379,10 @@ namespace Projektni_FMSI
                         a1.makeAutomata();
                         res = res.findUnion(a1);
                         res.printStatesAndAlphabet();
-                    } 
-                        
+                    }
+
                 }
-                else if(input == "2")
+                else if (input == "2")
                 {
                     if (res == null)
                     {
@@ -401,7 +402,7 @@ namespace Projektni_FMSI
                         res.printStatesAndAlphabet();
                     }
                 }
-                else if(input == "3")
+                else if (input == "3")
                 {
                     if (res == null)
                     {
@@ -420,7 +421,7 @@ namespace Projektni_FMSI
                         res.printStatesAndAlphabet();
                     }
                 }
-                else if(input == "4")
+                else if (input == "4")
                 {
                     if (res == null)
                     {
@@ -437,9 +438,9 @@ namespace Projektni_FMSI
                     }
 
                 }
-                else if(input == "5")
+                else if (input == "5")
                 {
-                    if(res == null)
+                    if (res == null)
                     {
                         Console.WriteLine("Make second automata: ");
                         a2 = new();
@@ -455,9 +456,9 @@ namespace Projektni_FMSI
                         res.printStatesAndAlphabet();
                     }
                 }
-                else if(input == "6")
+                else if (input == "6")
                 {
-                    if(res == null)
+                    if (res == null)
                     {
                         res = a1.applyKleeneStar();
                         res.printStatesAndAlphabet();
@@ -471,7 +472,7 @@ namespace Projektni_FMSI
                         res.printStatesAndAlphabet();
                     }
                 }
-                else if(input == "--exit")
+                else if (input == "--exit")
                 {
 
                 }
@@ -498,29 +499,29 @@ namespace Projektni_FMSI
                 result.alphabet.Add('E');
             }
 
-            foreach(var symbol in alphabet)
+            foreach (var symbol in alphabet)
             {
                 result.alphabet.Add(symbol);
             }
 
-            foreach(var state in this.states)
+            foreach (var state in this.states)
             {
                 result.states.Add(state);
             }
 
-            
-            foreach(var state in this.states)
+
+            foreach (var state in this.states)
             {
-                foreach(var symbol in this.alphabet)
+                foreach (var symbol in this.alphabet)
                 {
-                    helpForConnectingAndStuff(result, state, symbol);                   
-                }              
+                    helpForConnectingAndStuff(result, state, symbol);
+                }
             }
 
             result.ESwitching(result.StartState, 'E', result.finalStates.ElementAt(0));
             result.ESwitching(result.StartState, 'E', StartState);
-        
-            foreach(var finalState in this.finalStates)
+
+            foreach (var finalState in this.finalStates)
             {
                 result.ESwitching(finalState, 'E', "NFS");
                 result.ESwitching(finalState, 'E', StartState);
@@ -531,14 +532,14 @@ namespace Projektni_FMSI
 
         private bool checkIfAlphabetIsTheSame(Automat other)
         {
-            if(this.alphabet.Count != other.alphabet.Count)
+            if (this.alphabet.Count != other.alphabet.Count)
             {
                 return false;
             }
 
-            foreach(var symbol in this.alphabet)
+            foreach (var symbol in this.alphabet)
             {
-                if(!other.alphabet.Contains(symbol))
+                if (!other.alphabet.Contains(symbol))
                 {
                     return false;
                 }
@@ -549,9 +550,9 @@ namespace Projektni_FMSI
 
         private bool checkIfInputWordIsCorrect(string word)
         {
-            foreach(var symbol in word)
+            foreach (var symbol in word)
             {
-                if(!alphabet.Contains(symbol))
+                if (!alphabet.Contains(symbol))
                 {
                     return false;
                 }
@@ -562,7 +563,7 @@ namespace Projektni_FMSI
         private bool checkIfIsENKA()
         {
             //this.printStatesAndAlphabet();
-            if(alphabet.Contains('E'))
+            if (alphabet.Contains('E'))
             {
                 return true;
             }
@@ -600,9 +601,9 @@ namespace Projektni_FMSI
             Automat result = new();
             result = this;
             result.finalStates.Clear();
-            foreach(var state in states)
+            foreach (var state in states)
             {
-                if(!this.finalStates.Contains(state))
+                if (!this.finalStates.Contains(state))
                 {
                     result.finalStates.Add(state);
                 }
@@ -617,7 +618,7 @@ namespace Projektni_FMSI
             do
             {
                 inputString = Console.ReadLine();
-                if(inputString != "--exit")
+                if (inputString != "--exit")
                 {
                     char symbol = char.Parse(inputString);
                     alphabet.Add(symbol);
@@ -642,27 +643,27 @@ namespace Projektni_FMSI
                     StartState = state;
                     isFirst = false;
                 }
-                if(initState != "--exit")
+                if (initState != "--exit")
                 {
                     states.Add(state);
                     string extraInput;
                     Console.WriteLine("Do you want this state to be a final state? (yes/no): ");
                     extraInput = Console.ReadLine();
-                    if(extraInput == "yes")
+                    if (extraInput == "yes")
                     {
                         finalStates.Add(state);
                     }
-                    else if(extraInput == "no") { }
+                    else if (extraInput == "no") { }
                     else
                     {
                         Console.WriteLine("Incorrent word, I'll take that as a no!");
                     }
-                    
+
                 }
             } while (initState != "--exit");
 
         }
-        
+
         private bool checkIfStateExists(string state)
         {
             return states.Contains(state);
@@ -672,11 +673,11 @@ namespace Projektni_FMSI
         {
             return alphabet.Contains(symbol);
         }
-        
+
         private void addTransitions()
         {
             printStatesAndAlphabet();
-            foreach(var state in states)
+            foreach (var state in states)
             {
                 char symbol;
                 string inputHelp;
@@ -687,14 +688,14 @@ namespace Projektni_FMSI
                 {
                     Console.WriteLine("Enter --exit to stop entering transitions for current state or enter symbol from alphabet for transition: ");
                     inputHelp = Console.ReadLine();
-                    
-                    if(inputHelp != "--exit" && checkIfSymbolIsInAlphabet(char.Parse(inputHelp)))
+
+                    if (inputHelp != "--exit" && checkIfSymbolIsInAlphabet(char.Parse(inputHelp)))
                     {
                         symbol = char.Parse(inputHelp);
                         Console.WriteLine("Enter destination state: ");
                         nextState = Console.ReadLine();
 
-                        if(checkIfStateExists(nextState + id))
+                        if (checkIfStateExists(nextState + id))
                         //if(checkIfStateExists(nextState))
                         {
                             if (!checkIfIsENKA())
@@ -713,21 +714,21 @@ namespace Projektni_FMSI
                         {
                             Console.WriteLine("Destination state doesn't exists, couldn't do what you wanted, sorry!");
                         }
-                        
+
                     }
-                    else if(inputHelp != "--exit")
+                    else if (inputHelp != "--exit")
                     {
                         Console.WriteLine("That symbol doesn't exist in this alphabet!");
                     }
-                } while (inputHelp != "--exit");            
+                } while (inputHelp != "--exit");
             }
         }
 
         private int ESwitchingHelper(char symbol)
         {
-            for(int i = 0; i < alphabet.Count; i++)
+            for (int i = 0; i < alphabet.Count; i++)
             {
-                if(symbol == alphabet.ElementAt(i))
+                if (symbol == alphabet.ElementAt(i))
                 {
                     return i;
                 }
@@ -807,9 +808,9 @@ namespace Projektni_FMSI
         private int howManyDifferentSymbolsInAlphabet()
         {
             int numOfSymbols = 0;
-            foreach(var symbol in alphabet)
+            foreach (var symbol in alphabet)
             {
-                if(symbol != 'E')
+                if (symbol != 'E')
                 {
                     numOfSymbols++;
                 }
@@ -819,10 +820,10 @@ namespace Projektni_FMSI
 
         public void printStatesAndAlphabet()
         {
-            
+
             //Console.WriteLine("State: " + state.Substring(0, substring));
             Console.WriteLine("STATES: ");
-            foreach(var state in states)
+            foreach (var state in states)
             {
                 //int substring = state.IndexOf('_');
                 //Console.Write(state.Substring(0, substring) + " ");
@@ -830,13 +831,13 @@ namespace Projektni_FMSI
             }
             Console.WriteLine();
             Console.WriteLine("ALPHABET: ");
-            foreach(var symbol in alphabet)
+            foreach (var symbol in alphabet)
             {
                 Console.Write(symbol + " ");
             }
             Console.WriteLine();
             Console.WriteLine("DELTA TRANSITIONS: ");
-            if(!checkIfIsENKA())
+            if (!checkIfIsENKA())
             {
                 foreach (var symbol in alphabet)
                 {
@@ -850,9 +851,9 @@ namespace Projektni_FMSI
             }
             else
             {
-                foreach(var symbol in alphabet)
+                foreach (var symbol in alphabet)
                 {
-                    foreach(var state in states)
+                    foreach (var state in states)
                     {
                         int substring = state.IndexOf('_');
                         //deltaForEpsilon
@@ -867,28 +868,28 @@ namespace Projektni_FMSI
                     }
                 }
             }
-            
+
         }
 
         public bool isLanguageFinal()
         {
             Automat convert = new();
 
-            if(checkIfIsENKA())
+            if (checkIfIsENKA())
             {
-                convert = convertENKAtoDKA();    
+                convert = convertENKAtoDKA();
             }
             else
             {
                 convert = this;
             }
 
-            if(convert.finalStates.Count == 0 || convert.finalStates.Count == convert.states.Count)
+            if (convert.finalStates.Count == 0 || convert.finalStates.Count == convert.states.Count)
             {
                 return false;
             }
 
-            if(!isLanguageFinalHelpFunc())
+            if (!isLanguageFinalHelpFunc())
             {
                 return false;
             }
@@ -896,7 +897,7 @@ namespace Projektni_FMSI
             AutomatGraph automatGraph = new(convert.states.Count);
             convert.makeGraphFromAutomataWithAllConnections(automatGraph);
 
-            foreach(var finalState in convert.finalStates)
+            foreach (var finalState in convert.finalStates)
             {
                 if (automatGraph.dfsForLongestWord(finalState))
                 {
@@ -912,11 +913,11 @@ namespace Projektni_FMSI
         private bool isLanguageFinalHelpFunc()
         {
             bool result = true;
-            foreach(var finalState in finalStates)
+            foreach (var finalState in finalStates)
             {
-                foreach(var symbol in alphabet)
+                foreach (var symbol in alphabet)
                 {
-                    if(delta.ContainsKey((finalState, symbol)) && delta[(finalState, symbol)] == finalState)
+                    if (delta.ContainsKey((finalState, symbol)) && delta[(finalState, symbol)] == finalState)
                     {
                         return false;
                     }
@@ -929,12 +930,12 @@ namespace Projektni_FMSI
         {
             int shortestPathLength = 0;
 
-            if(finalStates.Contains(StartState))
+            if (finalStates.Contains(StartState))
             {
                 return shortestPathLength;
             }
 
-            if(finalStates.Count == 0)
+            if (finalStates.Count == 0)
             {
                 Console.WriteLine("There is no shortest path because there is no entry state, returning -1");
                 return -1;
@@ -943,15 +944,15 @@ namespace Projektni_FMSI
             Queue<string> queue = new();
             queue.Enqueue(StartState);
 
-            while(queue.Count > 0)
+            while (queue.Count > 0)
             {
                 string temp = queue.Dequeue();
-                foreach(char symbol in alphabet)
+                foreach (char symbol in alphabet)
                 {
-                    if(delta[(temp, symbol)] != temp)
+                    if (delta[(temp, symbol)] != temp)
                     {
                         string nextState = delta[(temp, symbol)];
-                        if(finalStates.Contains(nextState))
+                        if (finalStates.Contains(nextState))
                         {
                             shortestPathLength++;
                             return shortestPathLength;
@@ -960,7 +961,7 @@ namespace Projektni_FMSI
                         {
                             queue.Enqueue(nextState);
                         }
-                    }                 
+                    }
                 }
                 shortestPathLength++;
             }
@@ -975,9 +976,9 @@ namespace Projektni_FMSI
             makeGraphFromAutomataWithEClosures(automatGraph);
             DKA.StartState = this.StartState;
             DKA.states.Add(StartState);
-            foreach(var symbol in alphabet)
+            foreach (var symbol in alphabet)
             {
-                if(symbol != 'E')
+                if (symbol != 'E')
                 {
                     DKA.alphabet.Add(symbol);
                 }
@@ -1024,7 +1025,7 @@ namespace Projektni_FMSI
 
             Automat possibleDKA = new();
 
-            if(checkIfIsENKA())
+            if (checkIfIsENKA())
             {
                 possibleDKA = convertENKAtoDKA();
             }
@@ -1033,7 +1034,7 @@ namespace Projektni_FMSI
                 possibleDKA = this;
             }
 
-            if(!isLanguageFinalHelpFunc())
+            if (!isLanguageFinalHelpFunc())
             {
                 Console.WriteLine("It's infinity, even thought here we don't have infinity, I'll just print out the biggest possible number");
                 return int.MaxValue;
@@ -1041,16 +1042,16 @@ namespace Projektni_FMSI
 
             possibleDKA.makeGraphFromAutomataWithAllConnections(automatGraph);
 
-            foreach(var finalState in possibleDKA.finalStates)
+            foreach (var finalState in possibleDKA.finalStates)
             {
-                if(automatGraph.dfsForLongestWord(finalState))
+                if (automatGraph.dfsForLongestWord(finalState))
                 {
                     Console.WriteLine("It's infinity, even thought here we don't have infinity, I'll just print out the biggest possible number");
                     return int.MaxValue;
                 }
             }
 
-            if(possibleDKA.finalStates.Count == 0)
+            if (possibleDKA.finalStates.Count == 0)
             {
                 Console.WriteLine("There is no final state, returning -1!");
                 return -1;
@@ -1071,23 +1072,23 @@ namespace Projektni_FMSI
                 nodes[i++] = state;
             }
             i = 0;
-            for(i = 0; i < states.Count; i++)
+            for (i = 0; i < states.Count; i++)
             {
-                for(j = 0; j < states.Count; j++)
+                for (j = 0; j < states.Count; j++)
                 {
                     bool doesContain = false;
-                    foreach(var symbol in alphabet)
+                    foreach (var symbol in alphabet)
                     {
-                        if(!checkIfIsENKA())
+                        if (!checkIfIsENKA())
                         {
-                            if(delta.ContainsKey((nodes[i], symbol)) && delta[(nodes[i], symbol)].Contains(nodes[j]))
+                            if (delta.ContainsKey((nodes[i], symbol)) && delta[(nodes[i], symbol)].Contains(nodes[j]))
                             {
                                 ms[i, j] = 1;
                                 doesContain = true;
                             }
                         }
                     }
-                    if(!doesContain)
+                    if (!doesContain)
                     {
                         ms[i, j] = 0;
                     }
@@ -1142,7 +1143,7 @@ namespace Projektni_FMSI
                         List<string> goToStates = new();
 
                         //string goToState = delta[(stateVisited, symbol)];
-                        if(deltaForEpsilon.ContainsKey((stateVisited, symbol)))
+                        if (deltaForEpsilon.ContainsKey((stateVisited, symbol)))
                             goToStates = deltaForEpsilon[(stateVisited, symbol)];
                         //goToStates.Sort();
                         foreach (var goToState in goToStates)
@@ -1172,11 +1173,12 @@ namespace Projektni_FMSI
                     }
                 }
                 temp = "";
-                if(statesSorted.Count > 1)
+                if (statesSorted.Count > 1)
                 {
                     int counter = 0;
-                    foreach (var s in statesSorted) {
-                        
+                    foreach (var s in statesSorted)
+                    {
+
                         temp += s;
                         counter++;
                         if (counter != statesSorted.Count)
@@ -1188,7 +1190,7 @@ namespace Projektni_FMSI
                 }
                 else
                 {
-                    if(statesSorted.Count == 1)
+                    if (statesSorted.Count == 1)
                         temp = statesSorted.ElementAt(0);
                 }
 
@@ -1226,18 +1228,18 @@ namespace Projektni_FMSI
             Automat convertSecond = new();
             Automat first;
             Automat second;
-            if(this.checkIfIsENKA())
+            if (this.checkIfIsENKA())
             {
                 convertFirst = this.convertENKAtoDKA();
             }
-            if(other.checkIfIsENKA())
+            if (other.checkIfIsENKA())
             {
                 convertSecond = other.convertENKAtoDKA();
             }
 
             AutomatGraph graph = new();
 
-            if(!checkIfIsENKA())
+            if (!checkIfIsENKA())
             {
                 first = graph.bfsTraversal(this);
             }
@@ -1246,7 +1248,7 @@ namespace Projektni_FMSI
                 first = graph.bfsTraversal(convertFirst);
             }
 
-            if(!other.checkIfIsENKA())
+            if (!other.checkIfIsENKA())
             {
                 second = graph.bfsTraversal(other);
             }
@@ -1255,31 +1257,31 @@ namespace Projektni_FMSI
                 second = graph.bfsTraversal(convertSecond);
             }
 
-            if(first.states.Count != second.states.Count)
+            if (first.states.Count != second.states.Count)
             {
                 return false;
             }
 
-            foreach(var state in first.states)
+            foreach (var state in first.states)
             {
-                foreach(var symbol in first.alphabet)
+                foreach (var symbol in first.alphabet)
                 {
                     Console.WriteLine(first.delta[(state, symbol)] + " " + second.delta[(state, symbol)]);
-                    if(first.delta[(state, symbol)] != second.delta[(state, symbol)])
+                    if (first.delta[(state, symbol)] != second.delta[(state, symbol)])
                     {
                         return false;
                     }
                 }
             }
 
-            if(first.finalStates.Count != second.finalStates.Count)
+            if (first.finalStates.Count != second.finalStates.Count)
             {
                 return false;
             }
 
-            foreach(var finalState in first.finalStates)
+            foreach (var finalState in first.finalStates)
             {
-                if(!second.finalStates.Contains(finalState))
+                if (!second.finalStates.Contains(finalState))
                 {
                     return false;
                 }
@@ -1308,14 +1310,14 @@ namespace Projektni_FMSI
 
             SortedSet<string> getReachableStates = makeGraphForMinimization();
             this.states.Clear();
-            foreach(var state in getReachableStates)
+            foreach (var state in getReachableStates)
             {
                 this.states.Add(state);
             }
             HashSet<string> newFinalStates = new();
-            foreach(var state in finalStates)
+            foreach (var state in finalStates)
             {
-                if(this.states.Contains(state))
+                if (this.states.Contains(state))
                 {
                     newFinalStates.Add(state);
                 }
@@ -1324,7 +1326,7 @@ namespace Projektni_FMSI
             finalStates = newFinalStates;
 
             Console.WriteLine("STATES");
-            foreach(var state in states)
+            foreach (var state in states)
             {
                 Console.Write(state + " ");
             }
@@ -1379,7 +1381,7 @@ namespace Projektni_FMSI
                     string temp = "";
                     if (automatGraph.ms[i, j] == 0)
                     {
-                        if(String.Compare(states.ElementAt(i), states.ElementAt(j)) < 0) 
+                        if (String.Compare(states.ElementAt(i), states.ElementAt(j)) < 0)
                         {
                             temp = states.ElementAt(i) + ":" + states.ElementAt(j);
                         }
@@ -1394,7 +1396,7 @@ namespace Projektni_FMSI
             }
 
             Console.WriteLine("STATES TO MINIMIZE: ");
-            foreach(var state in statesToMinimize)
+            foreach (var state in statesToMinimize)
             {
                 Console.Write(state + " ");
             }
@@ -1447,7 +1449,7 @@ namespace Projektni_FMSI
                     else
                     {
                         string temp2 = "";
-                        for(int g = 0; g < temp.Length - 1; g++)
+                        for (int g = 0; g < temp.Length - 1; g++)
                         {
                             temp2 += temp[g];
                         }
@@ -1458,39 +1460,39 @@ namespace Projektni_FMSI
             }
 
             Console.WriteLine("States to fully minimize: ");
-            foreach(var state in fullMinimization)
+            foreach (var state in fullMinimization)
             {
                 Console.Write(state + " ");
             }
             Console.WriteLine();
 
             bool flagForStartState = false;
-            foreach(var state in fullMinimization)
+            foreach (var state in fullMinimization)
             {
-                if(state.Contains(StartState))
+                if (state.Contains(StartState))
                 {
                     flagForStartState = true;
                     minimized.StartState = state;
                 }
             }
-            if(!flagForStartState)
+            if (!flagForStartState)
             {
                 minimized.StartState = StartState;
             }
 
             bool flagForFinalState = false;
-            foreach(var state in finalStates)
+            foreach (var state in finalStates)
             {
                 flagForFinalState = false;
                 foreach (var s in fullMinimization)
                 {
-                    if(s.Contains(state))
+                    if (s.Contains(state))
                     {
                         flagForFinalState = true;
                         minimized.finalStates.Add(s);
                     }
                 }
-                if(!flagForFinalState)
+                if (!flagForFinalState)
                 {
                     minimized.finalStates.Add(state);
                 }
@@ -1512,9 +1514,9 @@ namespace Projektni_FMSI
                     minimized.states.Add(state);
                 }
             }
-            foreach(var state in fullMinimization)
+            foreach (var state in fullMinimization)
             {
-                if(state != "")
+                if (state != "")
                 {
                     minimized.states.Add(state);
                 }
@@ -1574,17 +1576,17 @@ namespace Projektni_FMSI
                             //AKO SE NE PRESLIKAVA SAM U SEBE, MORA U SLIKANJE OD BILO KOJEG
                             string temp = delta[(splitStates[0], symbol)];
                             bool flag2 = false;
-                            foreach(var st in fullMinimization)
+                            foreach (var st in fullMinimization)
                             {
                                 flag2 = false;
-                                if(st.Contains(temp))
+                                if (st.Contains(temp))
                                 {
                                     flag2 = true;
                                     minimized.delta[(state, symbol)] = st;
                                     break;
                                 }
                             }
-                            if(!flag2)
+                            if (!flag2)
                             {
                                 minimized.delta[(state, symbol)] = delta[(splitStates[0], symbol)];
                             }
@@ -1594,9 +1596,9 @@ namespace Projektni_FMSI
             }
 
             minimized.printStatesAndAlphabet();
-            foreach(var state in minimized.states)
+            foreach (var state in minimized.states)
             {
-                foreach(var symbol in alphabet)
+                foreach (var symbol in alphabet)
                 {
                     Console.WriteLine(state + "->" + symbol + " = " + minimized.delta[(state, symbol)]);
                 }
@@ -1622,19 +1624,19 @@ namespace Projektni_FMSI
             int[,] ms = new int[states.Count, states.Count];
             string[] nodes = new string[states.Count];
             int i = 0;
-            foreach(var state in states)
+            foreach (var state in states)
             {
                 nodes[i++] = state;
             }
             automatGraph.nodes = nodes;
 
-            for(i = 0; i < states.Count; i++)
+            for (i = 0; i < states.Count; i++)
             {
-                for(int j = 0; j < states.Count; j++)
+                for (int j = 0; j < states.Count; j++)
                 {
-                    foreach(var symbol in alphabet)
+                    foreach (var symbol in alphabet)
                     {
-                        if(delta.ContainsKey((nodes[i], symbol)) && delta[(nodes[i], symbol)] == nodes[j])//states.Contains(delta[(nodes[i], symbol)]))
+                        if (delta.ContainsKey((nodes[i], symbol)) && delta[(nodes[i], symbol)] == nodes[j])//states.Contains(delta[(nodes[i], symbol)]))
                         {
                             ms[i, j] = 1;
                         }
@@ -1645,16 +1647,16 @@ namespace Projektni_FMSI
             automatGraph.ms = ms;
 
             Console.WriteLine("NODES: ");
-            for(int k = 0; k < automatGraph.nodes.Length; k++)
+            for (int k = 0; k < automatGraph.nodes.Length; k++)
             {
                 Console.Write(automatGraph.nodes[k] + " ");
             }
             Console.WriteLine();
 
             Console.WriteLine("MS: ");
-            for(int k = 0; k < nodes.Length; k++, Console.WriteLine())
+            for (int k = 0; k < nodes.Length; k++, Console.WriteLine())
             {
-                for(int j = 0; j < nodes.Length; j++)
+                for (int j = 0; j < nodes.Length; j++)
                 {
                     Console.Write(ms[k, j] + " ");
                 }
@@ -1663,21 +1665,21 @@ namespace Projektni_FMSI
 
             SortedSet<string> nodesVisited = automatGraph.dfs(StartState);
             Console.WriteLine("REACHABLE STATES");
-            foreach(var state in nodesVisited)
+            foreach (var state in nodesVisited)
             {
                 Console.Write(state + " ");
             }
             Console.WriteLine();
-            
+
             return nodesVisited;
         }
 
         private int checkHowManyBrackets(string input, char symbol)
         {
             int bracketCounter = 0;
-            for(int i = 0; i < input.Length; i++)
+            for (int i = 0; i < input.Length; i++)
             {
-                if(input[i] == symbol)
+                if (input[i] == symbol)
                 {
                     bracketCounter++;
                 }
@@ -1687,9 +1689,9 @@ namespace Projektni_FMSI
 
         private bool checkIfRegularExpressionIsCorrect(string input)
         {
-            for(int i = 0; i < input.Length; i++)
+            for (int i = 0; i < input.Length; i++)
             {
-                if(input[i] == '*' || input[i] == '+' || input[i] == '(' || input[i] == ')' || alphabet.Contains(input[i]))
+                if (input[i] == '*' || input[i] == '+' || input[i] == '(' || input[i] == ')' || alphabet.Contains(input[i]))
                 {
                     continue;
                 }
@@ -1703,12 +1705,13 @@ namespace Projektni_FMSI
 
         private bool checkPositionOfBrackets(string input)
         {
-            if(input[0] == ')' || input[input.Length - 1] == '(')
+            if (input[0] == ')' || input[input.Length - 1] == '(')
             {
                 return false;
             }
-            for (int i = 0; i < input.Length - 1; i++) {
-                if(input[i] == '(' && input[i + 1] == ')')
+            for (int i = 0; i < input.Length - 1; i++)
+            {
+                if (input[i] == '(' && input[i + 1] == ')')
                 {
                     return false;
                 }
@@ -1723,9 +1726,9 @@ namespace Projektni_FMSI
 
         private bool checkIfPlusIsBeforeClosedBracket(string input)
         {
-            for(int i = 0; i < input.Length - 1; i++)
+            for (int i = 0; i < input.Length - 1; i++)
             {
-                if(input[i] == '+' && input[i + 1] == ')')
+                if (input[i] == '+' && input[i + 1] == ')')
                 {
                     return true;
                 }
@@ -1740,8 +1743,9 @@ namespace Projektni_FMSI
 
         private bool checkIfTwoPlusesAreNextToEachOther(string input)
         {
-            for(int i = 0; i < input.Length - 1; i++) {
-                if(input[i] == '+' && input[i + 1] == '+')
+            for (int i = 0; i < input.Length - 1; i++)
+            {
+                if (input[i] == '+' && input[i + 1] == '+')
                 {
                     return true;
                 }
@@ -1760,41 +1764,41 @@ namespace Projektni_FMSI
 
             Automat result = new();
 
-            foreach(var element in alphabet)
+            foreach (var element in alphabet)
             {
                 result.alphabet.Add(element);
             }
 
             result.alphabet.Add('E');
-            result.StartState = "NSS" + id;
-            result.finalStates.Add("NFS" + id);
+            result.StartState = "NSS" + result.id;
+            result.finalStates.Add("NFS" + result.id);
 
 
             result.states.Add(result.StartState);
-            result.states.Add("NFS" + id);
-            foreach(var state in states)
+            result.states.Add("NFS" + result.id);
+            foreach (var state in states)
             {
                 result.states.Add(state);
             }
-            foreach(var state in other.states)
+            foreach (var state in other.states)
             {
                 result.states.Add(state);
             }
 
             //this.printStatesAndAlphabet();
-           // other.printStatesAndAlphabet();
+            // other.printStatesAndAlphabet();
 
-            foreach(var symbol in alphabet)
+            foreach (var symbol in alphabet)
             {
-                foreach(var state in states)
+                foreach (var state in states)
                 {
                     helpForConnectingAndStuff(result, state, symbol);
                 }
             }
 
-            foreach(var symbol in other.alphabet)
+            foreach (var symbol in other.alphabet)
             {
-                foreach(var state in other.states)
+                foreach (var state in other.states)
                 {
                     other.helpForConnectingAndStuff(result, state, symbol);
                 }
@@ -1803,11 +1807,11 @@ namespace Projektni_FMSI
             result.ESwitching(result.StartState, 'E', this.StartState);
             result.ESwitching(result.StartState, 'E', other.StartState);
 
-            foreach(var finalState in finalStates)
+            foreach (var finalState in finalStates)
             {
                 result.ESwitching(finalState, 'E', result.finalStates.ElementAt(0));
             }
-            foreach(var finalState in other.finalStates)
+            foreach (var finalState in other.finalStates)
             {
                 result.ESwitching(finalState, 'E', result.finalStates.ElementAt(0));
             }
@@ -1818,17 +1822,17 @@ namespace Projektni_FMSI
         private int findHowManyHashSetsAreNeeded(string regexp)
         {
             int min = 0, counter = 0;
-            for(int i = 0; i < regexp.Length; i++)
+            for (int i = 0; i < regexp.Length; i++)
             {
-                if(regexp[i] == '(')
+                if (regexp[i] == '(')
                 {
                     counter++;
-                    if(counter > min)
+                    if (counter > min)
                     {
                         min = counter;
                     }
                 }
-                if(regexp[i] == ')')
+                if (regexp[i] == ')')
                 {
                     counter--;
                 }
@@ -1839,12 +1843,12 @@ namespace Projektni_FMSI
         private int countNumOfAutomatas(string[] sets)
         {
             int counter = 0;
-            for(int i = 1; i < sets.Length; i++)
+            for (int i = 1; i < sets.Length; i++)
             {
                 string str = sets[i];
-                for(int j = 0; j < str.Length; j++)
+                for (int j = 0; j < str.Length; j++)
                 {
-                    if(str[j] == '/')
+                    if (str[j] == '/')
                     {
                         counter++;
                     }
@@ -1852,19 +1856,19 @@ namespace Projektni_FMSI
             }
             return counter;
         }
-        
+
         //I'VE GIVEN UP!
         public Automat transformRegularExpressionToAutomata(string regularExpression)
         {
             Automat result = new();
 
-            if(checkHowManyBrackets(regularExpression, '(') != checkHowManyBrackets(regularExpression, ')'))
+            if (checkHowManyBrackets(regularExpression, '(') != checkHowManyBrackets(regularExpression, ')'))
             {
                 return errorInTransformatingRegExpToAutomata();
             }
 
-            if (!checkIfRegularExpressionIsCorrect(regularExpression) || !checkPositionOfBrackets(regularExpression) || 
-                checkIfStartsWithPlus(regularExpression) || checkIfPlusIsBeforeClosedBracket(regularExpression) || 
+            if (!checkIfRegularExpressionIsCorrect(regularExpression) || !checkPositionOfBrackets(regularExpression) ||
+                checkIfStartsWithPlus(regularExpression) || checkIfPlusIsBeforeClosedBracket(regularExpression) ||
                 checkIfEndsWithPlus(regularExpression) || checkIfTwoPlusesAreNextToEachOther(regularExpression))
             {
                 return errorInTransformatingRegExpToAutomata();
@@ -1874,27 +1878,27 @@ namespace Projektni_FMSI
             string[] sets = new string[num];
             int level = 0;
 
-            for(int i = 0; i < regularExpression.Length; i++)
+            for (int i = 0; i < regularExpression.Length; i++)
             {
-                if(regularExpression[i] == '(')
+                if (regularExpression[i] == '(')
                 {
                     //if we go level down, '-'
                     sets[level] += "-";
                     level++;
                 }
-                if(regularExpression[i] == ')')
+                if (regularExpression[i] == ')')
                 {
                     //if we go level up, '/'
                     sets[level] += "/";
                     level--;
                 }
-                if(regularExpression[i] != '(' && regularExpression[i] != ')')
+                if (regularExpression[i] != '(' && regularExpression[i] != ')')
                 {
                     sets[level] += regularExpression[i];
                 }
             }
 
-            foreach(var set in sets)
+            foreach (var set in sets)
             {
                 Console.WriteLine(set);
             }
@@ -1903,219 +1907,157 @@ namespace Projektni_FMSI
             //Console.WriteLine(countHowManyAutomatas);
 
             Automat[] realAutomatas = new Automat[countHowManyAutomatas];
-            for(int i = 0; i < realAutomatas.Length; i++)
+            for (int i = 0; i < realAutomatas.Length; i++)
             {
                 realAutomatas[i] = new();
             }
 
-            bool firstEncounter = true;
             int pushIntoAutomatas = 0;
-            for(int i = sets.Length - 1; i >= 0; i--)
+            int[] savePositionOfThoseCreatedBefore = new int[sets.Length];
+
+            for (int i = sets.Length - 1; i >= 0; i--)
             {
-                //FIRST ENCOUNTER
-                if(firstEncounter)
+                string[] splitFirst = sets[i].Split('/');
+                foreach(var element in splitFirst)
                 {
-                    //string[] splitFirst = sets[i].Split('/');
-                    string[] splitFirst = sets[i].Split(new char[] { '-', '/'});
-
-                    string[] splitReal = new string[splitFirst.Length - 1];
-                    int c = 0;
-                    foreach(var elem in splitFirst)
+                    if(element != "")
                     {
-                        if(elem != "")
-                        {
-                            splitReal[c++] = elem;
-                        }
+                        savePositionOfThoseCreatedBefore[i]++;
                     }
-                    foreach(var str in splitReal)
-                    {
-                        //TODO: for each element check if it contains a plus, if it does, do your stuff, if it doesn't, do other stuff!
-                        //SEEMS IT'S ALREADY DONE!
-                        string[] plusSplit = str.Split('+');
-                        int numberOfTempAutomatas = 0;
-                        foreach(var element in plusSplit)
-                        {
-                            if(element != "")
-                            {
-                                numberOfTempAutomatas++;
-                            }
-                        }
-                        //Console.WriteLine(numberOfTempAutomatas); WORKS
-                        Automat[] tempAutomatas = new Automat[numberOfTempAutomatas];
-                        for(int k = 0; k < tempAutomatas.Length; k++)
-                        {
-                            tempAutomatas[k] = new();
-                        }
-                        c = 0;
-                        foreach(var automata in tempAutomatas)
-                        {
-                            foreach(var symbol in alphabet)
-                            {
-                                automata.alphabet.Add(symbol);
-                            }
-                        }
-                        foreach(var element in plusSplit)
-                        {
-                            if(element != "")
-                            {
-                                int stateNo = 0;
-                                bool first = true;
-
-                                for (int size = 0; size < element.Length; size++)
-                                {
-                                    if (alphabet.Contains(element[size]))
-                                    {
-                                        string newState = "q" + stateNo + tempAutomatas[c].id;
-                                        stateNo++;
-                                        if (first)
-                                        {
-                                            tempAutomatas[c].StartState = newState;
-                                            first = false;
-                                        }
-                                        string newState2 = "q" + stateNo + tempAutomatas[c].id;
-                                        tempAutomatas[c].states.Add(newState);
-                                        tempAutomatas[c].states.Add(newState2);
-                                        stateNo++;
-
-                                        if(size == element.Length - 1)
-                                        {
-                                            tempAutomatas[c].finalStates.Add(newState2);
-                                        }
-
-                                        if (!checkIfIsENKA())
-                                        {
-                                            tempAutomatas[c].delta[(newState, element[size])] = newState2;
-                                        }
-                                        else
-                                        {
-                                            tempAutomatas[c].ESwitching(newState, element[size], newState2);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        tempAutomatas[c].applyKleeneStar();
-                                    }
-                                }
-                                //tempAutomatas[c].printStatesAndAlphabet();
-                                c++;
-                            }
-                            
-                        }
-
-                        if(tempAutomatas.Length == 1)
-                        {
-                            realAutomatas[pushIntoAutomatas] = tempAutomatas[c];
-                            pushIntoAutomatas++;
-                        }
-                        else
-                        {
-                            for (int br = 0; br < tempAutomatas.Length; br++)
-                            {
-                                if (br == 0)
-                                {
-                                    realAutomatas[pushIntoAutomatas] = tempAutomatas[0].findUnionBetweenTwoLanguages(tempAutomatas[1]);
-                                    br++;
-                                }
-                                else
-                                {
-                                    realAutomatas[pushIntoAutomatas] = realAutomatas[pushIntoAutomatas].findUnionBetweenTwoLanguages(tempAutomatas[br]);
-                                }
-                            }
-                            pushIntoAutomatas++;
-                        }
-                        //RADI
-                        //realAutomatas[0].printStatesAndAlphabet();
-                    }
-                    firstEncounter = false;
                 }
-                /*else
+                //Console.WriteLine("Save positions " + savePositionOfThoseCreatedBefore[i]);
+                int c = 0;
+                foreach (var str in splitFirst)
                 {
-
-                    string[] splitFirst = sets[i].Split('/');
-                    foreach(var elem in splitFirst)
+                    string[] plusSplit = str.Split('+');
+                    int numberOfTempAutomatas = 0;
+                    foreach (var element in plusSplit)
                     {
-                        int numberOfAutomatas = 0;
-                        //Console.Write(elem + " ");
-                        if(elem != "")
+                        if (element != "")
                         {
-                            string[] plusSplit = elem.Split('+');
-                            foreach(var el in plusSplit) { 
-                                if(el != "")
-                                {
-                                    numberOfAutomatas++;
-                                }
-                            }
-                            //PRINTS OUT CORRECTLY!
-                            //Console.WriteLine(numberOfAutomatas);
-                            Automat[] tempAutomatas = new Automat[numberOfAutomatas];
-                            for (int br = 0; br < tempAutomatas.Length; br++)
+                            //Console.WriteLine(element);
+                            numberOfTempAutomatas++;
+                        }
+                    }
+                    //0 - PROBLEM
+                    //Console.WriteLine(numberOfTempAutomatas);
+                    Automat[] tempAutomatas = new Automat[numberOfTempAutomatas];
+                    for (int k = 0; k < tempAutomatas.Length; k++)
+                    {
+                        tempAutomatas[k] = new();
+                    }
+                    c = 0;
+                    foreach (var automata in tempAutomatas)
+                    {
+                        foreach (var symbol in alphabet)
+                        {
+                            automata.alphabet.Add(symbol);
+                        }
+                    }
+                    foreach (var element in plusSplit)
+                    {
+                        if (element != "")
+                        {
+                            int stateNo = 0;
+                            bool first = true;
+
+                            for (int size = 0; size < element.Length; size++)
                             {
-                                tempAutomatas[br] = new();
-                            }
-
-                            foreach (var autoamta in tempAutomatas)
-                            {
-                                foreach (var symbol in alphabet)
+                                if (alphabet.Contains(element[size]))
                                 {
-                                    autoamta.alphabet.Add(symbol);
-                                }
-                            }
-
-                            string element = sets[i];
-
-                            int autoCounter = 0;
-                            int stateCounter = 0;
-                            bool isFirst = true;
-                            for (int k = 0; k < element.Length; k++)
-                            {
-                                if (element[k] == '/' && k != element.Length - 1)
-                                {
-                                    autoCounter++;
-                                    stateCounter = 0;
-                                    isFirst = true;
-                                }
-                                else if (element[k] == '-')
-                                {
-                                    //TODO : implement with multiple stuff!
-
-                                    //autoCounter++;
-
-
-                                    //stateCounter = 0;
-                                    //isFirst = false;
-                                }
-                                else
-                                {
-                                    if (alphabet.Contains(element[k]))
+                                    string oldState = "q" + stateNo + tempAutomatas[c].id;
+                                    stateNo++;
+                                    if (first)
                                     {
-                                        string oldState = "q" + stateCounter + tempAutomatas[autoCounter].id;
-                                        stateCounter++;
-                                        string newState = "q" + stateCounter + tempAutomatas[autoCounter].id;
-                                        stateCounter++;
-                                        if (isFirst)
-                                        {
-                                            tempAutomatas[autoCounter].StartState = oldState;
-                                            isFirst = false;
-                                        }
-                                        if (tempAutomatas[autoCounter].checkIfIsENKA())
-                                        {
-                                            tempAutomatas[autoCounter].ESwitching(oldState, element[k], newState);
-                                        }
-                                        else
-                                        {
-                                            tempAutomatas[autoCounter].delta[(oldState, element[k])] = newState;
-                                        }
+                                        tempAutomatas[c].StartState = oldState;
+                                        first = false;
+                                    }
+                                    string newState = "q" + stateNo + tempAutomatas[c].id;
+                                    tempAutomatas[c].states.Add(oldState);
+                                    tempAutomatas[c].states.Add(newState);
+                                    stateNo++;
+
+                                    if (!tempAutomatas[c].checkIfIsENKA())
+                                    {
+                                        tempAutomatas[c].delta[(oldState, element[size])] = newState;
                                     }
                                     else
                                     {
-                                        tempAutomatas[autoCounter].applyKleeneStar();
+                                        tempAutomatas[c].counter = 0;
+                                        if(element[size - 1] == '*')
+                                        {
+                                            tempAutomatas[c].ESwitching(tempAutomatas[c].finalStates.ElementAt(0), element[size], newState);
+                                        }
+                                        else
+                                        {
+                                            tempAutomatas[c].ESwitching(oldState, element[size], newState);
+                                        }
+                                    }
+                                    if (size == element.Length - 1)
+                                    {
+                                        tempAutomatas[c].finalStates.Clear();
+                                        tempAutomatas[c].finalStates.Add(newState);
+                                        c++;
+                                    }
+                                    if(size != element.Length - 1 && element[size + 1] == '*')
+                                    {
+                                        tempAutomatas[c].finalStates.Add(newState);
                                     }
                                 }
+                                else if (element[size] == '*')
+                                {
+                                    Automat tmp = tempAutomatas[c].applyKleeneStar();
+                                    tempAutomatas[c] = tmp;
+                                    tempAutomatas[c].alphabet.Add('E');
+                                    //tempAutomatas[c].printStatesAndAlphabet();
+                                }
+                                else if (element[size] == '-')
+                                {
+                                    int pos = i + 1;
+                                    int sum = 0;
+                                    sum = savePositionOfThoseCreatedBefore[pos];
+                                    //Console.WriteLine(sum);
+                                }
+                            }
+                            //tempAutomatas[c].printStatesAndAlphabet();
+                            //USED TO BE HERE!
+                            //c++;
+                        }
+
+                    }
+
+                    //tempAutomatas[c - 1].printStatesAndAlphabet();
+
+                    if (tempAutomatas.Length == 1)
+                    {
+                        realAutomatas[pushIntoAutomatas] = tempAutomatas[c-1];
+                        pushIntoAutomatas++;
+                        //realAutomatas[pushIntoAutomatas - 1].printStatesAndAlphabet();
+                        //c++;
+                    }
+                    else
+                    {
+                        for (int br = 0; br < tempAutomatas.Length; br++)
+                        {
+                            if (br == 0)
+                            {
+                                realAutomatas[pushIntoAutomatas] = tempAutomatas[0].findUnionBetweenTwoLanguages(tempAutomatas[1]);
+                                br += 2;
+                            }
+                            else
+                            {
+                                realAutomatas[pushIntoAutomatas] = realAutomatas[pushIntoAutomatas].findUnionBetweenTwoLanguages(tempAutomatas[br]);
                             }
                         }
+                        if(tempAutomatas.Length != 0)
+                        {
+                            pushIntoAutomatas++;
+                        }
+
                     }
-                    
-                }*/
+                    realAutomatas[1].printStatesAndAlphabet();
+                    //c++;
+                }
             }
 
             return result;
