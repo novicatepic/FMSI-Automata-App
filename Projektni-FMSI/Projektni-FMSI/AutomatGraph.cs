@@ -29,6 +29,7 @@ namespace Projektni_FMSI
 
         }
 
+        //CLASSIC DFS TRAVERSAL
         public SortedSet<string> dfs(string startState)
         {
             bool[] visit = initVisit();
@@ -38,7 +39,6 @@ namespace Projektni_FMSI
                 int v;
                 visit[u] = true;
                 set.Add(nodes[u]);
-                //Console.Write(nodes[u] + " ");
                 for (v = 0; v < size; v++)
                 {
                     if (ms[u, v] == 1 && !visit[v])
@@ -57,6 +57,7 @@ namespace Projektni_FMSI
             return set;
         }
 
+        //HELP FUNCTION FOR FINDING LONGEST WORD
         public bool dfsForLongestWord(string startState)
         {
             bool isThereACycle = false;
@@ -67,12 +68,12 @@ namespace Projektni_FMSI
             {
                 int v;
                 visit[u] = true;
-                //Console.Write(nodes[u] + " ");
                 
+                //CYCLE FOUND
                 if(set.Contains(nodes[u]))
                 {
                     isThereACycle = true;
-                    return;
+                    //return;
                 }
                 set.Add(nodes[u]);
                 
@@ -98,6 +99,11 @@ namespace Projektni_FMSI
             return isThereACycle;
         }
 
+        //IF THERE WAS NO CYCLE
+        //FIND LONGEST WORD WITH BFS
+        //REMEMBER LEVELS VISITED
+        //SO WE CAN REMEMBER LONGEST WORD 
+        //AND REPLACE IT AS NEEDED!
         public int bfsFindLongestWord(Automat visit)
         {
             int longestWord = 0;
@@ -165,6 +171,7 @@ namespace Projektni_FMSI
             return longestWord;
         }
 
+        //SOME HELP FUNCTIONS
         private string findStateBasedOnPosition(int position)
         {
             return nodes.ElementAt(position);
@@ -191,6 +198,12 @@ namespace Projektni_FMSI
             return visit;
         }
 
+        //WHEN WE WANT TO CHECK IF AUTOMATAS ARE THE SAME
+        //WE MINIMISE IT
+        //RENAME THE STATE AS SHOWED HERE
+        //AND WE GET NEW AUTOMATA 
+        //WE DO IT FOR SECOND AUTOMATA AS WELL
+        //-> WE GET THE EXPECTED RESULT
         public Automat bfsTraversal(Automat automata)
         {
             Automat resultAutomat = new();
@@ -248,6 +261,10 @@ namespace Projektni_FMSI
             return resultAutomat;
         }
 
+        //FOR ANY SYMBOL
+        //IF TWO STATES GO TO A STATE THAT'S ALREADY PRESENT IN MATRIX
+        //ADD IT
+        //AS WE LEARNED!
         public bool minimiseAutomataHelper(Automat a)
         {
             bool checkIfThereIsNone = false;
@@ -259,8 +276,10 @@ namespace Projektni_FMSI
                     {
                         foreach(var symbol in a.alphabet)
                         {
-                            //if(nodes.Contains(a.delta[(nodes.ElementAt(i), symbol)]) && nodes.Contains(a.delta[(nodes.ElementAt(j), symbol)]))
-                            //{
+                            //ADDED FIRST ROW
+                            if(a.delta.ContainsKey((nodes.ElementAt(i), symbol)) && a.delta.ContainsKey((nodes.ElementAt(j), symbol)) &&
+                                nodes.Contains(a.delta[(nodes.ElementAt(i), symbol)]) && nodes.Contains(a.delta[(nodes.ElementAt(j), symbol)]))
+                            {
                                 string firstState = a.delta[(nodes.ElementAt(i), symbol)];
                                 string secondState = a.delta[(nodes.ElementAt(j), symbol)];
                                 int position1, position2;
@@ -284,7 +303,7 @@ namespace Projektni_FMSI
                                     checkIfThereIsNone = true;
                                     ms[i, j] = 1;
                                 }
-                            //}
+                            }
                         }
                     }
                 }
