@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Projektni_FMSI;
+using System.IO;
 
 namespace Projektni_FMSI
 {
@@ -98,6 +99,10 @@ namespace Projektni_FMSI
 
             foreach (var symbol in word)
             {
+                if(!alphabet.Contains(symbol))
+                {
+                    throw new Exception("Symbol not in alphabet, exception thrown!");
+                }
                 List<String> goToStates = new();
                 foreach (var state in traversals)
                 {
@@ -628,6 +633,10 @@ namespace Projektni_FMSI
             var currentState = StartState;
             foreach (var symbol in input)
             {
+                if(!alphabet.Contains(symbol))
+                {
+                    throw new Exception("This symbol is not in alphabet, exception thrown!");
+                }
                 currentState = delta[(currentState, symbol)];
             }
             return finalStates.Contains(currentState);
@@ -653,15 +662,23 @@ namespace Projektni_FMSI
         //Help function that helps user to enter alphabet
         private void enterAlphabet()
         {
+            Console.WriteLine("You can't enter strings, only char symbols for alphabet!");
             Console.WriteLine("--exit to exit input loop!\nEnter your alphabet (if you enter E as an symbol, it's E-NKA): ");
-            string inputString;
+            string inputString = "";
             do
             {
-                inputString = Console.ReadLine();
-                if (inputString != "--exit")
+                try
                 {
-                    char symbol = char.Parse(inputString);
-                    alphabet.Add(symbol);
+                    inputString = Console.ReadLine();
+                    if (inputString != "--exit")
+                    {
+                        char symbol = char.Parse(inputString);
+                        alphabet.Add(symbol);
+                    }
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
                 }
             } while (inputString != "--exit");
         }
@@ -676,6 +693,7 @@ namespace Projektni_FMSI
             bool isFirst = true;
             do
             {
+                Console.WriteLine("Enter state: ");
                 state = Console.ReadLine();
                 initState = state;
                 state += id;
@@ -927,6 +945,28 @@ namespace Projektni_FMSI
 
         }
 
+        //For each final state, if it's stuck in itself, it means language is not final
+        //Help function
+        private bool checkForAnyFinalState() 
+        {
+            int counter = 0;
+            foreach(var finalState in finalStates)
+            {
+                counter = 0;
+                foreach(var symbol in alphabet)
+                {
+                    if(!delta.ContainsKey((finalState, symbol))) {
+                        counter++;
+                    }
+                }
+                if(counter == alphabet.Count)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         //Checks if language is final
         //TODO: when we reach final state, check if it doesn't have any more transitions, then it's also final
         public bool isLanguageFinal()
@@ -940,6 +980,11 @@ namespace Projektni_FMSI
             else
             {
                 convert = this;
+            }
+
+            if(convert.checkForAnyFinalState())
+            {
+                return false;
             }
 
             if (convert.finalStates.Count == 0 || convert.finalStates.Count == convert.states.Count)
@@ -1040,7 +1085,8 @@ namespace Projektni_FMSI
             //ADDED
             //Ads dead state, easier to convert
             //Otherwise, a lot of errors
-            this.addDeadState();
+            //Dead state doesn't affect anything in here!
+            //this.addDeadState();
             AutomatGraph automatGraph = new(states.Count);
             makeGraphFromAutomataWithEClosures(automatGraph);
             DKA.StartState = this.StartState;
@@ -1359,7 +1405,7 @@ namespace Projektni_FMSI
             {
                 foreach (var symbol in first.alphabet)
                 {
-                    Console.WriteLine(first.delta[(state, symbol)] + " " + second.delta[(state, symbol)]);
+                    //Console.WriteLine(first.delta[(state, symbol)] + " " + second.delta[(state, symbol)]);
                     if (first.delta[(state, symbol)] != second.delta[(state, symbol)])
                     {
                         return false;
@@ -1399,8 +1445,6 @@ namespace Projektni_FMSI
             //Not sure if this is needed, added it anyways
             //Dead state is not added if it's not necessary
             this.addDeadState();
-            //this.printStatesAndAlphabet();
-
 
             //Basic case
             if (finalStates.Count == states.Count)
@@ -1439,19 +1483,6 @@ namespace Projektni_FMSI
             //Update final states
             finalStates = newFinalStates;
 
-            Console.WriteLine("STATES");
-            foreach (var state in states)
-            {
-                Console.Write(state + " ");
-            }
-            Console.WriteLine();
-            Console.WriteLine("FINALSTATES");
-            foreach (var state in finalStates)
-            {
-                Console.Write(state + " ");
-            }
-            Console.WriteLine();
-
             //Put 1 in graph ms if there is a pair with one final state
             //Otherwise put -1 if it's out of bounds
             //Or put 0 if there is a chance 
@@ -1484,10 +1515,7 @@ namespace Projektni_FMSI
             automatGraph.ms = ms;
             automatGraph.nodes = nodes;
             //Run loop as long as you can update the matrix
-            while (automatGraph.minimiseAutomataHelper(this))
-            {
-                //Console.WriteLine("YAS");
-            }
+            while (automatGraph.minimiseAutomataHelper(this)) { }
 
             //Find states to minimize
             HashSet<string> statesToMinimize = new();
@@ -1513,18 +1541,8 @@ namespace Projektni_FMSI
                         }
                         statesToMinimize.Add(temp);
                     }
-                    //Console.WriteLine(temp);
                 }
             }
-
-            Console.WriteLine("STATES TO MINIMIZE: ");
-            foreach (var state in statesToMinimize)
-            {
-                Console.Write(state + " ");
-            }
-            Console.WriteLine();
-            Console.WriteLine();
-            Console.WriteLine();
 
             minimized.alphabet = this.alphabet;
 
@@ -1547,7 +1565,6 @@ namespace Projektni_FMSI
 
                             if (statesToMinimize.ElementAt(j).Contains(splitState))
                             {
-                                //Console.WriteLine("YES");
                                 foreach (var splSt in splitNewStates)
                                 {
                                     matches.Add(splSt);
@@ -1568,7 +1585,6 @@ namespace Projektni_FMSI
                     }
                     if (matches.Count == 0)
                     {
-                        Console.WriteLine(statesToMinimize.ElementAt(i));
                         fullMinimization.Add(statesToMinimize.ElementAt(i));
                     }
                     else
@@ -1578,20 +1594,12 @@ namespace Projektni_FMSI
                         {
                             temp2 += temp[g];
                         }
-                        //Console.WriteLine(temp2);
                         fullMinimization.Add(temp2);
                     }
                 }
             }
 
             //We got our states which we can fully minimize
-            Console.WriteLine("States to fully minimize: ");
-            foreach (var state in fullMinimization)
-            {
-                Console.Write(state + " ");
-            }
-            Console.WriteLine();
-
             //Update start state if it's necessary
             bool flagForStartState = false;
             foreach (var state in fullMinimization)
@@ -1730,16 +1738,6 @@ namespace Projektni_FMSI
                 }
             }
 
-            //Check if it's good!
-            minimized.printStatesAndAlphabet();
-            foreach (var state in minimized.states)
-            {
-                foreach (var symbol in alphabet)
-                {
-                    Console.WriteLine(state + "->" + symbol + " = " + minimized.delta[(state, symbol)]);
-                }
-            }
-
             return minimized;
         }
 
@@ -1785,37 +1783,14 @@ namespace Projektni_FMSI
 
             automatGraph.ms = ms;
 
-            //UNNECESSARY
-            Console.WriteLine("NODES: ");
-            for (int k = 0; k < automatGraph.nodes.Length; k++)
-            {
-                Console.Write(automatGraph.nodes[k] + " ");
-            }
-            Console.WriteLine();
-
-            Console.WriteLine("MS: ");
-            for (int k = 0; k < nodes.Length; k++, Console.WriteLine())
-            {
-                for (int j = 0; j < nodes.Length; j++)
-                {
-                    Console.Write(ms[k, j] + " ");
-                }
-            }
-
             //Print out reachable states, test
             SortedSet<string> nodesVisited = automatGraph.dfs(StartState);
-            Console.WriteLine("REACHABLE STATES");
-            foreach (var state in nodesVisited)
-            {
-                Console.Write(state + " ");
-            }
-            Console.WriteLine();
 
             return nodesVisited;
         }
 
         //Help functions for regular expressions
-        private int checkHowManyBrackets(string input, char symbol)
+        private static int checkHowManyBrackets(string input, char symbol)
         {
             int bracketCounter = 0;
             for (int i = 0; i < input.Length; i++)
@@ -1828,8 +1803,9 @@ namespace Projektni_FMSI
             return bracketCounter;
         }
 
-        private bool checkIfRegularExpressionIsCorrect(string input)
+        private static bool checkIfRegularExpressionIsCorrect(string input)
         {
+            HashSet<char> alphabet = makeAlphabet(input);
             for (int i = 0; i < input.Length; i++)
             {
                 if (input[i] == '*' || input[i] == '+' || input[i] == '(' || input[i] == ')' || alphabet.Contains(input[i]))
@@ -1844,7 +1820,7 @@ namespace Projektni_FMSI
             return true;
         }
 
-        private bool checkPositionOfBrackets(string input)
+        private static bool checkPositionOfBrackets(string input)
         {
             if (input[0] == ')' || input[input.Length - 1] == '(')
             {
@@ -1860,12 +1836,12 @@ namespace Projektni_FMSI
             return true;
         }
 
-        private bool checkIfStartsWithPlus(string input)
+        private static bool checkIfStartsWithPlus(string input)
         {
             return input[0] == '+';
         }
 
-        private bool checkIfPlusIsBeforeClosedBracket(string input)
+        private static bool checkIfPlusIsBeforeClosedBracket(string input)
         {
             for (int i = 0; i < input.Length - 1; i++)
             {
@@ -1877,12 +1853,12 @@ namespace Projektni_FMSI
             return false;
         }
 
-        private bool checkIfEndsWithPlus(string input)
+        private static bool checkIfEndsWithPlus(string input)
         {
             return (input[input.Length - 1] == '+');
         }
 
-        private bool checkIfTwoPlusesAreNextToEachOther(string input)
+        private static bool checkIfTwoPlusesAreNextToEachOther(string input)
         {
             for (int i = 0; i < input.Length - 1; i++)
             {
@@ -1964,7 +1940,7 @@ namespace Projektni_FMSI
         }
 
         //Help function for transforming regular expression to automata
-        private int findHowManyHashSetsAreNeeded(string regexp)
+        private static int findHowManyHashSetsAreNeeded(string regexp)
         {
             int min = 0, counter = 0;
             for (int i = 0; i < regexp.Length; i++)
@@ -1986,7 +1962,7 @@ namespace Projektni_FMSI
         }
 
         //Find out how many automatas are needed
-        private int countNumOfAutomatas(string[] sets)
+        private static int countNumOfAutomatas(string[] sets)
         {
             int counter = 0;
             for (int i = 1; i < sets.Length; i++)
@@ -2003,404 +1979,259 @@ namespace Projektni_FMSI
             return counter;
         }
 
-        //Hardest function ever!
-        public Automat transformRegularExpressionToAutomata(string regularExpression)
+        private static HashSet<char> makeAlphabet(string regexp)
         {
-            //Find out if error exists!
-            if (checkHowManyBrackets(regularExpression, '(') != checkHowManyBrackets(regularExpression, ')'))
-            {
-                return errorInTransformatingRegExpToAutomata();
-            }
+            HashSet<char> alphabet = new();
 
-            if (!checkIfRegularExpressionIsCorrect(regularExpression) || !checkPositionOfBrackets(regularExpression) ||
-                checkIfStartsWithPlus(regularExpression) || checkIfPlusIsBeforeClosedBracket(regularExpression) ||
-                checkIfEndsWithPlus(regularExpression) || checkIfTwoPlusesAreNextToEachOther(regularExpression))
+            foreach(var symbol in regexp)
             {
-                return errorInTransformatingRegExpToAutomata();
-            }
-
-            int num = findHowManyHashSetsAreNeeded(regularExpression);
-            string[] sets = new string[num];
-            int level = 0;
-
-            //Split elements
-            //When there is an opening bracket, go level down
-            //When there is a closing bracket, go level up
-            //'-' for level down, '/' for level up
-            for (int i = 0; i < regularExpression.Length; i++)
-            {
-                if (regularExpression[i] == '(')
+                if(symbol != '(' && symbol != ')' && symbol != '*' && symbol != '+' && symbol != '|')
                 {
-                    //if we go level down, '-'
-                    sets[level] += "-";
-                    level++;
-                }
-                if (regularExpression[i] == ')')
-                {
-                    //if we go level up, '/'
-                    sets[level] += "/";
-                    level--;
-                }
-                if (regularExpression[i] != '(' && regularExpression[i] != ')')
-                {
-                    sets[level] += regularExpression[i];
+                    alphabet.Add(symbol);
                 }
             }
 
-            //UNNECESSARY PRINT
-            foreach (var set in sets)
+            return alphabet;
+        }
+
+        private static int getInputElementPriority(char element)
+        {
+            if(element == ')')
             {
-                Console.WriteLine(set);
+                return 1;
+            }
+            if(element == '(')
+            {
+                return 6;
+            }
+            if(element == '|')
+            {
+                return 4;
+            }
+            if(element == '+')
+            {
+                return 3;
+            }
+            return -1;
+        }
+
+        private static int getStackElementPriority(char element)
+        {
+            if(element == '(')
+            {
+                return 0;
+            }
+            if(element == '+')
+            {
+                return 3;
+            }
+            if(element == '|')
+            {
+                return 4;
             }
 
-            int countHowManyAutomatas = countNumOfAutomatas(sets) + 1;
+            return -1;
+        }
 
-            Automat[] realAutomatas = new Automat[countHowManyAutomatas];
-            for (int i = 0; i < realAutomatas.Length; i++)
+        private static string convertInfixToPostfix(string expression)
+        {
+            string converted = "";
+            Stack<string> stack = new Stack<string>();
+            int rank = 0;
+            //char first = expression[0];
+            int i = 0;
+            HashSet<char> alphabet = makeAlphabet(expression);
+
+            while(i < expression.Length)
             {
-                realAutomatas[i] = new();
-            }
-
-            //Where to push
-            int pushIntoAutomatas = 0;
-            //Helps us to know where to come back
-            int[] savePositionOfThoseCreatedBefore = new int[sets.Length];
-
-            for (int i = sets.Length - 1; i >= 0; i--)
-            {
-                string[] splitFirst = sets[i].Split('/');
-                foreach(var element in splitFirst)
+                //Console.Write(expression[i]);
+                if(alphabet.Contains(expression[i]) || expression[i] == '*')
                 {
-                    if(element != "")
+                    converted += expression[i];
+                    rank = rank + 1;
+                    if(expression[i] == '*')
                     {
-                        savePositionOfThoseCreatedBefore[i]++;
+                        rank = rank - 1;
                     }
                 }
-
-                //Console.WriteLine("POSITION: " + i + " SAVED ON POSITION: " + savePositionOfThoseCreatedBefore[i]);
-                //Console.WriteLine("Save positions " + savePositionOfThoseCreatedBefore[i]);
-                int c = 0;
-                foreach (var str in splitFirst)
+                else
                 {
-                    //Split by '+', easy to do
-                    string[] plusSplit = str.Split('+');
-                    int numberOfTempAutomatas = 0;
-                    foreach (var element in plusSplit)
+                    while(stack.Count != 0 && getInputElementPriority(expression[i]) <= getStackElementPriority(char.Parse(stack.Peek())))
                     {
-                        if (element != "")
+                        string element = stack.Pop();
+                        converted += element;
+                        if(element != ")" && element != "(")
                         {
-                            //Console.WriteLine(element);
-                            numberOfTempAutomatas++;
+                            rank -= 1;
+                        }
+                        if(rank < 1)
+                        {
+                            throw new Exception("RANK < 1!");
                         }
                     }
-
-                    //number of temp automatas -> how many '+' splits we have
-                    Automat[] tempAutomatas = new Automat[numberOfTempAutomatas];
-                    for (int k = 0; k < tempAutomatas.Length; k++)
+                    if(expression[i] != ')')
                     {
-                        tempAutomatas[k] = new();
-                    }
-                    c = 0;
-                    foreach (var automata in tempAutomatas)
-                    {
-                        foreach (var symbol in alphabet)
-                        {
-                            automata.alphabet.Add(symbol);
-                        }
-                    }
-                    int helpCounter = 0;
-                    foreach (var element in plusSplit)
-                    {
-                        if (element != "")
-                        {
-                            int stateNo = 0;
-                            bool first = true;
-                            for (int size = 0; size < element.Length; size++)
-                            {
-                                //If it's symbol from alphabet
-                                if (alphabet.Contains(element[size]))
-                                {
-                                    string oldState = "", newState = "";
-                                    HashSet<string> oldStates = new();
-                                    //If it's first symbol, make two states
-                                    if (first)
-                                    {
-                                        oldState = "q" + stateNo + tempAutomatas[c].id;
-                                        stateNo++;
-                                        tempAutomatas[c].StartState = oldState;
-                                        first = false;
-                                        oldStates.Add(oldState);
-                                        newState = "q" + stateNo + tempAutomatas[c].id;
-                                        tempAutomatas[c].states.Add(oldState);
-                                        tempAutomatas[c].states.Add(newState);
-                                        stateNo++;
-                                        
-                                        //NEW
-                                        tempAutomatas[c].finalStates.Clear();
-                                        tempAutomatas[c].finalStates.Add(newState);
-                                    }
-                                    //Else make one state and remember old final states
-                                    //It works cuz we splited it with '+' before
-                                    else
-                                    {
-                                        foreach(var state in tempAutomatas[c].finalStates)
-                                        {
-                                            oldStates.Add(state);
-                                        }
-                                        tempAutomatas[c].finalStates.Clear();
-
-                                        newState = "q" + stateNo + tempAutomatas[c].id;
-                                        tempAutomatas[c].finalStates.Add(newState);
-                                        tempAutomatas[c].states.Add(newState);
-                                        stateNo++;
-                                    }
-                                    
-                                    //Make transitions if it's DKA or E-NKA, respectively
-                                    if (!tempAutomatas[c].checkIfIsENKA())
-                                    {
-                                        if(size > 0 && element[size - 1] == '-')
-                                        {
-                                            foreach(var finalState in tempAutomatas[c].finalStates)
-                                            {
-                                                tempAutomatas[c].delta[(finalState, element[size])] = newState;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            foreach(var elem in oldStates)
-                                                    tempAutomatas[c].delta[(elem, element[size])] = newState;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        tempAutomatas[c].counter = 0;
-                                        //If symbol before was '*'
-                                        if (size > 0 && element[size - 1] == '*')
-                                        {
-                                            //Connect old finalState to newState
-                                            foreach(var elem in oldStates)
-                                            { 
-                                                if(elem != "")
-                                                    tempAutomatas[c].ESwitching(elem, element[size], newState);
-                                            }
-
-                                        }
-                                        //If symbol before was '-'
-                                        else if (size > 0 && element[size - 1] == '-')
-                                        {
-                                            //Connect all old states to newState
-                                            foreach (var elem in oldStates)
-                                            {
-                                                tempAutomatas[c].ESwitching(elem, element[size], newState);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            foreach(var elem in oldStates)
-                                            {
-                                                tempAutomatas[c].ESwitching(elem, element[size], newState);
-                                            }
-                                        }
-                                    }
-                                    //If it's the end
-                                    //And it was a symbol, one final state
-                                    //Increment counter
-                                    if (size == element.Length - 1)
-                                    {
-                                        tempAutomatas[c].finalStates.Clear();
-                                        tempAutomatas[c].finalStates.Add(newState);
-                                        c++;
-                                    }
-                                    if(size != element.Length - 1 && element[size + 1] == '*')
-                                    {
-                                        tempAutomatas[c].finalStates.Add(newState);
-                                    }
-                                }
-                                //If it was '*'
-                                else if (element[size] == '*')
-                                {
-                                    //Apply Kleene star
-                                    Automat tmp = tempAutomatas[c].applyKleeneStar();
-                                    tempAutomatas[c] = tmp;
-                                    tempAutomatas[c].alphabet.Add('E');
-                                    //If we've come to an end, increment counter, otherwise error!
-                                    if (size == element.Length - 1)
-                                    {
-                                        c++;
-                                    }
-                                }
-                                //If we need to read from row below
-                                else if (element[size] == '-')
-                                {
-                                    int pos = i + 1;
-                                    int sum = 0;
-                                    int total = 0;
-                                    sum = savePositionOfThoseCreatedBefore[pos];
-                                    while(pos < sets.Length)
-                                    {
-                                        total += savePositionOfThoseCreatedBefore[pos];
-                                        pos++;
-                                    }
-                                    //FOR EXAMPLE: 3 in total - 2 on level = 1 -> WE GO FROM FIRST POSITION
-                                    int startPosition = (total - sum) + helpCounter;
-                                    helpCounter++;
-
-                                    //Make E-closure for everything necessary
-                                    foreach(var finalState in tempAutomatas[c].finalStates)
-                                    {
-                                        //Console.WriteLine("FS " + finalState + " ");
-                                        //Console.WriteLine("SS " + realAutomatas[startPosition].StartState);
-                                        if(tempAutomatas[c].checkIfIsENKA())
-                                        {
-                                            tempAutomatas[c].ESwitching(finalState, 'E', realAutomatas[startPosition].StartState);
-                                        } 
-                                        else
-                                        {
-                                            tempAutomatas[c].delta[(finalState, 'E')] = realAutomatas[startPosition].StartState;
-                                        }
-                                    }
-
-                                    //Clear final states
-                                    tempAutomatas[c].finalStates.Clear();
-
-                                    //Add 'E' to temp automata
-                                    if(realAutomatas[startPosition].alphabet.Contains('E'))
-                                    {
-                                        tempAutomatas[c].alphabet.Add('E');
-                                    }
-
-                                    foreach(var state in realAutomatas[startPosition].states)
-                                    {
-                                        tempAutomatas[c].states.Add(state);
-                                    }
-
-                                    //If it's not E-NKA, standard DKA transitions
-                                    if(!realAutomatas[startPosition].checkIfIsENKA())
-                                    {
-                                        foreach(var symbol in realAutomatas[startPosition].alphabet)
-                                        {
-                                            foreach(var state in realAutomatas[startPosition].states)
-                                            {
-                                                if(realAutomatas[startPosition].delta.ContainsKey((state, symbol)))
-                                                {
-                                                    tempAutomatas[c].delta[(state, symbol)] = realAutomatas[startPosition].delta[(state, symbol)];
-                                                }
-                                            }
-                                        }
-                                    }
-                                    //Else E-NKA transitions
-                                    else
-                                    {
-                                        tempAutomatas[c].counter = 0;
-                                        foreach (var symbol in realAutomatas[startPosition].alphabet)
-                                        {
-                                            foreach (var state in realAutomatas[startPosition].states)
-                                            {
-                                                if (realAutomatas[startPosition].deltaForEpsilon.ContainsKey((state, symbol)))
-                                                {
-                                                    foreach(var s in realAutomatas[startPosition].deltaForEpsilon[(state, symbol)])
-                                                    {
-                                                        tempAutomatas[c].ESwitching(state, symbol, s);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    string oldState = "", newState = "";
-                                    //If '-' is first symbol
-                                    if(first)
-                                    {
-                                        //Get it's start state
-                                        tempAutomatas[c].StartState = realAutomatas[startPosition].StartState;
-                                        stateNo++;
-                                        tempAutomatas[c].states.Add(tempAutomatas[c].StartState);
-                                        first = false;
-                                    }
-                                    else
-                                    {
-                                        //Else get old state
-                                        //Set new state
-                                        oldState = tempAutomatas[c].states.ElementAt(tempAutomatas[c].states.Count - 1);
-                                        newState = realAutomatas[startPosition].StartState;
-                                        //tempAutomatas[c].states.Add(newState);
-                                        stateNo++;
-                                    }
-                                    //Add each final state from this state
-                                    foreach(var finalState in realAutomatas[startPosition].finalStates)
-                                    {
-                                         tempAutomatas[c].finalStates.Add(finalState);
-                                    }
-
-                                    //Cases when counter is incremented
-                                    if(size > 1 && element[size - 1] == '-')
-                                    {
-                                        c++;
-                                    }
-                                    if(element.Length == 1 && element[0] == '-')
-                                    {
-                                        c++;
-                                    }
-                                    if(element[element.Length - 1] == '-')
-                                    {
-                                        c++;
-                                    }
-
-                                }
-                            }
-                        }
-
-                    }
-                    //Connect with '+' -> UNION
-                    if (tempAutomatas.Length == 1)
-                    {
-                        realAutomatas[pushIntoAutomatas] = tempAutomatas[c-1];
-                        pushIntoAutomatas++;
-                        //realAutomatas[pushIntoAutomatas - 1].printStatesAndAlphabet();
-                        //c++;
+                        stack.Push(expression[i].ToString());
                     }
                     else
                     {
-                        for (int brRename = 0; brRename < tempAutomatas.Length; brRename++)
-                        {
-                            if (brRename == 0)
-                            {
-                                /*Console.WriteLine("TEMPAUTO1: ");
-                                tempAutomatas[0].printStatesAndAlphabet();
-                                Console.WriteLine("TEMPAUTO2: ");
-                                tempAutomatas[1].printStatesAndAlphabet();
-                                Console.WriteLine("FINALSTATES: ");
-                                foreach(var finalState in tempAutomatas[1].finalStates)
-                                {
-                                    Console.Write(finalState + " ");
-                                }*/
+                        string element = stack.Pop();
+                    }
+                }
+                i++;
+            }
+            while(stack.Count != 0)
+            {
+                string elem = stack.Pop();
+                if (elem != "")
+                {
+                    converted += elem;
+                    rank -= 1;
+                }
+            }
+            if(rank != 1)
+            {
+                throw new Exception("Not correct!");
+            }
 
-                                realAutomatas[pushIntoAutomatas] = tempAutomatas[0].findUnionBetweenTwoLanguages(tempAutomatas[1]);
-                                /*Console.WriteLine("PUSH INTO AUTOMATA: ");
-                                realAutomatas[pushIntoAutomatas].printStatesAndAlphabet();
-                                Console.WriteLine("FINALSTATES: ");
-                                foreach (var finalState in realAutomatas[pushIntoAutomatas].finalStates)
-                                {
-                                    Console.Write(finalState + " ");
-                                }*/
-                                brRename = brRename + 1;
-                            }
-                            else
-                            {
-                                realAutomatas[pushIntoAutomatas] = realAutomatas[pushIntoAutomatas].findUnionBetweenTwoLanguages(tempAutomatas[brRename]);
-                            }
-                        }
-                        if(tempAutomatas.Length != 0)
-                        {
-                            pushIntoAutomatas++;
-                        }
+            return converted;
+        }
 
+        private static string addConcatenationSigns(string regularExpression, HashSet<char> alphabet)
+        {
+            string newString = "";
+            bool first = true;
+            int counter = 0;
+            for(int i = 0; i < regularExpression.Length; i++)
+            {
+                if(i + 1 < regularExpression.Length &&
+                    ((alphabet.Contains(regularExpression[i]) && alphabet.Contains(regularExpression[i+1])) || 
+                    (alphabet.Contains(regularExpression[i]) && regularExpression[i+1] == '(') ||
+                    (regularExpression[i] == '*' && alphabet.Contains(regularExpression[i+1]))))
+                {
+                    if(first)
+                    {
+                        newString = regularExpression.Insert(i + 1, "|");
+                        first = false;
+                        counter++;
+                    }
+                    else
+                    {
+                        newString = newString.Insert(i + 1 + counter, "|");
+                        counter++;
                     }
                 }
             }
-            int automatNum = countHowManyAutomatas - 1;
+            return newString;
+        }
 
-            return realAutomatas[automatNum];
+        public static Automat makeAutomataFromRegularExpression(string regularExpression)
+        {
+            Automat result = new();
+            HashSet<char> alphabet = makeAlphabet(regularExpression);
+            string regExp = addConcatenationSigns(regularExpression, alphabet);
+            regularExpression = regExp;
+            //Console.WriteLine(regularExpression);
+            string convert = convertInfixToPostfix(regularExpression);
+            Stack<Automat> automataStack = new();
+            int i = 0;
+            while(i < convert.Length)
+            {
+                char element = convert[i];
+                if(alphabet.Contains(element))
+                {
+                    Automat temp = new();
+                    temp.StartState = "q0" + temp.id;
+                    string newState = "q1" + temp.id;
+                    temp.states.Add(temp.StartState);
+                    temp.states.Add(newState);
+                    temp.finalStates.Add(newState);
+                    temp.alphabet.Add('E');
+                    foreach(var symbol in alphabet)
+                    {
+                        temp.alphabet.Add(symbol);
+                    }
+                    temp.ESwitching(temp.StartState, element, newState);
+                    automataStack.Push(temp);
+                }
+                else if(element == '*')
+                {
+                    Automat temp = new();
+                    Automat operand = automataStack.Pop();
+                    temp = operand.applyKleeneStar();
+                    automataStack.Push(temp);
+                }
+                else if(element == '|' || element == '+')
+                {
+                    Automat operand2 = automataStack.Pop();
+                    Automat operand1 = automataStack.Pop();
+                    Automat temp = new();
+
+                    if (element == '|')
+                    {
+                        temp.StartState = operand1.StartState;
+                        foreach (var finalState in operand2.finalStates)
+                        {
+                            temp.finalStates.Add(finalState);
+                        }
+                        foreach(var state in operand1.states)
+                        {
+                            temp.states.Add(state);
+                        }
+                        foreach (var state in operand2.states)
+                        {
+                            temp.states.Add(state);
+                        }
+                        foreach(var symbol in operand1.alphabet)
+                        {
+                            temp.alphabet.Add(symbol);
+                        }
+                        foreach (var symbol in operand1.alphabet)
+                        {
+                            foreach (var state in operand1.states)
+                            {
+                                if (operand1.deltaForEpsilon.ContainsKey((state, symbol)))
+                                {
+                                    foreach (var s in operand1.deltaForEpsilon[(state, symbol)])
+                                        temp.ESwitching(state, symbol, s);
+                                }
+                            }
+                        }
+                        foreach (var symbol in operand2.alphabet)
+                        {
+                            foreach (var state in operand2.states)
+                            {
+                                if (operand2.deltaForEpsilon.ContainsKey((state, symbol)))
+                                {
+                                    foreach (var s in operand2.deltaForEpsilon[(state, symbol)])
+                                        temp.ESwitching(state, symbol, s);
+                                }
+                            }
+                        }
+                        foreach (var finalState in operand1.finalStates)
+                        {
+                            temp.ESwitching(finalState, 'E', operand2.StartState);
+                        }
+                    }
+                    else
+                    {
+                        temp = operand1.findUnionBetweenTwoLanguages(operand2);
+                    }
+                    automataStack.Push(temp);
+                }
+                i++;
+            }
+
+            result = automataStack.Pop();
+            if(automataStack.Count == 0)
+            {
+                //result.printStatesAndAlphabet();
+                return result;
+            }
+            else
+            {
+                throw new Exception("Expression not correct, returning null!");
+            }
         }
 
         //Help for minimization and stuff
@@ -2465,10 +2296,10 @@ namespace Projektni_FMSI
         //Compare those two automatas
         public bool checkIfTwoRegularExpressionsAreTheSame(string regexp1, string regexp2)
         {
-            Automat convertFirstRegularExpression = transformRegularExpressionToAutomata(regexp1);
-            Automat convertSecondRegularExpression = transformRegularExpressionToAutomata(regexp2);
+            Automat convertFirstRegularExpression = makeAutomataFromRegularExpression(regexp1);
+            Automat convertSecondRegularExpression = makeAutomataFromRegularExpression(regexp2);
 
-            if(convertFirstRegularExpression.compareTwoAutomatas(convertSecondRegularExpression))
+            if (convertFirstRegularExpression.compareTwoAutomatas(convertSecondRegularExpression))
             {
                 return true;
             }
@@ -2476,6 +2307,336 @@ namespace Projektni_FMSI
             {
                 return false;
             }
+        }
+
+        private static HashSet<string> getStringsFromUserFromConsole()
+        {
+            HashSet<string> strings = new();
+            Console.WriteLine("Enter strings, when you decide to stop input --exit!");
+            string input;
+            do
+            {
+                input = Console.ReadLine();
+                if (input != "--exit")
+                {
+                    if(strings.Contains(input))
+                    {
+                        Console.WriteLine("You've already added this string, no need to add it again!");
+                    }
+                    strings.Add(input);
+                }
+                else
+                {
+                    //do nothing
+                }
+            } while (input != "--exit");
+            return strings;
+        }
+
+        private static HashSet<string> getStringsFromUserFromFile()
+        {
+            HashSet<string> strings = new();
+            Console.WriteLine("Enter file name: ");
+            string fileName = Console.ReadLine();
+            try
+            {
+                var path = Path.Combine( "./" + fileName + ".txt");
+                string[] elements = File.ReadAllLines(path);
+                Console.WriteLine("Duplicates will not be added!");
+                foreach(var str in elements)
+                {
+                    strings.Add(str);
+                }
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Error " + e.Message);
+            }
+            return strings;
+        }
+        
+        private static Automat loadAutomataSpecificationFromFile()
+        {
+            //private sealed string AUTOMATA_NAME = "AUTOMATA: "; doesn't work for some reason, wanted to do it this way
+            Automat result = new();
+            Console.WriteLine("Enter file name: ");
+            string fileName = Console.ReadLine();
+            try
+            {
+                var path = Path.Combine("./" + fileName + ".txt");
+                string[] elements = File.ReadAllLines(path);
+
+                for (int i = 0; i < elements.Length;)
+                {
+
+                    if(elements[i] == "AUTOMATA-STATES:")
+                    {
+                        bool firstState = true;
+                        while(elements[i] != "ALPHABET:")
+                        {
+                            i++;
+                            if(elements[i] != "ALPHABET:")
+                            {
+                                if(firstState == true) {
+                                    result.StartState = elements[i];
+                                    firstState = false;
+                                }
+                                result.states.Add(elements[i]);
+                            }
+                        }
+                    }
+                    else if(elements[i] == "ALPHABET:")
+                    {
+                        while(elements[i] != "DELTA TRANSITIONS:")
+                        {
+                            i++;
+                            if(elements[i] != "DELTA TRANSITIONS:")
+                            {
+                                //Console.WriteLine(elements[1]);
+                                char symbol = char.Parse(elements[i]);
+                                result.alphabet.Add(symbol);
+                            }
+                        }
+                    }
+                    else if(elements[i] == "DELTA TRANSITIONS:")
+                    {
+                        while(elements[i] != "FINAL STATES:")
+                        {
+                            i++;
+                            if(elements[i] != "FINAL STATES:")
+                            {
+                                string[] splitDelta = elements[i].Split(':');
+                                char symbol = char.Parse(splitDelta[1]);
+                                if (!result.checkIfIsENKA())
+                                {
+                                    result.delta[(splitDelta[0], symbol)] = splitDelta[2];
+                                }
+                                else
+                                {
+                                    result.ESwitching(splitDelta[0], symbol, splitDelta[2]);
+                                }
+                            }
+                        }
+                    }
+                    else if(elements[i] == "FINAL STATES:")
+                    {
+                        i++;
+                        while(i < elements.Length)
+                        {
+                            result.finalStates.Add(elements[i++]);
+                        }
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Error " + e.Message);
+            }
+            return result;
+        } 
+
+        private static string loadRegularExpressionFromFile()
+        {
+            string regExpression = "";
+            Console.WriteLine("Enter file name: ");
+            string fileName = Console.ReadLine();
+            
+            try
+            {
+                var path = Path.Combine("./" + fileName + ".txt");
+                string[] elements = File.ReadAllLines(path);
+                if (elements.Length == 1)
+                {
+                    regExpression = elements[0];
+                }
+                else
+                {
+                    throw new Exception("One element expected for regular expression!");
+                }
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Error " + e.Message);
+            }
+
+            return regExpression;
+        }
+
+        public static void enterSpecification()
+        {
+            Console.WriteLine("Do you want to load specification from file or from console: ");
+            Console.WriteLine("f for file, c for console");
+            string inputLoad;
+            inputLoad = Console.ReadLine();
+            string extraInput;
+            if (inputLoad == "f")
+            {
+                Console.WriteLine("Do you want to load DKA, E-NKA or regular expression (1/2/3): ");
+                extraInput = Console.ReadLine();
+                if (extraInput == "1")
+                {
+                    Automat res = loadAutomataSpecificationFromFile();
+                    HashSet<string> strings = Automat.stringLoaderHelper();
+                    foreach(var str in strings)
+                    {
+                        doesDKAAccept(res, str);
+                    }
+                }
+                else if(extraInput == "2")
+                {
+                    Automat res = loadAutomataSpecificationFromFile();
+                    HashSet<string> strings = Automat.stringLoaderHelper();
+                    foreach (var str in strings)
+                    {
+                        doesENKAAccept(res, str);
+                    }
+                }
+                else if(extraInput == "3")
+                {
+                    string regularExpression = loadRegularExpressionFromFile();
+                    Automat convert = makeAutomataFromRegularExpression(regularExpression);
+                    convert.printStatesAndAlphabet();
+                    HashSet<string> strings = Automat.stringLoaderHelper();
+                    if (!convert.checkIfIsENKA())
+                    {
+                        foreach(var str in strings)
+                        {
+                            doesDKAAccept(convert, str);
+                        }
+                    }
+                    else
+                    {
+                        foreach (var str in strings)
+                        {
+                            doesENKAAccept(convert, str);
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Wrong option, sorry!");
+                }
+            }
+            else if(inputLoad == "c")
+            {
+                Console.WriteLine("Do you want to load DKA, E-NKA or regular expression (1/2/3): ");
+                extraInput = Console.ReadLine();
+                if(extraInput == "1")
+                {
+                    Automat automat;
+                    HashSet<string> strings;
+                    loadStringsForDKAorENKA(out automat, out strings);
+
+                    foreach (var str in strings)
+                    {
+                        doesDKAAccept(automat, str);
+                    }
+
+                }
+                else if(extraInput == "2")
+                {
+                    Automat automat;
+                    HashSet<string> strings;
+                    loadStringsForDKAorENKA(out automat, out strings);
+
+                    foreach(var str in strings)
+                    {
+                        doesENKAAccept(automat, str);
+                    }
+                }
+                else if(extraInput == "3")
+                {
+                    Console.WriteLine("Enter your regular expression which you want to evaluate: ");
+                    string regularExpression = Console.ReadLine();
+                    Automat transform = Automat.makeAutomataFromRegularExpression(regularExpression);
+                    HashSet<string> load = loadStringsForRegularExpression();
+
+                    bool isDKA = false;
+                    if(!transform.checkIfIsENKA())
+                    {
+                        isDKA = true;
+                    }
+                    foreach(var word in load)
+                    {
+                        if (isDKA)
+                        {
+                            doesDKAAccept(transform, word);
+                        }
+                        else
+                        {
+                            doesENKAAccept(transform, word);
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Wrong option, sorry!");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Wrong option, sorry");
+            }
+        }
+
+        private static void doesENKAAccept(Automat res, string str)
+        {
+            if (res.acceptsENKA(str))
+            {
+                Console.WriteLine("Word " + str + " accepted!");
+            }
+            else
+            {
+                Console.WriteLine("Word " + str + " not accepted!");
+            }
+        }
+
+        private static void doesDKAAccept(Automat res, string str)
+        {
+            if (res.AcceptsDKA(str))
+            {
+                Console.WriteLine("Word " + str + " accepted!");
+            }
+            else
+            {
+                Console.WriteLine("Word " + str + " not accepted!");
+            }
+        }
+
+        private static HashSet<string> loadStringsForRegularExpression()
+        {
+            HashSet<string> loadStrings = new();
+            loadStrings = stringLoaderHelper();
+            return loadStrings;
+        }
+
+        private static void loadStringsForDKAorENKA(out Automat automat, out HashSet<string> strings)
+        {
+            automat = new();
+            automat.makeAutomata();
+            strings = stringLoaderHelper();
+        }
+
+        private static HashSet<string> stringLoaderHelper()
+        {
+            HashSet<string> strings;
+            Console.WriteLine("Do you want to load strings from console (c), or from file (f): ");
+            string whereToLoadFrom = Console.ReadLine();
+            strings = new();
+            if (whereToLoadFrom == "c")
+            {
+                strings = Automat.getStringsFromUserFromConsole();
+            }
+            else if (whereToLoadFrom == "f")
+            {
+                strings = Automat.getStringsFromUserFromFile();
+            }
+            else
+            {
+                throw new Exception("Should've been 'c' or 'f'!");
+            }
+
+            return strings;
         }
     }
 

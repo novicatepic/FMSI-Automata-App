@@ -1,6 +1,9 @@
 ﻿using System;
 using Projektni_FMSI;
 using System.Collections.Generic;
+using System.IO;
+
+//Automat.enterSpecification();
 
 //Automat g = new();
 //Automat a = new(), b = new();
@@ -22,6 +25,14 @@ using System.Collections.Generic;
 //res = res.minimiseAutomata();
 //res.printStatesAndAlphabet();
 
+//WORKS
+/*var path = Path.Combine("./newdoc.txt");
+string[] elements = File.ReadAllLines(path);
+foreach(var element in elements)
+{
+    Console.WriteLine(element);
+}*/
+
 Automat a = new();
 
 /*Console.WriteLine("===================================");
@@ -33,7 +44,7 @@ Console.WriteLine("You have these options: ");
 Console.WriteLine("1-Execute automata\n2-Construct union\n3-Construct intersection\n4-Construct difference\n5-Connect two languages\n6-Apply Kleene star" +
                     "\n7-Chain operations\n8-Find shortest word\n9-Find longest word\n10-Check out if language is final\n11-Minimise DKA\n" +
                     "12-Transform ENKA to DKA\n13-Check if two automatas are the same\n14-Print base automata\n15-Transform regular expression to automata" +
-                    "\n16-Check if two regular expressions are the same");
+                    "\n16-Check if two regular expressions are the same\n17-Load Specification ");
 Console.WriteLine("--exit to finish!");
 Console.WriteLine("Construct your base automata: ");
 string input = "";
@@ -154,64 +165,16 @@ do
     }
     else if(input == "15")
     {
-        Console.WriteLine("Current symbols in alphabet that you can use: ");
-        foreach(var symbol in a.alphabet)
-        {
-            Console.Write(symbol + " ");
-        }
-        Console.WriteLine("Do you want to add more symbols (y/n): ");
-        string extraInput;
-        extraInput = Console.ReadLine();
-        if(extraInput == "y")
-        {
-            Console.WriteLine("Enter another symbol: ");
-            string symbolTemp;
-            symbolTemp = Console.ReadLine();
-            char symbol = char.Parse(symbolTemp);
-            a.alphabet.Add(symbol);
-        }
-        else if(extraInput == "n")
-        {
-            Console.WriteLine("Fair enough!");
-        }
-        else
-        {
-            Console.WriteLine("Wrong option, I'll take that as a no!");
-        }
         string regexp;
         Console.WriteLine("Enter your regular expression: ");
         regexp = Console.ReadLine();
         Console.WriteLine("Converting...");
-        Automat convertedAutomata = a.transformRegularExpressionToAutomata(regexp);
+        Automat convertedAutomata = Automat.transformRegularExpressionToAutomata(regexp);
         convertedAutomata.printStatesAndAlphabet();
     }
     else if(input == "16")
     {
         //SAME CODE AS IN OPTION "15", WHY? BECAUSE C# WOULDN'T LET ME EXTRACT IT TO ONE FUNCTION
-        Console.WriteLine("Current symbols in alphabet that you can use: ");
-        foreach (var symbol in a.alphabet)
-        {
-            Console.Write(symbol + " ");
-        }
-        Console.WriteLine("Do you want to add more symbols (y/n): ");
-        string extraInput;
-        extraInput = Console.ReadLine();
-        if (extraInput == "y")
-        {
-            Console.WriteLine("Enter another symbol: ");
-            string symbolTemp;
-            symbolTemp = Console.ReadLine();
-            char symbol = char.Parse(symbolTemp);
-            a.alphabet.Add(symbol);
-        }
-        else if (extraInput == "n")
-        {
-            Console.WriteLine("Fair enough!");
-        }
-        else
-        {
-            Console.WriteLine("Wrong option, I'll take that as a no!");
-        }
         string regexp1, regexp2;
         Console.WriteLine("Enter first regular expression: ");
         regexp1 = Console.ReadLine();
@@ -226,6 +189,10 @@ do
             Console.WriteLine("Regular expressions are not the same!");
         }
     }
+    else if(input == "17")
+    {
+        Automat.enterSpecification();
+    }
     else if(input == "--exit")
     {
 
@@ -235,6 +202,13 @@ do
         Console.WriteLine("Wrong option, try again!");
     }
 } while (input != "--exit");*/
+
+//Automat.enterSpecification();
+//Automat rez = Automat.makeAutomataFromRegularExpression("(a+b)*ab+a");
+/*if(rez.acceptsENKA("aaabbbab"))
+{
+    Console.WriteLine("Accepts!");
+}*/
 
 //a.makeAutomata();
 //Automat.chainOperations();
@@ -320,12 +294,12 @@ g.delta[("q3", 'b')] = "q5";*/
 
 //a.makeAutomata();
 //g.makeAutomata();
-a.StartState = "q0";
+/*a.StartState = "q0";
 a.states.Add("q0");
 a.states.Add("q1");
-a.states.Add("q2");
-a.states.Add("q3");
-a.states.Add("q4");
+a.states.Add("q2");*/
+//a.states.Add("q3");
+//a.states.Add("q4");
 /*a.states.Add("q3");
 a.states.Add("q4");
 a.states.Add("q5");
@@ -336,26 +310,40 @@ a.states.Add("q9");
 a.states.Add("q10");*/
 
 //a.alphabet.Add('E');
-a.alphabet.Add('a');
+/*a.alphabet.Add('a');
 a.alphabet.Add('b');
-a.finalStates.Add("q3");
-a.finalStates.Add("q4");
+a.finalStates.Add("q2");
+//a.finalStates.Add("q4");
 //a.finalStates.Add("q7");
-a.delta[("q0", 'a')] = "q1";
-a.delta[("q0", 'b')] = "q2";
-a.delta[("q1", 'a')] = "q3";
+a.delta[("q0", 'a')] = "q0";
+a.delta[("q0", 'b')] = "q1";
+a.delta[("q1", 'a')] = "q1";
 a.delta[("q1", 'b')] = "q2";
+
 //a.delta[("q1", '1')] = "q4";
 //a.delta[("q1", '0')] = "q3";
 
-a.delta[("q2", 'a')] = "q4";
-a.delta[("q2", 'b')] = "q1";
+a.delta[("q2", 'a')] = "q1";
+a.delta[("q2", 'b')] = "q2";
+Automat b = new();
+b.makeAutomata();
+Automat c = b.convertENKAtoDKA();
+c.printStatesAndAlphabet();
+Console.WriteLine("Final states: ");
+foreach(var final in c.finalStates)
+{
+    Console.Write(final + " ");
+}*/
 
-a.delta[("q3", 'a')] = "q4";
+//Automat c = Automat.transformRegularExpressionToAutomata("(ab+c)*");
+//c.printStatesAndAlphabet();
+
+//b.printStatesAndAlphabet();
+/*a.delta[("q3", 'a')] = "q4";
 a.delta[("q3", 'b')] = "q3";
 
 a.delta[("q4", 'a')] = "q4";
-a.delta[("q4", 'b')] = "q3";
+a.delta[("q4", 'b')] = "q3";*/
 //a = a.minimiseAutomata();
 //a.printStatesAndAlphabet();
 //a.chainOperations();
