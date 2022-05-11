@@ -2366,6 +2366,7 @@ namespace Projektni_FMSI
             {
                 var path = Path.Combine("./" + fileName + ".txt");
                 string[] elements = File.ReadAllLines(path);
+                printSpecification(elements);
                 helpMethodForLoadingAutomataSpecificationFromFileOrFromCommandLine(result, elements);
             }
             catch (IOException e)
@@ -2373,6 +2374,14 @@ namespace Projektni_FMSI
                 Console.WriteLine("Error " + e.Message);
             }
             return result;
+        }
+
+        private static void printSpecification(string[] regularExpression)
+        {
+            for(int i = 0; i < regularExpression.Length; i++)
+            {
+                Console.WriteLine("Line " + i + ": " + regularExpression[i]);
+            }
         }
 
         private static Automat loadAutomataSpecificationFromCommandLine(string[] args)
@@ -2468,6 +2477,7 @@ namespace Projektni_FMSI
             {
                 var path = Path.Combine("./" + fileName + ".txt");
                 string[] elements = File.ReadAllLines(path);
+                printSpecification(elements);
                 lexicalAnalysisOfRegularExpressionAndEvaluation(elements, flag);
             }
             catch(IOException e)
@@ -2521,6 +2531,7 @@ namespace Projektni_FMSI
                 if(extraInput == "1")
                 {
                     string[] loadFromConsole = loadAutomataFromConsole();
+                    printSpecification(loadFromConsole);
                     Automat automat = new();
                     HashSet<string> strings = Automat.stringLoaderHelper('c', args);
                     helpMethodForLoadingAutomataSpecificationFromFileOrFromCommandLine(automat, loadFromConsole);
@@ -2534,6 +2545,7 @@ namespace Projektni_FMSI
                 else if(extraInput == "2")
                 {
                     string[] loadFromConsole = loadAutomataFromConsole();
+                    printSpecification(loadFromConsole);
                     Automat automat = new();
                     HashSet<string> strings = Automat.stringLoaderHelper('c', args);
                     helpMethodForLoadingAutomataSpecificationFromFileOrFromCommandLine(automat, loadFromConsole);
@@ -2563,10 +2575,7 @@ namespace Projektni_FMSI
                     {
                         regularExpression[i] = regularExpressionHelper.ElementAt(i);
                     }
-                    for(int i = 0; i < regularExpression.Length; i++)
-                    {
-                        Console.WriteLine("Line " + i + ": " + regularExpression[i]);
-                    }
+                    printSpecification(regularExpression);
                     lexicalAnalysisOfRegularExpressionAndEvaluation(regularExpression, 'c');
                 }
                 else
@@ -2580,6 +2589,7 @@ namespace Projektni_FMSI
                 extraInput = Console.ReadLine();
                 if(extraInput == "1")
                 {
+                    printSpecification(args);
                     Automat result = loadAutomataSpecificationFromCommandLine(args);
                     HashSet<string> strings = Automat.stringLoaderHelper('l', args);
                     foreach (var str in strings)
@@ -2589,6 +2599,7 @@ namespace Projektni_FMSI
                 }
                 else if(extraInput == "2")
                 {
+                    printSpecification(args);
                     Automat result = loadAutomataSpecificationFromCommandLine(args);
                     HashSet<string> strings = Automat.stringLoaderHelper('l', args);
                     foreach (var str in strings)
@@ -2598,6 +2609,7 @@ namespace Projektni_FMSI
                 }
                 else if(extraInput == "3")
                 {
+                    printSpecification(args);
                     lexicalAnalysisOfRegularExpressionAndEvaluation(args, 'l');
                 }
                 else
@@ -2784,50 +2796,6 @@ namespace Projektni_FMSI
             return strings;
         }
 
-        private static HashSet<string> stringLoaderHelperConsoleCommandLine(string[] args)
-        {
-            HashSet<string> strings;
-            Console.WriteLine("Do you want to load strings from console (c), or from command line (f): ");
-            string whereToLoadFrom = Console.ReadLine();
-            strings = new();
-            if (whereToLoadFrom == "c")
-            {
-                strings = Automat.getStringsFromUserFromConsole();
-            }
-            else if (whereToLoadFrom == "f")
-            {
-                strings = Automat.getStringsFromCommandLine(args);
-            }
-            else
-            {
-                throw new Exception("Should've been 'c' or 'f'!");
-            }
-
-            return strings;
-        }
-
-        private static HashSet<string> stringLoaderHelperFileCommandLine(string[] args)
-        {
-            HashSet<string> strings;
-            Console.WriteLine("Do you want to load strings from file (c), or from command line (f): ");
-            string whereToLoadFrom = Console.ReadLine();
-            strings = new();
-            if (whereToLoadFrom == "c")
-            {
-                strings = Automat.getStringsFromUserFromConsole();
-            }
-            else if (whereToLoadFrom == "f")
-            {
-                strings = Automat.getStringsFromCommandLine(args);
-            }
-            else
-            {
-                throw new Exception("Should've been 'c' or 'f'!");
-            }
-
-            return strings;
-        }
-
         private static HashSet<string> getStringsFromCommandLine(string[] args)
         {
             HashSet<string> strings = new();
@@ -2901,7 +2869,7 @@ namespace Projektni_FMSI
                     while(automataIntoString[i] != "FINAL STATES:")
                     {
                         string[] splitElements = automataIntoString[i].Split(":");
-                        if (splitElements[1].Length > 1 || splitElements[1].Length == 0)
+                        if ((splitElements[1].Length > 1 || splitElements[1].Length == 0) || (splitElements[i].Length != 3))
                         {
                             errorsFound.Add(i);
                         }
