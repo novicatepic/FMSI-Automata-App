@@ -15,3 +15,5 @@ TODO:
 -Fix regular expression loading from file
 -Implement lexycal analysis
 -In every line, check if there is non-regular symbol, or transition, or statement, and remember the line so we can print it out later!
+
+private static string[] loadAutomataFromConsole()

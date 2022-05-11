@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Projektni-FMSI": {
+      "commandName": "Project",
+      "commandLineArgs": "a  ( ( a a ) * b ) *"
+    }
+  }
+}

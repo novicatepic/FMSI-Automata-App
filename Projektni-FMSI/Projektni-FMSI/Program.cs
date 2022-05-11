@@ -5,6 +5,15 @@ using System.IO;
 
 //Automat.enterSpecification();
 
+class MainClass
+{
+    static void Main(string[] args)
+    {
+        Automat.enterSpecification(args);
+        //Console.WriteLine(args[1]);
+    }
+}
+
 //Automat g = new();
 //Automat a = new(), b = new();
 //a.alphabet.Add('a');
@@ -33,7 +42,7 @@ foreach(var element in elements)
     Console.WriteLine(element);
 }*/
 
-Automat a = new();
+//Automat a = new();
 
 /*Console.WriteLine("===================================");
 Console.WriteLine("===================================");
