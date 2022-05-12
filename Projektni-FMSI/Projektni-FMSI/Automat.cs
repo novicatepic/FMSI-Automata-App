@@ -99,7 +99,7 @@ namespace Projektni_FMSI
 
             foreach (var symbol in word)
             {
-                if(!alphabet.Contains(symbol))
+                if (!alphabet.Contains(symbol))
                 {
                     throw new Exception("Symbol not in alphabet, exception thrown!");
                 }
@@ -139,29 +139,39 @@ namespace Projektni_FMSI
             return false;
         }
 
-        //Find union for DKA-s
-        public Automat findUnion(Automat other)
+        //Find union for any language representation
+        public Automat findUnion()
         {
-            if (!this.checkIfAlphabetIsTheSame(other))
+            Automat other = new();
+            Console.WriteLine("This representation will return a new automata, even if you input two regular expressions or any other combination!");
+            makeLanguagesForUnionIntersectionDifference(ref other);
+
+            Automat first = new();
+            first = convertToDKAIfNecessary();
+
+            first.addDeadState();
+            other.addDeadState();
+
+            if (!first.checkIfAlphabetIsTheSame(other))
             {
-                throw new Exception("Alphabet is not the same!");
+                throw new Exception("Alphabet is not the same, therefore union can't be done!");
             }
 
             Automat result = new Automat();
 
             //Add every symbol from alphabet!
             //result.alphabet = alphabet causes problems!
-            foreach (var symbol in alphabet)
+            foreach (var symbol in first.alphabet)
             {
                 result.alphabet.Add(symbol);
             }
 
-            foreach (var state1 in this.states)
+            foreach (var state1 in first.states)
             {
                 foreach (var state2 in other.states)
                 {
                     //Make start state
-                    if (StartState == state1 && other.StartState == state2)
+                    if (first.StartState == state1 && other.StartState == state2)
                     {
                         result.StartState = state1 + state2;
                     }
@@ -170,44 +180,99 @@ namespace Projektni_FMSI
                     string newState = state1 + state2;
                     result.states.Add(newState);
 
+                    //Connect deltas from both automatas
+                    foreach (var symbol in first.alphabet)
+                    {
+                        result.delta[(newState, symbol)] = first.delta[(state1, symbol)] + other.delta[(state2, symbol)];
+                    }
+
                     //If at least one automata has that final state, add it to final states (union)
-                    if (this.finalStates.Contains(state1) || other.finalStates.Contains(state2))
+                    if (first.finalStates.Contains(state1) || other.finalStates.Contains(state2))
                     {
                         result.finalStates.Add(newState);
                     }
-
-                    //Connect deltas from both automatas
-                    foreach (var symbol in alphabet)
-                    {
-                        result.delta[(newState, symbol)] = this.delta[(state1, symbol)] + other.delta[(state2, symbol)];
-                    }
-
                 }
             }
+
+            //result = result.minimiseAutomata();
 
             return result;
         }
 
-        //Same logic I used for union, except for final states
-        public Automat findIntersection(Automat other)
+        public static void makeLanguagesForUnionIntersectionDifference(ref Automat other)
         {
-            if (!checkIfAlphabetIsTheSame(other))
+            Console.WriteLine("First choice for language representation: ");
+            Console.WriteLine("a for automata, r for regular expression: ");
+            string userInput = Console.ReadLine();
+            if (userInput == "a")
             {
-                throw new Exception("Alphabet is not the same!");
+                other.makeAutomata();
+                if (other.checkIfIsENKA())
+                {
+                    Automat temp = other.convertENKAtoDKA();
+                    other = temp;
+                }
+            }
+            else if (userInput == "r")
+            {
+                Console.WriteLine("Input your regular expression: ");
+                string regularExpression = Console.ReadLine();
+                if (checkIfTwoPlusesAreNextToEachOther(regularExpression) || checkIfEndsWithPlus(regularExpression) || checkIfPlusIsBeforeClosedBracket(regularExpression) ||
+                    !checkPositionOfBrackets(regularExpression) || !checkIfRegularExpressionIsCorrect(regularExpression))
+                {
+                    Console.WriteLine("You've made (a) silly mistake(s), try it again!");
+                }
+                else if (checkHowManyBrackets(regularExpression, '(') != checkHowManyBrackets(regularExpression, ')'))
+                {
+                    Console.WriteLine("Not the same number of opening and closed brackets, try again!");
+                }
+
+                else
+                {
+                    other = makeAutomataFromRegularExpression(regularExpression);
+                    if (other.checkIfIsENKA())
+                    {
+                        Automat temp = other.convertENKAtoDKA();
+                        other = temp;
+                    }
+                }
+            }
+            else
+            {
+                throw new Exception("Incorrent input, have to throw an exception!");
+            }
+        }
+
+        //Same logic I used for union, except for final states
+        public Automat findIntersection()
+        {
+            Automat other = new();
+            Console.WriteLine("This representation will return a new automata, even if you input two regular expressions or any other combination!");
+            makeLanguagesForUnionIntersectionDifference(ref other);
+
+            this.addDeadState();
+            other.addDeadState();
+
+            Automat first = new();
+            first = convertToDKAIfNecessary();
+
+            if (!first.checkIfAlphabetIsTheSame(other))
+            {
+                throw new Exception("Alphabet is not the same, therefore union can't be done!");
             }
 
             Automat result = new Automat();
-            foreach (var element in alphabet)
+            foreach (var element in first.alphabet)
             {
                 result.alphabet.Add(element);
             }
 
 
-            foreach (var state1 in this.states)
+            foreach (var state1 in first.states)
             {
                 foreach (var state2 in other.states)
                 {
-                    if (StartState == state1 && other.StartState == state2)
+                    if (first.StartState == state1 && other.StartState == state2)
                     {
                         result.StartState = state1 + state2;
                     }
@@ -215,16 +280,15 @@ namespace Projektni_FMSI
                     string newState = state1 + state2;
                     result.states.Add(newState);
 
-                    if (this.finalStates.Contains(state1) && other.finalStates.Contains(state2))
+                    if (first.finalStates.Contains(state1) && other.finalStates.Contains(state2))
                     {
                         result.finalStates.Add(newState);
                     }
 
-                    foreach (var symbol in alphabet)
+                    foreach (var symbol in first.alphabet)
                     {
-                        result.delta[(newState, symbol)] = this.delta[(state1, symbol)] + other.delta[(state2, symbol)];
+                        result.delta[(newState, symbol)] = first.delta[(state1, symbol)] + other.delta[(state2, symbol)];
                     }
-
                 }
             }
 
@@ -232,23 +296,33 @@ namespace Projektni_FMSI
         }
 
         //Same as two functions before this one, final states are the only difference!
-        public Automat findDifference(Automat other)
+        public Automat findDifference()
         {
-            if (!checkIfAlphabetIsTheSame(other))
+            Automat other = new();
+            Console.WriteLine("This representation will return a new automata, even if you input two regular expressions or any other combination!");
+            makeLanguagesForUnionIntersectionDifference(ref other);
+
+            Automat first = new();
+            first = convertToDKAIfNecessary();
+
+            if (!first.checkIfAlphabetIsTheSame(other))
             {
-                throw new Exception("Alphabet is not the same!");
+                throw new Exception("Alphabet is not the same, therefore union can't be done!");
             }
 
+            first.addDeadState();
+            other.addDeadState();
+
             Automat result = new Automat();
-            foreach (var element in alphabet)
+            foreach (var element in first.alphabet)
             {
                 result.alphabet.Add(element);
             }
-            foreach (var state1 in this.states)
+            foreach (var state1 in first.states)
             {
                 foreach (var state2 in other.states)
                 {
-                    if (StartState == state1 && other.StartState == state2)
+                    if (first.StartState == state1 && other.StartState == state2)
                     {
                         result.StartState = state1 + state2;
                     }
@@ -256,14 +330,14 @@ namespace Projektni_FMSI
                     string newState = state1 + state2;
                     result.states.Add(newState);
 
-                    if ((this.finalStates.Contains(state1) && !other.finalStates.Contains(state2)) || (!this.finalStates.Contains(state1) && other.finalStates.Contains(state2)))
+                    if ((first.finalStates.Contains(state1) && !other.finalStates.Contains(state2)) || (!first.finalStates.Contains(state1) && other.finalStates.Contains(state2)))
                     {
                         result.finalStates.Add(newState);
                     }
 
-                    foreach (var symbol in alphabet)
+                    foreach (var symbol in first.alphabet)
                     {
-                        result.delta[(newState, symbol)] = this.delta[(state1, symbol)] + other.delta[(state2, symbol)];
+                        result.delta[(newState, symbol)] = first.delta[(state1, symbol)] + other.delta[(state2, symbol)];
                     }
 
                 }
@@ -272,25 +346,35 @@ namespace Projektni_FMSI
             return result;
         }
 
-        //"Merge" two automatas
-        public Automat connectLanguages(Automat other)
+        //"Merge" two representations of language
+        public Automat connectLanguages()
         {
             Automat result = new();
+            Automat other = new();
+            makeLanguagesForUnionIntersectionDifference(ref other);
+
+            Automat first;
+            first = convertToDKAIfNecessary();
+
+            foreach(var finalState in first.finalStates)
+            {
+                Console.WriteLine(finalState);
+            }
 
             try
             {
-                if (!checkIfAlphabetIsTheSame(other))
+                if (!first.checkIfAlphabetIsTheSame(other))
                 {
                     throw new Exception("I can't merge two languages that don't have the same alphabet, sorry!");
                 }
-                result.StartState = this.StartState;
-                
+                result.StartState = first.StartState;
+
                 //It's gonna contain 'E' by definiton
                 if (!result.alphabet.Contains('E'))
                 {
                     result.alphabet.Add('E');
                 }
-                foreach (var symbol in this.alphabet)
+                foreach (var symbol in first.alphabet)
                 {
                     result.alphabet.Add(symbol);
                 }
@@ -299,7 +383,7 @@ namespace Projektni_FMSI
                 {
                     result.finalStates.Add(finalState);
                 }
-                foreach (var state in this.states)
+                foreach (var state in first.states)
                 {
                     result.states.Add(state);
                 }
@@ -308,28 +392,28 @@ namespace Projektni_FMSI
                     result.states.Add(state);
                 }
 
-                foreach (var state in this.states)
+                foreach (var state in first.states)
                 {
-                    foreach (var symbol in this.alphabet)
+                    foreach (var symbol in first.alphabet)
                     {
                         //If it's not final state from first automata, delta function does the same as before!
-                        if (!this.finalStates.Contains(state))
+                        if (!first.finalStates.Contains(state))
                         {
                             if (symbol != 'E')
                             {
-                                helpForConnectingAndStuff(result, state, symbol);
+                                first.helpForConnectingAndStuff(result, state, symbol);
                             }
                         }
                         else
                         {
                             //If it's final state, it's gonna connect to start state of second automata with E
                             result.ESwitching(state, 'E', other.StartState);
-                            foreach (var symb in alphabet)
+                            foreach (var symb in first.alphabet)
                             {
                                 //If it's not E, do the same as before!
                                 if (symb != 'E')
                                 {
-                                    helpForConnectingAndStuff(result, state, symbol);
+                                    first.helpForConnectingAndStuff(result, state, symbol);
                                 }
                             }
                         }
@@ -351,6 +435,21 @@ namespace Projektni_FMSI
             }
 
             return result;
+        }
+
+        private Automat convertToDKAIfNecessary()
+        {
+            Automat first;
+            if (this.checkIfIsENKA())
+            {
+                first = this.convertENKAtoDKA();
+            }
+            else
+            {
+                first = this;
+            }
+
+            return first;
         }
 
         private void helpForConnectingAndStuff(Automat result, string state, char symbol)
@@ -382,19 +481,14 @@ namespace Projektni_FMSI
         public static Automat chainOperations()
         {
             Automat result = new();
-
             Console.WriteLine("Options for chaining operations:\n1-Union\n2-Intersection\n3-Difference\n4-Complement\n5-Connection\n6-KleeneStar\n");
             string input;
             Console.WriteLine("Enter your options until it becomes boring for you, if it becomes boring, input --exit: ");
-
             Console.WriteLine("Make first automata: ");
             Automat a1 = new Automat();
-            a1.makeAutomata();
-
-            Automat a2 = null;
-
+            makeLanguagesForUnionIntersectionDifference(ref a1);
             Automat res = null;
-
+            Console.WriteLine("Input option: ");
             do
             {
                 input = Console.ReadLine();
@@ -402,19 +496,13 @@ namespace Projektni_FMSI
                 {
                     if (res == null)
                     {
-                        Console.WriteLine("Make second automata: ");
-                        a2 = new();
-                        a2.makeAutomata();
-                        res = a1.findUnion(a2);
+                        res = a1.findUnion();
                         res.printStatesAndAlphabet();
                     }
 
                     else
                     {
-                        a1 = null;
-                        a1 = new();
-                        a1.makeAutomata();
-                        res = res.findUnion(a1);
+                        res = res.findUnion();
                         res.printStatesAndAlphabet();
                     }
 
@@ -423,19 +511,13 @@ namespace Projektni_FMSI
                 {
                     if (res == null)
                     {
-                        Console.WriteLine("Make second automata: ");
-                        a2 = new();
-                        a2.makeAutomata();
-                        res = a1.findIntersection(a2);
+                        res = a1.findIntersection();
                         res.printStatesAndAlphabet();
                     }
 
                     else
                     {
-                        a1 = null;
-                        a1 = new();
-                        a1.makeAutomata();
-                        res = res.findIntersection(a1);
+                        res = res.findIntersection();
                         res.printStatesAndAlphabet();
                     }
                 }
@@ -443,18 +525,12 @@ namespace Projektni_FMSI
                 {
                     if (res == null)
                     {
-                        Console.WriteLine("Make second automata: ");
-                        a2 = new();
-                        a2.makeAutomata();
-                        res = a1.findDifference(a2);
+                        res = a1.findDifference();
                         res.printStatesAndAlphabet();
                     }
                     else
                     {
-                        a1 = null;
-                        a1 = new();
-                        a1.makeAutomata();
-                        res = res.findDifference(a1);
+                        res = res.findDifference();
                         res.printStatesAndAlphabet();
                     }
                 }
@@ -479,17 +555,12 @@ namespace Projektni_FMSI
                 {
                     if (res == null)
                     {
-                        Console.WriteLine("Make second automata: ");
-                        a2 = new();
-                        a2.makeAutomata();
-                        res = a1.connectLanguages(a2);
+                        res = a1.connectLanguages();
+                        res.printStatesAndAlphabet();
                     }
                     else
                     {
-                        a1 = null;
-                        a1 = new();
-                        a1.makeAutomata();
-                        res = res.connectLanguages(a1);
+                        res = res.connectLanguages();
                         res.printStatesAndAlphabet();
                     }
                 }
@@ -506,6 +577,7 @@ namespace Projektni_FMSI
                         temp = new();
                         temp = res.applyKleeneStar();
                         res = temp;
+                        //res = res.applyKleeneStar();
                         res.printStatesAndAlphabet();
                     }
                 }
@@ -633,7 +705,7 @@ namespace Projektni_FMSI
             var currentState = StartState;
             foreach (var symbol in input)
             {
-                if(!alphabet.Contains(symbol))
+                if (!alphabet.Contains(symbol))
                 {
                     throw new Exception("This symbol is not in alphabet, exception thrown!");
                 }
@@ -676,7 +748,7 @@ namespace Projektni_FMSI
                         alphabet.Add(symbol);
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
                 }
@@ -947,19 +1019,20 @@ namespace Projektni_FMSI
 
         //For each final state, if it's stuck in itself, it means language is not final
         //Help function
-        private bool checkForAnyFinalState() 
+        private bool checkForAnyFinalState()
         {
             int counter = 0;
-            foreach(var finalState in finalStates)
+            foreach (var finalState in finalStates)
             {
                 counter = 0;
-                foreach(var symbol in alphabet)
+                foreach (var symbol in alphabet)
                 {
-                    if(!delta.ContainsKey((finalState, symbol))) {
+                    if (!delta.ContainsKey((finalState, symbol)))
+                    {
                         counter++;
                     }
                 }
-                if(counter == alphabet.Count)
+                if (counter == alphabet.Count)
                 {
                     return true;
                 }
@@ -982,7 +1055,7 @@ namespace Projektni_FMSI
                 convert = this;
             }
 
-            if(convert.checkForAnyFinalState())
+            if (convert.checkForAnyFinalState())
             {
                 return false;
             }
@@ -1939,53 +2012,13 @@ namespace Projektni_FMSI
             return result;
         }
 
-        //Help function for transforming regular expression to automata
-        private static int findHowManyHashSetsAreNeeded(string regexp)
-        {
-            int min = 0, counter = 0;
-            for (int i = 0; i < regexp.Length; i++)
-            {
-                if (regexp[i] == '(')
-                {
-                    counter++;
-                    if (counter > min)
-                    {
-                        min = counter;
-                    }
-                }
-                if (regexp[i] == ')')
-                {
-                    counter--;
-                }
-            }
-            return (min + 1);
-        }
-
-        //Find out how many automatas are needed
-        private static int countNumOfAutomatas(string[] sets)
-        {
-            int counter = 0;
-            for (int i = 1; i < sets.Length; i++)
-            {
-                string str = sets[i];
-                for (int j = 0; j < str.Length; j++)
-                {
-                    if (str[j] == '/')
-                    {
-                        counter++;
-                    }
-                }
-            }
-            return counter;
-        }
-
         private static HashSet<char> makeAlphabet(string regexp)
         {
             HashSet<char> alphabet = new();
 
-            foreach(var symbol in regexp)
+            foreach (var symbol in regexp)
             {
-                if(symbol != '(' && symbol != ')' && symbol != '*' && symbol != '+' && symbol != '|')
+                if (symbol != '(' && symbol != ')' && symbol != '*' && symbol != '+' && symbol != '|')
                 {
                     alphabet.Add(symbol);
                 }
@@ -1996,19 +2029,19 @@ namespace Projektni_FMSI
 
         private static int getInputElementPriority(char element)
         {
-            if(element == ')')
+            if (element == ')')
             {
                 return 1;
             }
-            if(element == '(')
+            if (element == '(')
             {
                 return 6;
             }
-            if(element == '|')
+            if (element == '|')
             {
                 return 4;
             }
-            if(element == '+')
+            if (element == '+')
             {
                 return 3;
             }
@@ -2017,15 +2050,15 @@ namespace Projektni_FMSI
 
         private static int getStackElementPriority(char element)
         {
-            if(element == '(')
+            if (element == '(')
             {
                 return 0;
             }
-            if(element == '+')
+            if (element == '+')
             {
                 return 3;
             }
-            if(element == '|')
+            if (element == '|')
             {
                 return 4;
             }
@@ -2042,34 +2075,34 @@ namespace Projektni_FMSI
             int i = 0;
             HashSet<char> alphabet = makeAlphabet(expression);
 
-            while(i < expression.Length)
+            while (i < expression.Length)
             {
                 //Console.Write(expression[i]);
-                if(alphabet.Contains(expression[i]) || expression[i] == '*')
+                if (alphabet.Contains(expression[i]) || expression[i] == '*')
                 {
                     converted += expression[i];
                     rank = rank + 1;
-                    if(expression[i] == '*')
+                    if (expression[i] == '*')
                     {
                         rank = rank - 1;
                     }
                 }
                 else
                 {
-                    while(stack.Count != 0 && getInputElementPriority(expression[i]) <= getStackElementPriority(char.Parse(stack.Peek())))
+                    while (stack.Count != 0 && getInputElementPriority(expression[i]) <= getStackElementPriority(char.Parse(stack.Peek())))
                     {
                         string element = stack.Pop();
                         converted += element;
-                        if(element != ")" && element != "(")
+                        if (element != ")" && element != "(")
                         {
                             rank -= 1;
                         }
-                        if(rank < 1)
+                        if (rank < 1)
                         {
                             throw new Exception("RANK < 1!");
                         }
                     }
-                    if(expression[i] != ')')
+                    if (expression[i] != ')')
                     {
                         stack.Push(expression[i].ToString());
                     }
@@ -2080,7 +2113,7 @@ namespace Projektni_FMSI
                 }
                 i++;
             }
-            while(stack.Count != 0)
+            while (stack.Count != 0)
             {
                 string elem = stack.Pop();
                 if (elem != "")
@@ -2089,7 +2122,7 @@ namespace Projektni_FMSI
                     rank -= 1;
                 }
             }
-            if(rank != 1)
+            if (rank != 1)
             {
                 throw new Exception("Not correct!");
             }
@@ -2110,7 +2143,7 @@ namespace Projektni_FMSI
                     (regularExpression[i] == '*' && alphabet.Contains(regularExpression[i + 1])) ||
                     (regularExpression[i] == ')' && alphabet.Contains(regularExpression[i + 1]))))
                 {
-                    if(first)
+                    if (first)
                     {
                         newString = regularExpression.Insert(i + 1, "|");
                         first = false;
@@ -2136,10 +2169,10 @@ namespace Projektni_FMSI
             string convert = convertInfixToPostfix(regularExpression);
             Stack<Automat> automataStack = new();
             int i = 0;
-            while(i < convert.Length)
+            while (i < convert.Length)
             {
                 char element = convert[i];
-                if(alphabet.Contains(element))
+                if (alphabet.Contains(element))
                 {
                     Automat temp = new();
                     temp.StartState = "q0" + temp.id;
@@ -2148,21 +2181,21 @@ namespace Projektni_FMSI
                     temp.states.Add(newState);
                     temp.finalStates.Add(newState);
                     temp.alphabet.Add('E');
-                    foreach(var symbol in alphabet)
+                    foreach (var symbol in alphabet)
                     {
                         temp.alphabet.Add(symbol);
                     }
                     temp.ESwitching(temp.StartState, element, newState);
                     automataStack.Push(temp);
                 }
-                else if(element == '*')
+                else if (element == '*')
                 {
                     Automat temp = new();
                     Automat operand = automataStack.Pop();
                     temp = operand.applyKleeneStar();
                     automataStack.Push(temp);
                 }
-                else if(element == '|' || element == '+')
+                else if (element == '|' || element == '+')
                 {
                     Automat operand2 = automataStack.Pop();
                     Automat operand1 = automataStack.Pop();
@@ -2175,7 +2208,7 @@ namespace Projektni_FMSI
                         {
                             temp.finalStates.Add(finalState);
                         }
-                        foreach(var state in operand1.states)
+                        foreach (var state in operand1.states)
                         {
                             temp.states.Add(state);
                         }
@@ -2183,7 +2216,7 @@ namespace Projektni_FMSI
                         {
                             temp.states.Add(state);
                         }
-                        foreach(var symbol in operand1.alphabet)
+                        foreach (var symbol in operand1.alphabet)
                         {
                             temp.alphabet.Add(symbol);
                         }
@@ -2224,7 +2257,7 @@ namespace Projektni_FMSI
             }
 
             result = automataStack.Pop();
-            if(automataStack.Count == 0)
+            if (automataStack.Count == 0)
             {
                 //result.printStatesAndAlphabet();
                 return result;
@@ -2242,11 +2275,11 @@ namespace Projektni_FMSI
             string deadState = "DEADSTATE" + id;
             bool first = true;
             bool isDeadStateThere = false;
-            for(int i = 0; i < states.Count; i++)
+            for (int i = 0; i < states.Count; i++)
             {
-                foreach(var symbol in alphabet)
+                foreach (var symbol in alphabet)
                 {
-                    if(!checkIfIsENKA())
+                    if (!checkIfIsENKA())
                     {
                         if (!delta.ContainsKey((states.ElementAt(i), symbol)))
                         {
@@ -2257,9 +2290,9 @@ namespace Projektni_FMSI
                     }
                     else
                     {
-                        if(!deltaForEpsilon.ContainsKey((states.ElementAt(i), symbol)))
+                        if (!deltaForEpsilon.ContainsKey((states.ElementAt(i), symbol)))
                         {
-                            if(first)
+                            if (first)
                             {
                                 isDeadStateThere = true;
                                 counter = 0;
@@ -2272,24 +2305,24 @@ namespace Projektni_FMSI
                 }
             }
             //NEWLY ADDED - TEST
-            if(isDeadStateThere)
+            if (isDeadStateThere)
             {
-                foreach(var symbol in alphabet)
+                foreach (var symbol in alphabet)
                 {
-                    if(!checkIfIsENKA())
+                    if (!checkIfIsENKA())
                     {
                         delta[(deadState, symbol)] = deadState;
                     }
                     else
                     {
-                        if(symbol != 'E')
+                        if (symbol != 'E')
                         {
                             ESwitching(deadState, symbol, deadState);
                         }
                     }
                 }
             }
-            
+
         }
 
         //To check if two regular expressions are the same
@@ -2320,7 +2353,7 @@ namespace Projektni_FMSI
                 input = Console.ReadLine();
                 if (input != "--exit")
                 {
-                    if(strings.Contains(input))
+                    if (strings.Contains(input))
                     {
                         Console.WriteLine("You've already added this string, no need to add it again!");
                     }
@@ -2341,21 +2374,21 @@ namespace Projektni_FMSI
             string fileName = Console.ReadLine();
             try
             {
-                var path = Path.Combine( "./" + fileName + ".txt");
+                var path = Path.Combine("./" + fileName + ".txt");
                 string[] elements = File.ReadAllLines(path);
                 Console.WriteLine("Duplicates will not be added!");
-                foreach(var str in elements)
+                foreach (var str in elements)
                 {
                     strings.Add(str);
                 }
             }
-            catch(IOException e)
+            catch (IOException e)
             {
                 Console.WriteLine("Error " + e.Message);
             }
             return strings;
         }
-        
+
         private static Automat loadAutomataSpecificationFromFile()
         {
             //private sealed string AUTOMATA_NAME = "AUTOMATA: "; doesn't work for some reason, wanted to do it this way
@@ -2378,7 +2411,7 @@ namespace Projektni_FMSI
 
         private static void printSpecification(string[] regularExpression)
         {
-            for(int i = 0; i < regularExpression.Length; i++)
+            for (int i = 0; i < regularExpression.Length; i++)
             {
                 Console.WriteLine("Line " + i + ": " + regularExpression[i]);
             }
@@ -2395,9 +2428,9 @@ namespace Projektni_FMSI
         {
             List<int> lexicalAnalysis = lexicalAnalysisForAutomata(elements);
 
-            if(lexicalAnalysis.Count > 0)
+            if (lexicalAnalysis.Count > 0)
             {
-                foreach(var element in lexicalAnalysis)
+                foreach (var element in lexicalAnalysis)
                 {
                     Console.WriteLine("Error at line: " + element);
                 }
@@ -2472,7 +2505,7 @@ namespace Projektni_FMSI
         {
             Console.WriteLine("Enter file name: ");
             string fileName = Console.ReadLine();
-            
+
             try
             {
                 var path = Path.Combine("./" + fileName + ".txt");
@@ -2480,7 +2513,7 @@ namespace Projektni_FMSI
                 printSpecification(elements);
                 lexicalAnalysisOfRegularExpressionAndEvaluation(elements, flag);
             }
-            catch(IOException e)
+            catch (IOException e)
             {
                 Console.WriteLine("Error " + e.Message);
             }
@@ -2501,12 +2534,12 @@ namespace Projektni_FMSI
                 {
                     Automat res = loadAutomataSpecificationFromFile();
                     HashSet<string> strings = Automat.stringLoaderHelper('f', args);
-                    foreach(var str in strings)
+                    foreach (var str in strings)
                     {
                         doesDKAAccept(res, str);
                     }
                 }
-                else if(extraInput == "2")
+                else if (extraInput == "2")
                 {
                     Automat res = loadAutomataSpecificationFromFile();
                     HashSet<string> strings = Automat.stringLoaderHelper('f', args);
@@ -2515,7 +2548,7 @@ namespace Projektni_FMSI
                         doesENKAAccept(res, str);
                     }
                 }
-                else if(extraInput == "3")
+                else if (extraInput == "3")
                 {
                     loadRegularExpressionFromFile('f');
                 }
@@ -2524,11 +2557,11 @@ namespace Projektni_FMSI
                     Console.WriteLine("Wrong option, sorry!");
                 }
             }
-            else if(inputLoad == "c")
+            else if (inputLoad == "c")
             {
                 Console.WriteLine("Do you want to load DKA, E-NKA or regular expression (1/2/3): ");
                 extraInput = Console.ReadLine();
-                if(extraInput == "1")
+                if (extraInput == "1")
                 {
                     string[] loadFromConsole = loadAutomataFromConsole();
                     printSpecification(loadFromConsole);
@@ -2542,7 +2575,7 @@ namespace Projektni_FMSI
                     }
 
                 }
-                else if(extraInput == "2")
+                else if (extraInput == "2")
                 {
                     string[] loadFromConsole = loadAutomataFromConsole();
                     printSpecification(loadFromConsole);
@@ -2555,7 +2588,7 @@ namespace Projektni_FMSI
                         doesENKAAccept(automat, str);
                     }
                 }
-                else if(extraInput == "3")
+                else if (extraInput == "3")
                 {
                     Console.WriteLine("NOTE: Each line corresponds to ONE operator or ONE operand");
                     Console.WriteLine("If you want to stop, input --exit!");
@@ -2565,13 +2598,13 @@ namespace Projektni_FMSI
                     do
                     {
                         userInput = Console.ReadLine();
-                        if(userInput != "--exit")
+                        if (userInput != "--exit")
                         {
                             regularExpressionHelper.Add(userInput);
                         }
                     } while (userInput != "--exit");
                     string[] regularExpression = new string[regularExpressionHelper.Count];
-                    for(int i = 0; i < regularExpression.Length; i++)
+                    for (int i = 0; i < regularExpression.Length; i++)
                     {
                         regularExpression[i] = regularExpressionHelper.ElementAt(i);
                     }
@@ -2583,11 +2616,11 @@ namespace Projektni_FMSI
                     Console.WriteLine("Wrong option, sorry!");
                 }
             }
-            else if(inputLoad == "cl")
+            else if (inputLoad == "cl")
             {
                 Console.WriteLine("Do you want to load DKA, E-NKA or regular expression (1/2/3): ");
                 extraInput = Console.ReadLine();
-                if(extraInput == "1")
+                if (extraInput == "1")
                 {
                     printSpecification(args);
                     Automat result = loadAutomataSpecificationFromCommandLine(args);
@@ -2597,7 +2630,7 @@ namespace Projektni_FMSI
                         doesDKAAccept(result, str);
                     }
                 }
-                else if(extraInput == "2")
+                else if (extraInput == "2")
                 {
                     printSpecification(args);
                     Automat result = loadAutomataSpecificationFromCommandLine(args);
@@ -2607,7 +2640,7 @@ namespace Projektni_FMSI
                         doesENKAAccept(result, str);
                     }
                 }
-                else if(extraInput == "3")
+                else if (extraInput == "3")
                 {
                     printSpecification(args);
                     lexicalAnalysisOfRegularExpressionAndEvaluation(args, 'l');
@@ -2710,7 +2743,7 @@ namespace Projektni_FMSI
             {
                 Console.WriteLine("Enter state: ");
                 input = Console.ReadLine();
-                if(input != "--exit")
+                if (input != "--exit")
                 {
                     helpForString.Add(input);
                 }
@@ -2722,7 +2755,7 @@ namespace Projektni_FMSI
             {
                 Console.WriteLine("Enter symbol: ");
                 input = Console.ReadLine();
-                if(input != "--exit")
+                if (input != "--exit")
                 {
                     helpForString.Add(input);
                 }
@@ -2733,7 +2766,7 @@ namespace Projektni_FMSI
             {
                 Console.WriteLine("Enter start state: ");
                 input = Console.ReadLine();
-                if(input != "--exit")
+                if (input != "--exit")
                 {
                     string temp = "";
                     temp += input;
@@ -2754,7 +2787,7 @@ namespace Projektni_FMSI
             {
                 Console.WriteLine("Enter final state: ");
                 input = Console.ReadLine();
-                if(input != "--exit")
+                if (input != "--exit")
                 {
                     helpForString.Add(input);
                 }
@@ -2762,7 +2795,7 @@ namespace Projektni_FMSI
 
             string[] loadedAutomata = new string[helpForString.Count];
 
-            for(int i = 0; i < loadedAutomata.Length; i++)
+            for (int i = 0; i < loadedAutomata.Length; i++)
             {
                 loadedAutomata[i] = helpForString.ElementAt(i);
             }
@@ -2779,12 +2812,12 @@ namespace Projektni_FMSI
             if (whereToLoadFrom == "c" && flag != 'c')
             {
                 strings = Automat.getStringsFromUserFromConsole();
-            }           
+            }
             else if (whereToLoadFrom == "f" && flag != 'f')
             {
                 strings = Automat.getStringsFromUserFromFile();
             }
-            else if(whereToLoadFrom == "cl" && flag != 'l')
+            else if (whereToLoadFrom == "cl" && flag != 'l')
             {
                 strings = Automat.getStringsFromCommandLine(args);
             }
@@ -2799,7 +2832,7 @@ namespace Projektni_FMSI
         private static HashSet<string> getStringsFromCommandLine(string[] args)
         {
             HashSet<string> strings = new();
-            foreach(var element in args)
+            foreach (var element in args)
             {
                 strings.Add(element);
             }
@@ -2812,7 +2845,7 @@ namespace Projektni_FMSI
 
             for (int i = 0; i < regularExpression.Length; i++)
             {
-                if(regularExpression[i].Length > 1)
+                if (regularExpression[i].Length > 1)
                 {
                     errorsFound.Add(i);
                 }
@@ -2836,23 +2869,23 @@ namespace Projektni_FMSI
             int i = 0;
             HashSet<string> rememberStates = new();
             HashSet<char> rememberAlphabet = new();
-            while(i < automataIntoString.Length)
+            while (i < automataIntoString.Length)
             {
-                if(automataIntoString[i] == "AUTOMATA-STATES:")
+                if (automataIntoString[i] == "AUTOMATA-STATES:")
                 {
                     i++;
-                    while(automataIntoString[i] != "ALPHABET:")
+                    while (automataIntoString[i] != "ALPHABET:")
                     {
                         rememberStates.Add(automataIntoString[i]);
                         i++;
                     }
                 }
-                if(automataIntoString[i] == "ALPHABET:")
+                if (automataIntoString[i] == "ALPHABET:")
                 {
                     i++;
-                    while(automataIntoString[i] != "DELTA TRANSITIONS:")
+                    while (automataIntoString[i] != "DELTA TRANSITIONS:")
                     {
-                        if(automataIntoString[i].Length > 1)
+                        if (automataIntoString[i].Length > 1)
                         {
                             errorsFound.Add(i);
                         }
@@ -2863,10 +2896,10 @@ namespace Projektni_FMSI
                         i++;
                     }
                 }
-                if(automataIntoString[i] == "DELTA TRANSITIONS:")
+                if (automataIntoString[i] == "DELTA TRANSITIONS:")
                 {
                     i++;
-                    while(automataIntoString[i] != "FINAL STATES:")
+                    while (automataIntoString[i] != "FINAL STATES:")
                     {
                         string[] splitElements = automataIntoString[i].Split(":");
                         if ((splitElements[1].Length > 1 || splitElements[1].Length == 0) || (splitElements[i].Length != 3))
@@ -2881,14 +2914,14 @@ namespace Projektni_FMSI
                             }
                         }
                         i++;
-                    }                    
+                    }
                 }
-                if(automataIntoString[i] == "FINAL STATES:")
+                if (automataIntoString[i] == "FINAL STATES:")
                 {
                     i++;
-                    while(i < automataIntoString.Length)
+                    while (i < automataIntoString.Length)
                     {
-                        if(!rememberStates.Contains(automataIntoString[i]))
+                        if (!rememberStates.Contains(automataIntoString[i]))
                         {
                             errorsFound.Add(i);
                         }

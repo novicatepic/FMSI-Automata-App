@@ -12,8 +12,10 @@
 
 
 TODO:
--Fix regular expression loading from file
--Implement lexycal analysis
--In every line, check if there is non-regular symbol, or transition, or statement, and remember the line so we can print it out later!
+-Fix lexical analysis!
+-Further testing chaining operations!
+-Try to fix printing of states (not sure if necessary)!
+-Minimiziation of states, check if it works for union n stuff! (doesn't work, if it's too hard to fix, skip!)
+-Send mail for last thing!
 
 private static string[] loadAutomataFromConsole()

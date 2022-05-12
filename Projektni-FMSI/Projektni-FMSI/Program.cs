@@ -5,14 +5,14 @@ using System.IO;
 
 //Automat.enterSpecification();
 
-class MainClass
+/*class MainClass
 {
     static void Main(string[] args)
     {
         Automat.enterSpecification(args);
         //Console.WriteLine(args[1]);
     }
-}
+}*/
 
 //Automat g = new();
 //Automat a = new(), b = new();
@@ -44,7 +44,7 @@ foreach(var element in elements)
 
 //Automat a = new();
 
-/*Console.WriteLine("===================================");
+Console.WriteLine("===================================");
 Console.WriteLine("===================================");
 Console.WriteLine("WELCOME: ");
 Console.WriteLine("===================================");
@@ -57,9 +57,11 @@ Console.WriteLine("1-Execute automata\n2-Construct union\n3-Construct intersecti
 Console.WriteLine("--exit to finish!");
 Console.WriteLine("Construct your base automata: ");
 string input = "";
-Automat a = null, b = null;
+Automat a = null;
 a = new();
-a.makeAutomata();
+Automat b = null;
+b = new();
+Automat.makeLanguagesForUnionIntersectionDifference(ref a);
 do
 {
     input = Console.ReadLine();
@@ -69,38 +71,26 @@ do
     }
     else if(input == "2")
     {
-        Console.WriteLine("Construct second automata: ");
-        b = new();
-        b.makeAutomata();
-        Automat res = a.findUnion(b);
+        Automat res = a.findUnion();
         Console.WriteLine("Result: ");
         res.printStatesAndAlphabet();
     }
     else if (input == "3")
     {
-        Console.WriteLine("Construct second automata: ");
-        b = new();
-        b.makeAutomata();
-        Automat res = a.findIntersection(b);
+        Automat res = a.findIntersection();
         Console.WriteLine("Result: ");
         res.printStatesAndAlphabet();
 
     }
     else if (input == "4")
     {
-        Console.WriteLine("Construct second automata: ");
-        b = new();
-        b.makeAutomata();
-        Automat res = a.findDifference(b);
+        Automat res = a.findDifference();
         Console.WriteLine("Result: ");
         res.printStatesAndAlphabet();
     }
     else if (input == "5")
     {
-        Console.WriteLine("Construct second automata: ");
-        b = new();
-        b.makeAutomata();
-        Automat res = a.connectLanguages(b);
+        Automat res = a.connectLanguages();
         Console.WriteLine("Result: ");
         res.printStatesAndAlphabet();
     }
@@ -178,7 +168,7 @@ do
         Console.WriteLine("Enter your regular expression: ");
         regexp = Console.ReadLine();
         Console.WriteLine("Converting...");
-        Automat convertedAutomata = Automat.transformRegularExpressionToAutomata(regexp);
+        Automat convertedAutomata = Automat.makeAutomataFromRegularExpression(regexp);
         convertedAutomata.printStatesAndAlphabet();
     }
     else if(input == "16")
@@ -200,7 +190,7 @@ do
     }
     else if(input == "17")
     {
-        Automat.enterSpecification();
+        //Automat.enterSpecification(args);
     }
     else if(input == "--exit")
     {
@@ -210,7 +200,7 @@ do
     {
         Console.WriteLine("Wrong option, try again!");
     }
-} while (input != "--exit");*/
+} while (input != "--exit");
 
 //Automat.enterSpecification();
 //Automat rez = Automat.makeAutomataFromRegularExpression("(a+b)*ab+a");
