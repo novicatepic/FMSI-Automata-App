@@ -2909,6 +2909,20 @@ namespace Projektni_FMSI
             return errorsFound;
         }
 
+        public static List<int> tryLexicalAnalysis(string[] regularExpression)
+        {
+            List<int> errorsFound = new();
+            LexicalAnalysis lexicalAnalysis = new(regularExpression);
+            errorsFound = lexicalAnalysis.lexicalAnalysisForRegularExpression(regularExpression);
+
+            foreach(var error in errorsFound)
+            {
+                Console.WriteLine("Error at line: " + error);
+            }
+
+            return errorsFound;
+        }
+
         private static bool checkIfStateIsCorrect(string state)
         {
             for(int i = 0; i < state.Length; i++)

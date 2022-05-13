@@ -5,7 +5,7 @@ using System.IO;
 
 //Automat.enterSpecification();
 
-class MainClass
+/*class MainClass
 {
     static void Main(string[] args)
     {
@@ -177,7 +177,11 @@ class MainClass
             }
         } while (input != "--exit");
     }
-}
+}*/
+
+var path = Path.Combine("./" + "regexp" + ".txt");
+string[] elements = File.ReadAllLines(path);
+List <int> list = Automat.tryLexicalAnalysis(elements);
 
 //Automat g = new();
 //Automat a = new(), b = new();
