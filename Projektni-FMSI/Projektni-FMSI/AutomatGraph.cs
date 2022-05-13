@@ -19,9 +19,9 @@ namespace Projektni_FMSI
             this.size = size;
             ms = new int[size, size];
             nodes = new string[size];
-            for(int i = 0; i < size; i++)
+            for (int i = 0; i < size; i++)
             {
-                for(int j = 0; j < size; j++)
+                for (int j = 0; j < size; j++)
                 {
                     ms[i, j] = 0;
                 }
@@ -58,7 +58,7 @@ namespace Projektni_FMSI
         }
 
         //HELP FUNCTION FOR FINDING LONGEST WORD
-        public bool dfsForLongestWord(string startState)
+        public bool dfsForLongestWord(string startState, Automat automata)
         {
             bool isThereACycle = false;
             List<string> set = new();
@@ -68,16 +68,14 @@ namespace Projektni_FMSI
             {
                 int v;
                 visit[u] = true;
-                
+
                 //CYCLE FOUND
-                if(set.Contains(nodes[u]))
+                if (set.Contains(nodes[u]))
                 {
                     isThereACycle = true;
                     //return;
                 }
                 set.Add(nodes[u]);
-                
-               
 
                 for (v = 0; v < size; v++)
                 {
@@ -99,6 +97,24 @@ namespace Projektni_FMSI
             return isThereACycle;
         }
 
+        private static int[] findPositionForLongestWord(string state, HashSet<HashSet<string>> whichOnesWereVisited)
+        {
+            int[] result = new int[2];
+
+            for(int i = 0; i < whichOnesWereVisited.Count; i++)
+            {
+                for(int j = 0; j < whichOnesWereVisited.ElementAt(i).Count; j++)
+                {
+                    if(whichOnesWereVisited.ElementAt(i).ElementAt(j) == state)
+                    {
+                        result[0] = i;
+                        result[1] = j;
+                    }
+                }
+            }
+            return result;
+        }
+
         //IF THERE WAS NO CYCLE
         //FIND LONGEST WORD WITH BFS
         //REMEMBER LEVELS VISITED
@@ -109,57 +125,132 @@ namespace Projektni_FMSI
             int longestWord = 0;
 
             Queue<string> queue = new();
-            HashSet < HashSet<string> > whichOnesWereVisited = new HashSet<HashSet<string>>();
+            HashSet<HashSet<string>> whichOnesWereVisited = new HashSet<HashSet<string>>();
             HashSet<string> rememberAllAlreadyVisited = new();
-            
+            List<List<bool>> checkIfCycleExistsSomewhere = new List<List<bool>>();
+
             for(int i = 0; i < visit.states.Count; i++)
+            {
+                checkIfCycleExistsSomewhere.Add(new List<bool>());
+            } 
+
+            for (int i = 0; i < visit.states.Count; i++)
             {
                 whichOnesWereVisited.Add(new HashSet<string>());
             }
 
             whichOnesWereVisited.ElementAt(0).Add(visit.StartState);
+            if(visit.checkIfStateHasCycle(visit.StartState))
+            {
+                checkIfCycleExistsSomewhere.ElementAt(0).Add(true);
+            }
+            else
+            {
+                checkIfCycleExistsSomewhere.ElementAt(0).Add(false);
+            }
 
             queue.Enqueue(visit.StartState);
             int counterForSortedSet = 1;
 
-            while(queue.Count > 0)
+            while (queue.Count > 0)
             {
                 string state = queue.Dequeue();
 
                 rememberAllAlreadyVisited.Add(state);
                 int position = findPositionOfState(state);
 
-                    for(int j = 0; j < size; j++)
+                for (int j = 0; j < size; j++)
+                {
+                    if (ms[position, j] == 1 && !rememberAllAlreadyVisited.Contains(findStateBasedOnPosition(j)))
                     {
-                        if(ms[position, j] == 1 && !rememberAllAlreadyVisited.Contains(findStateBasedOnPosition(j)))
+                        int[] pos = findPositionForLongestWord(state, whichOnesWereVisited);
+                        string element = findStateBasedOnPosition(j);
+                        queue.Enqueue(element);
+                        rememberAllAlreadyVisited.Add(element);
+                        for (int g = 0; g < whichOnesWereVisited.Count; g++)
                         {
-                            string element = findStateBasedOnPosition(j);
-                            queue.Enqueue(element);
-                            rememberAllAlreadyVisited.Add(element);
-                            for(int g = 0; g < whichOnesWereVisited.Count; g++) {
-                                if(whichOnesWereVisited.ElementAt(g).Contains(state))
+                            if (whichOnesWereVisited.ElementAt(g).Contains(state))
+                            {
+                                whichOnesWereVisited.ElementAt(g + 1).Add(element);
+
+                                if(checkIfCycleExistsSomewhere.ElementAt(g).Contains(false))
                                 {
-                                    whichOnesWereVisited.ElementAt(g + 1).Add(element);
-                                    break;
+                                    if(visit.checkIfStateHasCycle(element) || checkIfCycleExistsSomewhere.ElementAt(pos[0]).ElementAt(pos[1]))
+                                    {
+                                        checkIfCycleExistsSomewhere.ElementAt(g + 1).Add(true);
+                                    }
+                                    else
+                                    {
+                                        checkIfCycleExistsSomewhere.ElementAt(g + 1).Add(false);
+                                    }
                                 }
+                                else
+                                {
+                                    checkIfCycleExistsSomewhere.ElementAt(g + 1).Add(true);
+                                }
+
+                                break;
                             }
                         }
                     }
+                }
                 counterForSortedSet++;
 
-                foreach(var element in queue)
+                Console.WriteLine("Which ones were visited: ");
+                for(int i = 0; i < nodes.Length; i++)
+                {
+                    foreach(var element in whichOnesWereVisited.ElementAt(i))
+                    {
+                        Console.Write(element + " ");
+                    }
+                    Console.WriteLine();
+                }
+                Console.WriteLine();
+
+                Console.WriteLine("Check if cycle exists: ");
+                for (int i = 0; i < nodes.Length; i++)
+                {
+                    foreach (var element in checkIfCycleExistsSomewhere.ElementAt(i))
+                    {
+                        Console.Write(element + " ");
+                    }
+                    Console.WriteLine();
+                }
+                Console.WriteLine();
+
+                /*Console.WriteLine("Remember all already visited: ");
+                foreach(var elem in rememberAllAlreadyVisited)
+                {
+                    Console.Write(elem + " ");
+                }
+                Console.WriteLine();*/
+
+                /*Console.WriteLine("QUEUE: ");
+                foreach (var element in queue)
+                {
+                    Console.Write(element + " ");
+                }
+                Console.WriteLine();*/
+
+                foreach (var element in queue)
                 {
                     int wordLength = 0;
-                    if(visit.finalStates.Contains(element))
+                    if (visit.finalStates.Contains(element))
                     {
-                        for(int g = 0; g < whichOnesWereVisited.Count; g++)
+                        for (int g = 0; g < whichOnesWereVisited.Count; g++)
                         {
-                            if(whichOnesWereVisited.ElementAt(g).Contains(element))
+                            int[] pos = findPositionForLongestWord(element, whichOnesWereVisited);
+                            if (checkIfCycleExistsSomewhere.ElementAt(pos[0]).ElementAt(pos[1]))
+                            {
+                                Console.WriteLine("There is no longest word, returning MAX length possible!");
+                                return int.MaxValue;
+                            }
+                            if (whichOnesWereVisited.ElementAt(g).Contains(element))
                             {
                                 wordLength = g;
                             }
                         }
-                        if(wordLength > longestWord)
+                        if (wordLength > longestWord)
                         {
                             longestWord = wordLength;
                         }
@@ -179,7 +270,8 @@ namespace Projektni_FMSI
 
         private int findPositionOfState(string state)
         {
-            for (int i = 0; i < size; i++) {
+            for (int i = 0; i < size; i++)
+            {
                 if (nodes[i] == state)
                     return i;
             }
@@ -222,12 +314,12 @@ namespace Projektni_FMSI
             {
                 string temp = queue.Dequeue();
                 string newStateName = "a" + counter;
-                if(newStateName != "a0")
+                if (newStateName != "a0")
                 {
                     resultAutomat.states.Add(newStateName);
                 }
                 originalSet.Add(temp);
-                if(automata.finalStates.Contains(temp))
+                if (automata.finalStates.Contains(temp))
                 {
                     resultAutomat.finalStates.Add(newStateName);
                 }
@@ -235,20 +327,20 @@ namespace Projektni_FMSI
                 resultSet.Add(newStateName);
                 foreach (char symbol in alphabetSorted)
                 {
-                    if(!queue.Contains(automata.delta[(temp, symbol)]) && !originalSet.Contains(automata.delta[(temp, symbol)]))
+                    if (!queue.Contains(automata.delta[(temp, symbol)]) && !originalSet.Contains(automata.delta[(temp, symbol)]))
                         queue.Enqueue(automata.delta[(temp, symbol)]);
                 }
             }
 
-            for(int i = 0; i < resultSet.Count; i++)
+            for (int i = 0; i < resultSet.Count; i++)
             {
-                foreach(var symbol in alphabetSorted)
+                foreach (var symbol in alphabetSorted)
                 {
                     int j;
                     string tempState = automata.delta[(originalSet.ElementAt(i), symbol)];
                     for (j = 0; j < originalSet.Count; j++)
                     {
-                        if(tempState == originalSet.ElementAt(j))
+                        if (tempState == originalSet.ElementAt(j))
                         {
                             break;
                         }
@@ -257,7 +349,7 @@ namespace Projektni_FMSI
                 }
             }
 
- 
+
             return resultAutomat;
         }
 
@@ -268,24 +360,24 @@ namespace Projektni_FMSI
         public bool minimiseAutomataHelper(Automat a)
         {
             bool checkIfThereIsNone = false;
-            for(int i = 0; i < a.states.Count; i++)
+            for (int i = 0; i < a.states.Count; i++)
             {
-                for(int j = 0; j < a.states.Count; j++)
+                for (int j = 0; j < a.states.Count; j++)
                 {
-                    if(ms[i, j] != -1 && ms[i, j] != 1)
+                    if (ms[i, j] != -1 && ms[i, j] != 1)
                     {
-                        foreach(var symbol in a.alphabet)
+                        foreach (var symbol in a.alphabet)
                         {
                             //ADDED FIRST ROW
-                            if(a.delta.ContainsKey((nodes.ElementAt(i), symbol)) && a.delta.ContainsKey((nodes.ElementAt(j), symbol)) &&
+                            if (a.delta.ContainsKey((nodes.ElementAt(i), symbol)) && a.delta.ContainsKey((nodes.ElementAt(j), symbol)) &&
                                 nodes.Contains(a.delta[(nodes.ElementAt(i), symbol)]) && nodes.Contains(a.delta[(nodes.ElementAt(j), symbol)]))
                             {
                                 string firstState = a.delta[(nodes.ElementAt(i), symbol)];
                                 string secondState = a.delta[(nodes.ElementAt(j), symbol)];
                                 int position1, position2;
-                                for(position1 = 0; position1 < a.states.Count; position1++)
+                                for (position1 = 0; position1 < a.states.Count; position1++)
                                 {
-                                    if(nodes.ElementAt(position1) == firstState)
+                                    if (nodes.ElementAt(position1) == firstState)
                                     {
                                         break;
                                     }
@@ -297,7 +389,7 @@ namespace Projektni_FMSI
                                         break;
                                     }
                                 }
-                                if(ms[position1, position2] == 1 || ms[position2, position1] == 1)
+                                if (ms[position1, position2] == 1 || ms[position2, position1] == 1)
                                 {
                                     //Console.WriteLine(i + " " + j);
                                     checkIfThereIsNone = true;

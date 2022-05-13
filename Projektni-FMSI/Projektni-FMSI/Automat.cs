@@ -201,7 +201,7 @@ namespace Projektni_FMSI
 
         public static void makeLanguagesForUnionIntersectionDifference(ref Automat other)
         {
-            Console.WriteLine("First choice for language representation: ");
+            Console.WriteLine("Make your choice for language representation: ");
             Console.WriteLine("a for automata, r for regular expression: ");
             string userInput = Console.ReadLine();
             if (userInput == "a")
@@ -353,13 +353,16 @@ namespace Projektni_FMSI
             Automat other = new();
             makeLanguagesForUnionIntersectionDifference(ref other);
 
-            Automat first;
+            Automat first = new();
             first = convertToDKAIfNecessary();
 
-            foreach(var finalState in first.finalStates)
+            /*Console.WriteLine("RESULT: ");
+            first.printStatesAndAlphabet();*/
+
+            /*foreach(var finalState in first.finalStates)
             {
                 Console.WriteLine(finalState);
-            }
+            }*/
 
             try
             {
@@ -560,7 +563,10 @@ namespace Projektni_FMSI
                     }
                     else
                     {
-                        res = res.connectLanguages();
+                        Automat temp = null;
+                        //temp = new();
+                        temp = res.connectLanguages();
+                        res = temp;
                         res.printStatesAndAlphabet();
                     }
                 }
@@ -677,7 +683,7 @@ namespace Projektni_FMSI
         }
 
         //Check if alphabet contains 'E'
-        private bool checkIfIsENKA()
+        public bool checkIfIsENKA()
         {
             return alphabet.Contains('E');
         }
@@ -810,7 +816,7 @@ namespace Projektni_FMSI
         //Allows user to add transitions when making automata
         private void addTransitions()
         {
-            printStatesAndAlphabet();
+            //printStatesAndAlphabet();
             foreach (var state in states)
             {
                 char symbol;
@@ -1014,7 +1020,12 @@ namespace Projektni_FMSI
                     }
                 }
             }
-
+            Console.WriteLine("FINAL STATES: ");
+            foreach (var finalState in finalStates)
+            {
+                Console.Write(finalState + " ");
+            }
+            Console.WriteLine();
         }
 
         //For each final state, if it's stuck in itself, it means language is not final
@@ -1065,7 +1076,7 @@ namespace Projektni_FMSI
                 return false;
             }
 
-            if (!isLanguageFinalHelpFunc())
+            if (!isLanguageFinalHelpFunc() || !secondCheckIfLanguageIsFinal())
             {
                 return false;
             }
@@ -1078,7 +1089,7 @@ namespace Projektni_FMSI
             {
                 //Help function in automat graph that allows us to check if there is a cycle
                 //If it exists, language is not final!
-                if (automatGraph.dfsForLongestWord(finalState))
+                if (automatGraph.dfsForLongestWord(finalState, this))
                 {
                     return false;
                 }
@@ -1092,7 +1103,6 @@ namespace Projektni_FMSI
         //If a final state, for any symbol from the alphabet, goes to itself, return false
         private bool isLanguageFinalHelpFunc()
         {
-            bool result = true;
             foreach (var finalState in finalStates)
             {
                 foreach (var symbol in alphabet)
@@ -1103,7 +1113,30 @@ namespace Projektni_FMSI
                     }
                 }
             }
-            return result;
+            return true;
+        }
+
+        private bool secondCheckIfLanguageIsFinal()
+        {
+            int counter = 0;
+            foreach(var finalState in finalStates)
+            {
+                foreach(var symbol in alphabet)
+                {
+                    if(!delta.ContainsKey((finalState, symbol)))
+                    {
+                        counter++;
+                    }
+                }
+            }
+            if(counter == alphabet.Count)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         //Self-explanatory
@@ -1229,7 +1262,7 @@ namespace Projektni_FMSI
             }
 
             //If it's not final
-            if (!isLanguageFinalHelpFunc())
+            if (!isLanguageFinalHelpFunc() || !secondCheckIfLanguageIsFinal())
             {
                 Console.WriteLine("It's infinity, even thought here we don't have infinity, I'll just print out the biggest possible number");
                 return int.MaxValue;
@@ -1241,7 +1274,7 @@ namespace Projektni_FMSI
             //If there is a cycle, longest word is inifity
             foreach (var finalState in possibleDKA.finalStates)
             {
-                if (automatGraph.dfsForLongestWord(finalState))
+                if (automatGraph.dfsForLongestWord(finalState, this))
                 {
                     Console.WriteLine("It's infinity, even thought here we don't have infinity, I'll just print out the biggest possible number");
                     return int.MaxValue;
@@ -1443,11 +1476,24 @@ namespace Projektni_FMSI
             if (this.checkIfIsENKA())
             {
                 convertFirst = this.convertENKAtoDKA();
+                convertFirst.addDeadState();
+            }
+            else
+            {
+                this.addDeadState();
             }
             if (other.checkIfIsENKA())
             {
                 convertSecond = other.convertENKAtoDKA();
+                convertSecond.addDeadState();
             }
+            else
+            {
+                other.addDeadState();
+            }
+
+            //convertFirst.printStatesAndAlphabet();
+            //convertSecond.printStatesAndAlphabet();
 
             AutomatGraph graph = new();
 
@@ -2328,7 +2374,7 @@ namespace Projektni_FMSI
         //To check if two regular expressions are the same
         //Transform them to automatas
         //Compare those two automatas
-        public bool checkIfTwoRegularExpressionsAreTheSame(string regexp1, string regexp2)
+        /*public bool checkIfTwoRegularExpressionsAreTheSame(string regexp1, string regexp2)
         {
             Automat convertFirstRegularExpression = makeAutomataFromRegularExpression(regexp1);
             Automat convertSecondRegularExpression = makeAutomataFromRegularExpression(regexp2);
@@ -2341,7 +2387,7 @@ namespace Projektni_FMSI
             {
                 return false;
             }
-        }
+        }*/
 
         private static HashSet<string> getStringsFromUserFromConsole()
         {
@@ -2863,12 +2909,33 @@ namespace Projektni_FMSI
             return errorsFound;
         }
 
+        private static bool checkIfStateIsCorrect(string state)
+        {
+            for(int i = 0; i < state.Length; i++)
+            {
+                if (!(state[i] >= '0' && state[i] <= '9') && !(state[i] >= 'a' && state[i] <= 'z') && !(state[i] >= 'A' && state[i] <= 'Z'))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private static bool checkIfSymbolInAlphabetIsCorrect(string symbol)
+        {
+            if(symbol.Length > 1 || (symbol.Length == 1 && symbol[0] == ':'))
+            {
+                return false;
+            }
+            return true;
+        }
+
         public static List<int> lexicalAnalysisForAutomata(string[] automataIntoString)
         {
             List<int> errorsFound = new();
             int i = 0;
-            HashSet<string> rememberStates = new();
-            HashSet<char> rememberAlphabet = new();
+            //HashSet<string> rememberStates = new();
+            //HashSet<char> rememberAlphabet = new();
             while (i < automataIntoString.Length)
             {
                 if (automataIntoString[i] == "AUTOMATA-STATES:")
@@ -2876,7 +2943,12 @@ namespace Projektni_FMSI
                     i++;
                     while (automataIntoString[i] != "ALPHABET:")
                     {
-                        rememberStates.Add(automataIntoString[i]);
+                        string state = automataIntoString[i];
+                        if(!checkIfStateIsCorrect(state) && !errorsFound.Contains(i))
+                        {
+                            errorsFound.Add(i);
+                        }
+                        //rememberStates.Add(automataIntoString[i]);
                         i++;
                     }
                 }
@@ -2885,13 +2957,13 @@ namespace Projektni_FMSI
                     i++;
                     while (automataIntoString[i] != "DELTA TRANSITIONS:")
                     {
-                        if (automataIntoString[i].Length > 1)
+                        if (!checkIfSymbolInAlphabetIsCorrect(automataIntoString[i]))
                         {
                             errorsFound.Add(i);
                         }
                         else
                         {
-                            rememberAlphabet.Add(char.Parse(automataIntoString[i]));
+                            //rememberAlphabet.Add(char.Parse(automataIntoString[i]));
                         }
                         i++;
                     }
@@ -2902,13 +2974,16 @@ namespace Projektni_FMSI
                     while (automataIntoString[i] != "FINAL STATES:")
                     {
                         string[] splitElements = automataIntoString[i].Split(":");
-                        if ((splitElements[1].Length > 1 || splitElements[1].Length == 0) || (splitElements[i].Length != 3))
+                        if ((splitElements.Length != 3) && !errorsFound.Contains(i))
                         {
                             errorsFound.Add(i);
                         }
-                        else
+                        if(splitElements.Length == 3)
                         {
-                            if (!rememberStates.Contains(splitElements[0]) || !rememberStates.Contains(splitElements[2]) || !rememberAlphabet.Contains(char.Parse(splitElements[1])))
+                            string state1 = splitElements[0];
+                            string state2 = splitElements[2];
+                            string alphabetSymbol = splitElements[1];
+                            if((!checkIfStateIsCorrect(state1) || !checkIfStateIsCorrect(state2) || !checkIfSymbolInAlphabetIsCorrect(alphabetSymbol)) && !errorsFound.Contains(i))
                             {
                                 errorsFound.Add(i);
                             }
@@ -2921,16 +2996,32 @@ namespace Projektni_FMSI
                     i++;
                     while (i < automataIntoString.Length)
                     {
-                        if (!rememberStates.Contains(automataIntoString[i]))
+                        if(!checkIfStateIsCorrect(automataIntoString[i]))
                         {
                             errorsFound.Add(i);
                         }
+                        /*if (!rememberStates.Contains(automataIntoString[i]))
+                        {
+                            errorsFound.Add(i);
+                        }*/
                         i++;
                     }
                 }
             }
 
             return errorsFound;
+        }
+
+        public bool checkIfStateHasCycle(string state)
+        {
+            foreach(var symbol in alphabet)
+            {
+                if(delta.ContainsKey((state, symbol)) && delta[(state, symbol)] == state)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
     }
