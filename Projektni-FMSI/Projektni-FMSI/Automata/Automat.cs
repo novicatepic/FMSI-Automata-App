@@ -67,8 +67,9 @@ namespace Projektni_FMSI
             else
             {
                 //2 methods, convert to DKA and run, or run directly, you can choose, seconde one probably faster
-                Automat ENKATODKA = this.convertENKAtoDKA();
-                if (ENKATODKA.AcceptsDKA(inputWord))
+                //Automat ENKATODKA = this.convertENKAtoDKA();
+                //if (ENKATODKA.AcceptsDKA(inputWord))
+                if(acceptsENKA(inputWord))
                 {
                     Console.WriteLine("ENKA accepted this word ;)!");
                 }
@@ -135,14 +136,14 @@ namespace Projektni_FMSI
         }
 
         //Find union for any language representation
-        public Automat findUnion()
+        public Automat findUnion(Automat other)
         {
-            Automat other = new();
             Console.WriteLine("This representation will return a new automata, even if you input two regular expressions or any other combination!");
-            makeLanguagesForUnionIntersectionDifference(ref other);
 
             Automat first = new();
             first = convertToDKAIfNecessary();
+
+            other = other.convertToDKAIfNecessary();
 
             first.addDeadState();
             other.addDeadState();
@@ -239,17 +240,17 @@ namespace Projektni_FMSI
         }
 
         //Same logic I used for union, except for final states
-        public Automat findIntersection()
+        public Automat findIntersection(Automat other)
         {
-            Automat other = new();
             Console.WriteLine("This representation will return a new automata, even if you input two regular expressions or any other combination!");
-            makeLanguagesForUnionIntersectionDifference(ref other);
 
             this.addDeadState();
             other.addDeadState();
 
             Automat first = new();
             first = convertToDKAIfNecessary();
+
+            other = other.convertToDKAIfNecessary();
 
             if (!first.checkIfAlphabetIsTheSame(other))
             {
@@ -291,14 +292,14 @@ namespace Projektni_FMSI
         }
 
         //Same as two functions before this one, final states are the only difference!
-        public Automat findDifference()
+        public Automat findDifference(Automat other)
         {
-            Automat other = new();
             Console.WriteLine("This representation will return a new automata, even if you input two regular expressions or any other combination!");
-            makeLanguagesForUnionIntersectionDifference(ref other);
 
             Automat first = new();
             first = convertToDKAIfNecessary();
+
+            other = other.convertToDKAIfNecessary();
 
             if (!first.checkIfAlphabetIsTheSame(other))
             {
@@ -342,14 +343,14 @@ namespace Projektni_FMSI
         }
 
         //"Merge" two representations of language
-        public Automat connectLanguages()
+        public Automat connectLanguages(Automat other)
         {
             Automat result = new();
-            Automat other = new();
-            makeLanguagesForUnionIntersectionDifference(ref other);
 
             Automat first = new();
             first = convertToDKAIfNecessary();
+
+            other = other.convertToDKAIfNecessary();
 
             try
             {
@@ -474,8 +475,9 @@ namespace Projektni_FMSI
             Console.WriteLine("Options for chaining operations:\n1-Union\n2-Intersection\n3-Difference\n4-Complement\n5-Connection\n6-KleeneStar\n");
             string input;
             Console.WriteLine("Enter your options until it becomes boring for you, if it becomes boring, input --exit: ");
-            Console.WriteLine("Make first automata: ");
+            Console.WriteLine("Make first language: ");
             Automat a1 = new Automat();
+            Automat a2 = new();
             makeLanguagesForUnionIntersectionDifference(ref a1);
             Automat res = null;
             Console.WriteLine("Input option: ");
@@ -486,13 +488,18 @@ namespace Projektni_FMSI
                 {
                     if (res == null)
                     {
-                        res = a1.findUnion();
+                        Console.WriteLine("Make second language: ");
+                        makeLanguagesForUnionIntersectionDifference(ref a2);
+                        res = a1.findUnion(a2);
                         res.printStatesAndAlphabet();
                     }
 
                     else
                     {
-                        res = res.findUnion();
+                        a2 = null;
+                        a2 = new();
+                        makeLanguagesForUnionIntersectionDifference(ref a2);
+                        res = res.findUnion(a2);
                         res.printStatesAndAlphabet();
                     }
 
@@ -501,13 +508,18 @@ namespace Projektni_FMSI
                 {
                     if (res == null)
                     {
-                        res = a1.findIntersection();
+                        Console.WriteLine("Make second language: ");
+                        makeLanguagesForUnionIntersectionDifference(ref a2);
+                        res = a1.findIntersection(a2);
                         res.printStatesAndAlphabet();
                     }
 
                     else
                     {
-                        res = res.findIntersection();
+                        a2 = null;
+                        a2 = new();
+                        makeLanguagesForUnionIntersectionDifference(ref a2);
+                        res = res.findIntersection(a2);
                         res.printStatesAndAlphabet();
                     }
                 }
@@ -515,12 +527,17 @@ namespace Projektni_FMSI
                 {
                     if (res == null)
                     {
-                        res = a1.findDifference();
+                        Console.WriteLine("Make second language: ");
+                        makeLanguagesForUnionIntersectionDifference(ref a2);
+                        res = a1.findDifference(a2);
                         res.printStatesAndAlphabet();
                     }
                     else
                     {
-                        res = res.findDifference();
+                        a2 = null;
+                        a2 = new();
+                        makeLanguagesForUnionIntersectionDifference(ref a2);
+                        res = res.findDifference(a2);
                         res.printStatesAndAlphabet();
                     }
                 }
@@ -545,14 +562,18 @@ namespace Projektni_FMSI
                 {
                     if (res == null)
                     {
-                        res = a1.connectLanguages();
+                        Console.WriteLine("Make second language: ");
+                        makeLanguagesForUnionIntersectionDifference(ref a2);
+                        res = a1.connectLanguages(a2);
                         res.printStatesAndAlphabet();
                     }
                     else
                     {
-                        Automat temp = null;
-                        //temp = new();
-                        temp = res.connectLanguages();
+                        a2 = null;
+                        a2 = new();
+                        makeLanguagesForUnionIntersectionDifference(ref a2);
+                        Automat temp = new();
+                        temp = res.connectLanguages(a2);
                         res = temp;
                         res.printStatesAndAlphabet();
                     }
@@ -570,7 +591,6 @@ namespace Projektni_FMSI
                         temp = new();
                         temp = res.applyKleeneStar();
                         res = temp;
-                        //res = res.applyKleeneStar();
                         res.printStatesAndAlphabet();
                     }
                 }
@@ -867,7 +887,7 @@ namespace Projektni_FMSI
         public void ESwitching(string currentState, char symbol, string nextState)
         {
             helpMethodForESwitching();
-
+            
             int i;
             string[] array = states.ToArray<string>();
             int helpCounter = 0;
@@ -907,11 +927,21 @@ namespace Projektni_FMSI
 
             if (symbol == 'E')
             {
+                if(!deltaForEpsilon.ContainsKey((currentState, symbol)))
+                {
+                    throw new NoKeyFoundException();
+                }
+
                 if (!deltaForEpsilon[(currentState, symbol)].Contains(nextState))
                     deltaForEpsilon[(currentState, symbol)].Add(nextState);
             }
             else
             {
+                if(!deltaForEpsilon.ContainsKey((currentState, symbol)))
+                {
+                    throw new NoKeyFoundException();
+                }
+
                 if (!deltaForEpsilon[(currentState, symbol)].Contains(nextState))
                     deltaForEpsilon[(currentState, symbol)].Add(nextState);
             }
@@ -1127,6 +1157,7 @@ namespace Projektni_FMSI
         //BFS, when we get to a final state, we break, we remember path length
         public int findShortestPath()
         {
+
             int shortestPathLength = 0;
 
             if (finalStates.Contains(StartState))
@@ -1148,7 +1179,7 @@ namespace Projektni_FMSI
                 string temp = queue.Dequeue();
                 foreach (char symbol in alphabet)
                 {
-                    if (delta[(temp, symbol)] != temp)
+                    if (delta.ContainsKey((temp, symbol)) && delta[(temp, symbol)] != temp)
                     {
                         string nextState = delta[(temp, symbol)];
                         if (finalStates.Contains(nextState))
@@ -1975,7 +2006,7 @@ namespace Projektni_FMSI
 
         //Function to find union (a+b) for example
         //Done by definition
-        private Automat findUnionBetweenTwoLanguages(Automat other)
+        public Automat findUnionBetweenTwoLanguages(Automat other)
         {
 
             Automat result = new();
@@ -2165,7 +2196,8 @@ namespace Projektni_FMSI
                     ((alphabet.Contains(regularExpression[i]) && alphabet.Contains(regularExpression[i + 1])) ||
                     (alphabet.Contains(regularExpression[i]) && regularExpression[i + 1] == '(') ||
                     (regularExpression[i] == '*' && alphabet.Contains(regularExpression[i + 1])) ||
-                    (regularExpression[i] == ')' && alphabet.Contains(regularExpression[i + 1]))))
+                    (regularExpression[i] == ')' && alphabet.Contains(regularExpression[i + 1])) ||
+                    (regularExpression[i] == '*' && regularExpression[i + 1] == '(')))
                 {
                     if (first)
                     {
@@ -2436,6 +2468,19 @@ namespace Projektni_FMSI
         public void addState(string state)
         {
             states.Add(state);
+        }
+
+        public void addTransition(string state, char symbol, string nextState)
+        {
+            if(!states.Contains(state))
+            {
+                throw new StateNotPresentException();
+            }
+            if (!alphabet.Contains(symbol))
+            {
+                throw new AlphabetNotContainsException();
+            }
+            delta[(state, symbol)] = nextState;
         }
 
     }
