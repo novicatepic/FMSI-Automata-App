@@ -1,9 +1,5 @@
 C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\CoverletSourceRootsMapping
 C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\testhost.dll
-C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\Projektni-FMSI.deps.json
-C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\Projektni-FMSI.runtimeconfig.json
-C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\Projektni-FMSI.runtimeconfig.dev.json
-C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\Projektni-FMSI.exe
 C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\testhost.exe
 C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\Microsoft.TestPlatform.PlatformAbstractions.dll
 C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\NUnit3.TestAdapter.dll
@@ -94,8 +90,6 @@ C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројек
 C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\zh-Hant\Microsoft.TestPlatform.CommunicationUtilities.resources.dll
 C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\zh-Hant\Microsoft.TestPlatform.CrossPlatEngine.resources.dll
 C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\zh-Hant\Microsoft.VisualStudio.TestPlatform.Common.resources.dll
-C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\Projektni-FMSI.dll
-C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\Projektni-FMSI.pdb
 C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\obj\Debug\net5.0\CompareLanguagesTests.csproj.AssemblyReference.cache
 C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\obj\Debug\net5.0\CompareLanguagesTests.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\obj\Debug\net5.0\CompareLanguagesTests.AssemblyInfoInputs.cache
@@ -106,3 +100,11 @@ C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројек
 C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\obj\Debug\net5.0\ref\CompareLanguagesTests.dll
 C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\obj\Debug\net5.0\CompareLanguagesTests.pdb
 C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\obj\Debug\net5.0\CompareLanguagesTests.genruntimeconfig.cache
+C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\Project-FirstApp.deps.json
+C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\Project-FirstApp.runtimeconfig.json
+C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\Project-FirstApp.runtimeconfig.dev.json
+C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\Project-FirstApp.exe
+C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\AutomataLibrary.dll
+C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\Project-FirstApp.dll
+C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\Project-FirstApp.pdb
+C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\CompareLanguagesTests\bin\Debug\net5.0\AutomataLibrary.pdb

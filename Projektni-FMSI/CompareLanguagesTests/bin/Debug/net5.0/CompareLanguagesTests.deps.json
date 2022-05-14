@@ -11,7 +11,7 @@
           "Microsoft.NET.Test.Sdk": "16.9.4",
           "NUnit": "3.13.1",
           "NUnit3TestAdapter": "3.17.0",
-          "Projektni-FMSI": "1.0.0",
+          "Project-FirstApp": "1.0.0",
           "coverlet.collector": "3.0.2"
         },
         "runtime": {
@@ -870,9 +870,17 @@
           }
         }
       },
-      "Projektni-FMSI/1.0.0": {
+      "AutomataLibrary/1.0.0": {
         "runtime": {
-          "Projektni-FMSI.dll": {}
+          "AutomataLibrary.dll": {}
+        }
+      },
+      "Project-FirstApp/1.0.0": {
+        "dependencies": {
+          "AutomataLibrary": "1.0.0"
+        },
+        "runtime": {
+          "Project-FirstApp.dll": {}
         }
       }
     }
@@ -1338,7 +1346,12 @@
       "path": "system.xml.xpath.xmldocument/4.3.0",
       "hashPath": "system.xml.xpath.xmldocument.4.3.0.nupkg.sha512"
     },
-    "Projektni-FMSI/1.0.0": {
+    "AutomataLibrary/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Project-FirstApp/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

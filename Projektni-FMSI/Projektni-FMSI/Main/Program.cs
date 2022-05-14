@@ -5,7 +5,7 @@ using System.IO;
 
 //Automat.enterSpecification();
 
-class MainClass
+class FirstApp
 {
     static void Main(string[] args)
     {
@@ -18,7 +18,7 @@ class MainClass
         Console.WriteLine("1-Execute automata\n2-Construct union\n3-Construct intersection\n4-Construct difference\n5-Connect two languages\n6-Apply Kleene star" +
                             "\n7-Chain operations\n8-Find shortest word\n9-Find longest word\n10-Check out if language is final\n11-Minimise DKA\n" +
                             "12-Transform ENKA to DKA\n13-Check if two languages are the same\n14-Transform regular expression to automata" +
-                            "\n15-Load Specification ");
+                            "\n15-Load Specification\n16-Construct complement ");
         Console.WriteLine("--exit to finish!");       
         string input = "";
         Automat a = null;
@@ -41,7 +41,7 @@ class MainClass
                 Automat.makeLanguagesForUnionIntersectionDifference(ref a);
                 Console.WriteLine("Construct your second language: ");
                 Automat.makeLanguagesForUnionIntersectionDifference(ref b);
-                Automat res = a.findUnion(b);
+                Automat res = a.findUnionDKA(b);
                 Console.WriteLine("Result: ");
                 res.printStatesAndAlphabet();
             }
@@ -175,6 +175,14 @@ class MainClass
             {
                 AutomataSpecification.enterSpecification(args);
             }
+            else if(input == "16")
+            {
+                Console.WriteLine("Construct your language: ");
+                Automat.makeLanguagesForUnionIntersectionDifference(ref a);
+                Automat res = a.constructComplement();
+                Console.WriteLine("Result: ");
+                res.printStatesAndAlphabet();
+            }
             else if (input == "--exit")
             {
 
@@ -186,15 +194,3 @@ class MainClass
         } while (input != "--exit");
     }
 }
-
-/*string regexp = "ab*ca*";
-Automat b = Automat.makeAutomataFromRegularExpression(regexp);
-b = b.convertENKAtoDKA();
-Console.WriteLine(b.findShortestPath());*/
-
-/*string regex2 = "a*(a+(a*b)c)";
-Automat convert2 = Automat.makeAutomataFromRegularExpression(regex2);
-if(convert2.acceptsENKA("bc"))
-{
-    Console.WriteLine("Accepts!");
-}*/

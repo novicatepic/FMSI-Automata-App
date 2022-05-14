@@ -7,27 +7,14 @@
   "targets": {
     ".NETCoreApp,Version=v5.0": {
       "AutomataLibrary/1.0.0": {
-        "dependencies": {
-          "Projektni-FMSI": "1.0.0"
-        },
         "runtime": {
           "AutomataLibrary.dll": {}
-        }
-      },
-      "Projektni-FMSI/1.0.0": {
-        "runtime": {
-          "Projektni-FMSI.dll": {}
         }
       }
     }
   },
   "libraries": {
     "AutomataLibrary/1.0.0": {
-      "type": "project",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Projektni-FMSI/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

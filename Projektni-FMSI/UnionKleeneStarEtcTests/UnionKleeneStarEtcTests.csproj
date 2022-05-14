@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Projektni-FMSI\Projektni-FMSI.csproj" />
+    <ProjectReference Include="..\Projektni-FMSI\Project-FirstApp.csproj" />
   </ItemGroup>
 
 </Project>

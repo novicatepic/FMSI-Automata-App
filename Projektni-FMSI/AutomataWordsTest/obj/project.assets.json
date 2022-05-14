@@ -1254,14 +1254,27 @@
           "lib/netstandard1.3/System.Xml.XPath.XmlDocument.dll": {}
         }
       },
-      "Projektni-FMSI/1.0.0": {
+      "AutomataLibrary/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v5.0",
         "compile": {
-          "bin/placeholder/Projektni-FMSI.dll": {}
+          "bin/placeholder/AutomataLibrary.dll": {}
         },
         "runtime": {
-          "bin/placeholder/Projektni-FMSI.dll": {}
+          "bin/placeholder/AutomataLibrary.dll": {}
+        }
+      },
+      "Project-FirstApp/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v5.0",
+        "dependencies": {
+          "AutomataLibrary": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/Project-FirstApp.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Project-FirstApp.dll": {}
         }
       }
     }
@@ -4953,10 +4966,15 @@
         "system.xml.xpath.xmldocument.nuspec"
       ]
     },
-    "Projektni-FMSI/1.0.0": {
+    "AutomataLibrary/1.0.0": {
       "type": "project",
-      "path": "../Projektni-FMSI/Projektni-FMSI.csproj",
-      "msbuildProject": "../Projektni-FMSI/Projektni-FMSI.csproj"
+      "path": "../AutomataLibrary/AutomataLibrary.csproj",
+      "msbuildProject": "../AutomataLibrary/AutomataLibrary.csproj"
+    },
+    "Project-FirstApp/1.0.0": {
+      "type": "project",
+      "path": "../Projektni-FMSI/Project-FirstApp.csproj",
+      "msbuildProject": "../Projektni-FMSI/Project-FirstApp.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -4964,7 +4982,7 @@
       "Microsoft.NET.Test.Sdk >= 16.9.4",
       "NUnit >= 3.13.1",
       "NUnit3TestAdapter >= 3.17.0",
-      "Projektni-FMSI >= 1.0.0",
+      "Project-FirstApp >= 1.0.0",
       "coverlet.collector >= 3.0.2"
     ]
   },
@@ -4995,8 +5013,8 @@
         "net5.0": {
           "targetAlias": "net5.0",
           "projectReferences": {
-            "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\Projektni-FMSI\\Projektni-FMSI.csproj": {
-              "projectPath": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\Projektni-FMSI\\Projektni-FMSI.csproj"
+            "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\Projektni-FMSI\\Project-FirstApp.csproj": {
+              "projectPath": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\Projektni-FMSI\\Project-FirstApp.csproj"
             }
           }
         }

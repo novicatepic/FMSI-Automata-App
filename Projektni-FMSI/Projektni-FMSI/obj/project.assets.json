@@ -1,11 +1,30 @@
 {
   "version": 3,
   "targets": {
-    "net5.0": {}
+    "net5.0": {
+      "AutomataLibrary/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v5.0",
+        "compile": {
+          "bin/placeholder/AutomataLibrary.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/AutomataLibrary.dll": {}
+        }
+      }
+    }
   },
-  "libraries": {},
+  "libraries": {
+    "AutomataLibrary/1.0.0": {
+      "type": "project",
+      "path": "../AutomataLibrary/AutomataLibrary.csproj",
+      "msbuildProject": "../AutomataLibrary/AutomataLibrary.csproj"
+    }
+  },
   "projectFileDependencyGroups": {
-    "net5.0": []
+    "net5.0": [
+      "AutomataLibrary >= 1.0.0"
+    ]
   },
   "packageFolders": {
     "C:\\Users\\acivo\\.nuget\\packages\\": {}
@@ -13,9 +32,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\Projektni-FMSI\\Projektni-FMSI.csproj",
-      "projectName": "Projektni-FMSI",
-      "projectPath": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\Projektni-FMSI\\Projektni-FMSI.csproj",
+      "projectUniqueName": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\Projektni-FMSI\\Project-FirstApp.csproj",
+      "projectName": "Project-FirstApp",
+      "projectPath": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\Projektni-FMSI\\Project-FirstApp.csproj",
       "packagesPath": "C:\\Users\\acivo\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\Projektni-FMSI\\obj\\",
       "projectStyle": "PackageReference",
@@ -33,7 +52,11 @@
       "frameworks": {
         "net5.0": {
           "targetAlias": "net5.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\AutomataLibrary\\AutomataLibrary.csproj": {
+              "projectPath": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\AutomataLibrary\\AutomataLibrary.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
