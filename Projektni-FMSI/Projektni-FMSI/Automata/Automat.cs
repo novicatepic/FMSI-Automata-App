@@ -5,18 +5,20 @@ using System.Text;
 using System.Threading.Tasks;
 using Projektni_FMSI;
 using System.IO;
+using Projektni_FMSI.Exceptions;
 
 namespace Projektni_FMSI
 {
     public class Automat
     {
         //everything is public because it was easier to test in main, if I had some extra time, I'd correct it!
-        public Dictionary<(string, char), string> delta = new();
-        public Dictionary<(string, char), List<string>> deltaForEpsilon = new();
-        public HashSet<string> finalStates = new();
-        public string StartState { get; set; }
-        public HashSet<char> alphabet = new();
-        public HashSet<string> states = new();
+        //corrected to private
+        private Dictionary<(string, char), string> delta = new();
+        private Dictionary<(string, char), List<string>> deltaForEpsilon = new();
+        private HashSet<string> finalStates = new();
+        private string StartState { get; set; }
+        private HashSet<char> alphabet = new();
+        private HashSet<string> states = new();
         //when we are working with E-NKA, we use lists, cuz it's possible to have more states to go to with one symbol!
         private List<string>[] listsOfStringsENKA;
         private List<string>[] listOfStringsOtherStates;
@@ -46,41 +48,34 @@ namespace Projektni_FMSI
             string inputWord;
             Console.WriteLine("Enter a word, so that DKA/E-NKA can check if it is valid or not: ");
             inputWord = Console.ReadLine();
-            try
+            if (!checkIfInputWordIsCorrect(inputWord))
             {
-                if (!checkIfInputWordIsCorrect(inputWord))
+                throw new IncorrectInputWordException();
+            }
+            if (!checkIfIsENKA())
+            {
+                //Standard function 
+                if (AcceptsDKA(inputWord))
                 {
-                    throw new Exception("Incorrect input word!");
-                }
-                if (!checkIfIsENKA())
-                {
-                    //Standard function 
-                    if (AcceptsDKA(inputWord))
-                    {
-                        Console.WriteLine("DKA accepted this word ;)!");
-                    }
-                    else
-                    {
-                        Console.WriteLine("DKA didn't accept this word :(!");
-                    }
+                    Console.WriteLine("DKA accepted this word ;)!");
                 }
                 else
                 {
-                    //2 methods, convert to DKA and run, or run directly, you can choose, seconde one probably faster
-                    Automat ENKATODKA = this.convertENKAtoDKA();
-                    if (ENKATODKA.AcceptsDKA(inputWord))
-                    {
-                        Console.WriteLine("ENKA accepted this word ;)!");
-                    }
-                    else
-                    {
-                        Console.WriteLine("ENKA didn't accept this word :(!");
-                    }
+                    Console.WriteLine("DKA didn't accept this word :(!");
                 }
             }
-            catch (Exception e)
+            else
             {
-                Console.WriteLine(e);
+                //2 methods, convert to DKA and run, or run directly, you can choose, seconde one probably faster
+                Automat ENKATODKA = this.convertENKAtoDKA();
+                if (ENKATODKA.AcceptsDKA(inputWord))
+                {
+                    Console.WriteLine("ENKA accepted this word ;)!");
+                }
+                else
+                {
+                    Console.WriteLine("ENKA didn't accept this word :(!");
+                }
             }
         }
 
@@ -101,7 +96,7 @@ namespace Projektni_FMSI
             {
                 if (!alphabet.Contains(symbol))
                 {
-                    throw new Exception("Symbol not in alphabet, exception thrown!");
+                    throw new AlphabetNotContainsException();
                 }
                 List<String> goToStates = new();
                 foreach (var state in traversals)
@@ -355,14 +350,6 @@ namespace Projektni_FMSI
 
             Automat first = new();
             first = convertToDKAIfNecessary();
-
-            /*Console.WriteLine("RESULT: ");
-            first.printStatesAndAlphabet();*/
-
-            /*foreach(var finalState in first.finalStates)
-            {
-                Console.WriteLine(finalState);
-            }*/
 
             try
             {
@@ -689,20 +676,15 @@ namespace Projektni_FMSI
         }
 
         //Self-explanatory
-        private void addTransitionDKA(string currentState, char symbol, string nextState)
+        public void setDelta(string currentState, char symbol, string nextState)
         {
-            try
+
+            if (!states.Contains(currentState) && !states.Contains(nextState) && !alphabet.Contains(symbol))
             {
-                if (!states.Contains(currentState) && !states.Contains(nextState) && !alphabet.Contains(symbol))
-                {
-                    throw new Exception("Invalid input!");
-                }
-                delta[(currentState, symbol)] = nextState;
+                throw new InvalidTransitionInputException();
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
+            delta[(currentState, symbol)] = nextState;
+
         }
 
         //Does DKA accept a certain word?
@@ -713,7 +695,7 @@ namespace Projektni_FMSI
             {
                 if (!alphabet.Contains(symbol))
                 {
-                    throw new Exception("This symbol is not in alphabet, exception thrown!");
+                    throw new AlphabetNotContainsException();
                 }
                 currentState = delta[(currentState, symbol)];
             }
@@ -745,18 +727,19 @@ namespace Projektni_FMSI
             string inputString = "";
             do
             {
-                try
+                inputString = Console.ReadLine();
+                if (inputString != "--exit")
                 {
-                    inputString = Console.ReadLine();
-                    if (inputString != "--exit")
+                    if (inputString.Length > 1)
                     {
-                        char symbol = char.Parse(inputString);
-                        alphabet.Add(symbol);
+                        throw new AlphabetSizeException();
                     }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
+                    char symbol = char.Parse(inputString);
+                    if (symbol.Equals(':'))
+                    {
+                        throw new IncorrectAlphabetSymbolException();
+                    }
+                    alphabet.Add(symbol);
                 }
             } while (inputString != "--exit");
         }
@@ -840,7 +823,7 @@ namespace Projektni_FMSI
                         {
                             if (!checkIfIsENKA())
                             {
-                                addTransitionDKA(state, symbol, nextState + id);
+                                setDelta(state, symbol, nextState + id);
                                 //addTransitionDKA(state, symbol, nextState);
                             }
                             else
@@ -852,7 +835,7 @@ namespace Projektni_FMSI
                         }
                         else
                         {
-                            Console.WriteLine("Destination state doesn't exists, couldn't do what you wanted, sorry!");
+                            Console.WriteLine("Destination state doesn't exists, couldn't do what you wanted, sorry, try again!");
                         }
 
                     }
@@ -881,7 +864,7 @@ namespace Projektni_FMSI
         //Complex logic, list for each state for E-transitions
         //And make list for each state for each symbol in alphabet
         //Then do transitions
-        private void ESwitching(string currentState, char symbol, string nextState)
+        public void ESwitching(string currentState, char symbol, string nextState)
         {
             helpMethodForESwitching();
 
@@ -969,7 +952,7 @@ namespace Projektni_FMSI
         }
 
         //Self explanatory, also prints id 
-        //There is a version that doesn't print id, will implement!
+        //There is a version that doesn't print id!
         public void printStatesAndAlphabet()
         {
 
@@ -1076,7 +1059,7 @@ namespace Projektni_FMSI
                 return false;
             }
 
-            if (!isLanguageFinalHelpFunc() || !secondCheckIfLanguageIsFinal())
+            if (!isLanguageFinalHelpFunc() /*|| !secondCheckIfLanguageIsFinal()*/)
             {
                 return false;
             }
@@ -1116,20 +1099,21 @@ namespace Projektni_FMSI
             return true;
         }
 
-        private bool secondCheckIfLanguageIsFinal()
+        //NOT SURE ABOUT THIS FUNC, TAKE A LOOK LATER
+        /*private bool secondCheckIfLanguageIsFinal()
         {
             int counter = 0;
-            foreach(var finalState in finalStates)
+            foreach (var finalState in finalStates)
             {
-                foreach(var symbol in alphabet)
+                foreach (var symbol in alphabet)
                 {
-                    if(!delta.ContainsKey((finalState, symbol)))
+                    if (!delta.ContainsKey((finalState, symbol)))
                     {
                         counter++;
                     }
                 }
             }
-            if(counter == alphabet.Count)
+            if (counter == alphabet.Count)
             {
                 return false;
             }
@@ -1137,7 +1121,7 @@ namespace Projektni_FMSI
             {
                 return true;
             }
-        }
+        }*/
 
         //Self-explanatory
         //BFS, when we get to a final state, we break, we remember path length
@@ -1262,7 +1246,7 @@ namespace Projektni_FMSI
             }
 
             //If it's not final
-            if (!isLanguageFinalHelpFunc() || !secondCheckIfLanguageIsFinal())
+            if (!isLanguageFinalHelpFunc() /*|| !secondCheckIfLanguageIsFinal()*/)
             {
                 Console.WriteLine("It's infinity, even thought here we don't have infinity, I'll just print out the biggest possible number");
                 return int.MaxValue;
@@ -1989,12 +1973,6 @@ namespace Projektni_FMSI
             return false;
         }
 
-        private static Automat errorInTransformatingRegExpToAutomata()
-        {
-            Console.WriteLine("Automata not created, returning null");
-            return null;
-        }
-
         //Function to find union (a+b) for example
         //Done by definition
         private Automat findUnionBetweenTwoLanguages(Automat other)
@@ -2389,653 +2367,75 @@ namespace Projektni_FMSI
             }
         }*/
 
-        private static HashSet<string> getStringsFromUserFromConsole()
-        {
-            HashSet<string> strings = new();
-            Console.WriteLine("Enter strings, when you decide to stop input --exit!");
-            string input;
-            do
-            {
-                input = Console.ReadLine();
-                if (input != "--exit")
-                {
-                    if (strings.Contains(input))
-                    {
-                        Console.WriteLine("You've already added this string, no need to add it again!");
-                    }
-                    strings.Add(input);
-                }
-                else
-                {
-                    //do nothing
-                }
-            } while (input != "--exit");
-            return strings;
-        }
-
-        private static HashSet<string> getStringsFromUserFromFile()
-        {
-            HashSet<string> strings = new();
-            Console.WriteLine("Enter file name: ");
-            string fileName = Console.ReadLine();
-            try
-            {
-                var path = Path.Combine("./" + fileName + ".txt");
-                string[] elements = File.ReadAllLines(path);
-                Console.WriteLine("Duplicates will not be added!");
-                foreach (var str in elements)
-                {
-                    strings.Add(str);
-                }
-            }
-            catch (IOException e)
-            {
-                Console.WriteLine("Error " + e.Message);
-            }
-            return strings;
-        }
-
-        private static Automat loadAutomataSpecificationFromFile()
-        {
-            //private sealed string AUTOMATA_NAME = "AUTOMATA: "; doesn't work for some reason, wanted to do it this way
-            Automat result = new();
-            Console.WriteLine("Enter file name: ");
-            string fileName = Console.ReadLine();
-            try
-            {
-                var path = Path.Combine("./" + fileName + ".txt");
-                string[] elements = File.ReadAllLines(path);
-                printSpecification(elements);
-                helpMethodForLoadingAutomataSpecificationFromFileOrFromCommandLine(result, elements);
-            }
-            catch (IOException e)
-            {
-                Console.WriteLine("Error " + e.Message);
-            }
-            return result;
-        }
-
-        private static void printSpecification(string[] regularExpression)
-        {
-            for (int i = 0; i < regularExpression.Length; i++)
-            {
-                Console.WriteLine("Line " + i + ": " + regularExpression[i]);
-            }
-        }
-
-        private static Automat loadAutomataSpecificationFromCommandLine(string[] args)
-        {
-            Automat result = new();
-            helpMethodForLoadingAutomataSpecificationFromFileOrFromCommandLine(result, args);
-            return result;
-        }
-
-        private static void helpMethodForLoadingAutomataSpecificationFromFileOrFromCommandLine(Automat result, string[] elements)
-        {
-            List<int> lexicalAnalysis = lexicalAnalysisForAutomata(elements);
-
-            if (lexicalAnalysis.Count > 0)
-            {
-                foreach (var element in lexicalAnalysis)
-                {
-                    Console.WriteLine("Error at line: " + element);
-                }
-                throw new Exception("Can't evaluate expression any further");
-            }
-
-            for (int i = 0; i < elements.Length;)
-            {
-
-                if (elements[i] == "AUTOMATA-STATES:")
-                {
-                    bool firstState = true;
-                    while (elements[i] != "ALPHABET:")
-                    {
-                        i++;
-                        if (elements[i] != "ALPHABET:")
-                        {
-                            if (firstState == true)
-                            {
-                                result.StartState = elements[i];
-                                firstState = false;
-                            }
-                            result.states.Add(elements[i]);
-                        }
-                    }
-                }
-                else if (elements[i] == "ALPHABET:")
-                {
-                    while (elements[i] != "DELTA TRANSITIONS:")
-                    {
-                        i++;
-                        if (elements[i] != "DELTA TRANSITIONS:")
-                        {
-                            //Console.WriteLine(elements[1]);
-                            char symbol = char.Parse(elements[i]);
-                            result.alphabet.Add(symbol);
-                        }
-                    }
-                }
-                else if (elements[i] == "DELTA TRANSITIONS:")
-                {
-                    while (elements[i] != "FINAL STATES:")
-                    {
-                        i++;
-                        if (elements[i] != "FINAL STATES:")
-                        {
-                            string[] splitDelta = elements[i].Split(':');
-                            char symbol = char.Parse(splitDelta[1]);
-                            if (!result.checkIfIsENKA())
-                            {
-                                result.delta[(splitDelta[0], symbol)] = splitDelta[2];
-                            }
-                            else
-                            {
-                                result.ESwitching(splitDelta[0], symbol, splitDelta[2]);
-                            }
-                        }
-                    }
-                }
-                else if (elements[i] == "FINAL STATES:")
-                {
-                    i++;
-                    while (i < elements.Length)
-                    {
-                        result.finalStates.Add(elements[i++]);
-                    }
-                }
-            }
-        }
-
-        private static void loadRegularExpressionFromFile(char flag)
-        {
-            Console.WriteLine("Enter file name: ");
-            string fileName = Console.ReadLine();
-
-            try
-            {
-                var path = Path.Combine("./" + fileName + ".txt");
-                string[] elements = File.ReadAllLines(path);
-                printSpecification(elements);
-                lexicalAnalysisOfRegularExpressionAndEvaluation(elements, flag);
-            }
-            catch (IOException e)
-            {
-                Console.WriteLine("Error " + e.Message);
-            }
-        }
-
-        public static void enterSpecification(string[] args)
-        {
-            Console.WriteLine("Do you want to load specification from file or from console: ");
-            Console.WriteLine("f for file, c for console, cl for command line");
-            string inputLoad;
-            inputLoad = Console.ReadLine();
-            string extraInput;
-            if (inputLoad == "f")
-            {
-                Console.WriteLine("Do you want to load DKA, E-NKA or regular expression (1/2/3): ");
-                extraInput = Console.ReadLine();
-                if (extraInput == "1")
-                {
-                    Automat res = loadAutomataSpecificationFromFile();
-                    HashSet<string> strings = Automat.stringLoaderHelper('f', args);
-                    foreach (var str in strings)
-                    {
-                        doesDKAAccept(res, str);
-                    }
-                }
-                else if (extraInput == "2")
-                {
-                    Automat res = loadAutomataSpecificationFromFile();
-                    HashSet<string> strings = Automat.stringLoaderHelper('f', args);
-                    foreach (var str in strings)
-                    {
-                        doesENKAAccept(res, str);
-                    }
-                }
-                else if (extraInput == "3")
-                {
-                    loadRegularExpressionFromFile('f');
-                }
-                else
-                {
-                    Console.WriteLine("Wrong option, sorry!");
-                }
-            }
-            else if (inputLoad == "c")
-            {
-                Console.WriteLine("Do you want to load DKA, E-NKA or regular expression (1/2/3): ");
-                extraInput = Console.ReadLine();
-                if (extraInput == "1")
-                {
-                    string[] loadFromConsole = loadAutomataFromConsole();
-                    printSpecification(loadFromConsole);
-                    Automat automat = new();
-                    HashSet<string> strings = Automat.stringLoaderHelper('c', args);
-                    helpMethodForLoadingAutomataSpecificationFromFileOrFromCommandLine(automat, loadFromConsole);
-
-                    foreach (var str in strings)
-                    {
-                        doesDKAAccept(automat, str);
-                    }
-
-                }
-                else if (extraInput == "2")
-                {
-                    string[] loadFromConsole = loadAutomataFromConsole();
-                    printSpecification(loadFromConsole);
-                    Automat automat = new();
-                    HashSet<string> strings = Automat.stringLoaderHelper('c', args);
-                    helpMethodForLoadingAutomataSpecificationFromFileOrFromCommandLine(automat, loadFromConsole);
-
-                    foreach (var str in strings)
-                    {
-                        doesENKAAccept(automat, str);
-                    }
-                }
-                else if (extraInput == "3")
-                {
-                    Console.WriteLine("NOTE: Each line corresponds to ONE operator or ONE operand");
-                    Console.WriteLine("If you want to stop, input --exit!");
-                    Console.WriteLine("Enter your regular expression which you want to evaluate: ");
-                    List<string> regularExpressionHelper = new();
-                    string userInput;
-                    do
-                    {
-                        userInput = Console.ReadLine();
-                        if (userInput != "--exit")
-                        {
-                            regularExpressionHelper.Add(userInput);
-                        }
-                    } while (userInput != "--exit");
-                    string[] regularExpression = new string[regularExpressionHelper.Count];
-                    for (int i = 0; i < regularExpression.Length; i++)
-                    {
-                        regularExpression[i] = regularExpressionHelper.ElementAt(i);
-                    }
-                    printSpecification(regularExpression);
-                    lexicalAnalysisOfRegularExpressionAndEvaluation(regularExpression, 'c');
-                }
-                else
-                {
-                    Console.WriteLine("Wrong option, sorry!");
-                }
-            }
-            else if (inputLoad == "cl")
-            {
-                Console.WriteLine("Do you want to load DKA, E-NKA or regular expression (1/2/3): ");
-                extraInput = Console.ReadLine();
-                if (extraInput == "1")
-                {
-                    printSpecification(args);
-                    Automat result = loadAutomataSpecificationFromCommandLine(args);
-                    HashSet<string> strings = Automat.stringLoaderHelper('l', args);
-                    foreach (var str in strings)
-                    {
-                        doesDKAAccept(result, str);
-                    }
-                }
-                else if (extraInput == "2")
-                {
-                    printSpecification(args);
-                    Automat result = loadAutomataSpecificationFromCommandLine(args);
-                    HashSet<string> strings = Automat.stringLoaderHelper('l', args);
-                    foreach (var str in strings)
-                    {
-                        doesENKAAccept(result, str);
-                    }
-                }
-                else if (extraInput == "3")
-                {
-                    printSpecification(args);
-                    lexicalAnalysisOfRegularExpressionAndEvaluation(args, 'l');
-                }
-                else
-                {
-                    Console.WriteLine("Wrong option, sorry!");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Wrong option, sorry");
-            }
-        }
-
-        private static void lexicalAnalysisOfRegularExpressionAndEvaluation(string[] args, char flag)
-        {
-            List<int> lexicalAnalysis = lexicalAnalysisForRegularExpression(args);
-
-            if (lexicalAnalysis.Count != 0)
-            {
-                Console.WriteLine("Errors at lines: ");
-                foreach (var error in lexicalAnalysis)
-                {
-                    Console.WriteLine(error);
-                }
-                throw new Exception("Can't be evaluated!");
-            }
-
-            string regularExpression = "";
-            foreach (var element in args)
-            {
-                regularExpression += element;
-            }
-            helpFunctionForRegularExpressions(regularExpression, flag, args);
-        }
-
-        private static void helpFunctionForRegularExpressions(string regularExpression, char flag, string[] args)
-        {
-            Automat transform = Automat.makeAutomataFromRegularExpression(regularExpression);
-            HashSet<string> load = loadStringsForRegularExpression(flag, args);
-
-            bool isDKA = false;
-            if (!transform.checkIfIsENKA())
-            {
-                isDKA = true;
-            }
-            foreach (var word in load)
-            {
-                if (isDKA)
-                {
-                    doesDKAAccept(transform, word);
-                }
-                else
-                {
-                    doesENKAAccept(transform, word);
-                }
-            }
-        }
-
-        private static void doesENKAAccept(Automat res, string str)
-        {
-            if (res.acceptsENKA(str))
-            {
-                Console.WriteLine("Word " + str + " accepted!");
-            }
-            else
-            {
-                Console.WriteLine("Word " + str + " not accepted!");
-            }
-        }
-
-        private static void doesDKAAccept(Automat res, string str)
-        {
-            if (res.AcceptsDKA(str))
-            {
-                Console.WriteLine("Word " + str + " accepted!");
-            }
-            else
-            {
-                Console.WriteLine("Word " + str + " not accepted!");
-            }
-        }
-
-        private static HashSet<string> loadStringsForRegularExpression(char flag, string[] args)
-        {
-            HashSet<string> loadStrings = new();
-            loadStrings = stringLoaderHelper(flag, args);
-            return loadStrings;
-        }
-
-        private static string[] loadAutomataFromConsole()
-        {
-            List<string> helpForString = new();
-
-            helpForString.Add("AUTOMATA-STATES:");
-            Console.WriteLine("Enter states, if you want to stop, enter --exit!");
-            string input;
-            do
-            {
-                Console.WriteLine("Enter state: ");
-                input = Console.ReadLine();
-                if (input != "--exit")
-                {
-                    helpForString.Add(input);
-                }
-            } while (input != "--exit");
-
-            helpForString.Add("ALPHABET:");
-            Console.WriteLine("Enter alphabet, if you want to stop, enter --exit!");
-            do
-            {
-                Console.WriteLine("Enter symbol: ");
-                input = Console.ReadLine();
-                if (input != "--exit")
-                {
-                    helpForString.Add(input);
-                }
-            } while (input != "--exit");
-
-            helpForString.Add("DELTA TRANSITIONS:");
-            do
-            {
-                Console.WriteLine("Enter start state: ");
-                input = Console.ReadLine();
-                if (input != "--exit")
-                {
-                    string temp = "";
-                    temp += input;
-                    temp += ":";
-                    Console.WriteLine("Enter symbol from alphabet: ");
-                    input = Console.ReadLine();
-                    temp += input;
-                    temp += ":";
-                    Console.WriteLine("Enter destination state: ");
-                    input = Console.ReadLine();
-                    temp += input;
-                    helpForString.Add(temp);
-                }
-            } while (input != "--exit");
-
-            helpForString.Add("FINAL STATES:");
-            do
-            {
-                Console.WriteLine("Enter final state: ");
-                input = Console.ReadLine();
-                if (input != "--exit")
-                {
-                    helpForString.Add(input);
-                }
-            } while (input != "--exit");
-
-            string[] loadedAutomata = new string[helpForString.Count];
-
-            for (int i = 0; i < loadedAutomata.Length; i++)
-            {
-                loadedAutomata[i] = helpForString.ElementAt(i);
-            }
-
-            return loadedAutomata;
-        }
-
-        private static HashSet<string> stringLoaderHelper(char flag, string[] args)
-        {
-            HashSet<string> strings;
-            Console.WriteLine("Do you want to load strings from console (c), or from file (f), or from command line(cl): ");
-            string whereToLoadFrom = Console.ReadLine();
-            strings = new();
-            if (whereToLoadFrom == "c" && flag != 'c')
-            {
-                strings = Automat.getStringsFromUserFromConsole();
-            }
-            else if (whereToLoadFrom == "f" && flag != 'f')
-            {
-                strings = Automat.getStringsFromUserFromFile();
-            }
-            else if (whereToLoadFrom == "cl" && flag != 'l')
-            {
-                strings = Automat.getStringsFromCommandLine(args);
-            }
-            else
-            {
-                throw new Exception("You can't read specification and strings from the same location or you messed up input!");
-            }
-
-            return strings;
-        }
-
-        private static HashSet<string> getStringsFromCommandLine(string[] args)
-        {
-            HashSet<string> strings = new();
-            foreach (var element in args)
-            {
-                strings.Add(element);
-            }
-            return strings;
-        }
-
-        public static List<int> lexicalAnalysisForRegularExpression(string[] regularExpression)
-        {
-            List<int> errorsFound = new();
-
-            for (int i = 0; i < regularExpression.Length; i++)
-            {
-                if (regularExpression[i].Length > 1)
-                {
-                    errorsFound.Add(i);
-                }
-                else
-                {
-                    char element = char.Parse(regularExpression[i]);
-                    if (!((element >= 'a' && element <= 'z') || (element >= 'A' && element <= 'Z') ||
-                        (element >= '0' && element <= '9') || (element == '*') || (element == '+') || (element == '(') || (element == ')')))
-                    {
-                        errorsFound.Add(i);
-                    }
-                }
-            }
-
-            return errorsFound;
-        }
-
-        public static List<int> tryLexicalAnalysis(string[] regularExpression)
-        {
-            List<int> errorsFound = new();
-            LexicalAnalysis lexicalAnalysis = new(regularExpression);
-            errorsFound = lexicalAnalysis.lexicalAnalysisForRegularExpression(regularExpression);
-
-            foreach(var error in errorsFound)
-            {
-                Console.WriteLine("Error at line: " + error);
-            }
-
-            return errorsFound;
-        }
-
-        private static bool checkIfStateIsCorrect(string state)
-        {
-            for(int i = 0; i < state.Length; i++)
-            {
-                if (!(state[i] >= '0' && state[i] <= '9') && !(state[i] >= 'a' && state[i] <= 'z') && !(state[i] >= 'A' && state[i] <= 'Z'))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        private static bool checkIfSymbolInAlphabetIsCorrect(string symbol)
-        {
-            if(symbol.Length > 1 || (symbol.Length == 1 && symbol[0] == ':'))
-            {
-                return false;
-            }
-            return true;
-        }
-
-        public static List<int> lexicalAnalysisForAutomata(string[] automataIntoString)
-        {
-            List<int> errorsFound = new();
-            int i = 0;
-            //HashSet<string> rememberStates = new();
-            //HashSet<char> rememberAlphabet = new();
-            while (i < automataIntoString.Length)
-            {
-                if (automataIntoString[i] == "AUTOMATA-STATES:")
-                {
-                    i++;
-                    while (automataIntoString[i] != "ALPHABET:")
-                    {
-                        string state = automataIntoString[i];
-                        if(!checkIfStateIsCorrect(state) && !errorsFound.Contains(i))
-                        {
-                            errorsFound.Add(i);
-                        }
-                        //rememberStates.Add(automataIntoString[i]);
-                        i++;
-                    }
-                }
-                if (automataIntoString[i] == "ALPHABET:")
-                {
-                    i++;
-                    while (automataIntoString[i] != "DELTA TRANSITIONS:")
-                    {
-                        if (!checkIfSymbolInAlphabetIsCorrect(automataIntoString[i]))
-                        {
-                            errorsFound.Add(i);
-                        }
-                        else
-                        {
-                            //rememberAlphabet.Add(char.Parse(automataIntoString[i]));
-                        }
-                        i++;
-                    }
-                }
-                if (automataIntoString[i] == "DELTA TRANSITIONS:")
-                {
-                    i++;
-                    while (automataIntoString[i] != "FINAL STATES:")
-                    {
-                        string[] splitElements = automataIntoString[i].Split(":");
-                        if ((splitElements.Length != 3) && !errorsFound.Contains(i))
-                        {
-                            errorsFound.Add(i);
-                        }
-                        if(splitElements.Length == 3)
-                        {
-                            string state1 = splitElements[0];
-                            string state2 = splitElements[2];
-                            string alphabetSymbol = splitElements[1];
-                            if((!checkIfStateIsCorrect(state1) || !checkIfStateIsCorrect(state2) || !checkIfSymbolInAlphabetIsCorrect(alphabetSymbol)) && !errorsFound.Contains(i))
-                            {
-                                errorsFound.Add(i);
-                            }
-                        }
-                        i++;
-                    }
-                }
-                if (automataIntoString[i] == "FINAL STATES:")
-                {
-                    i++;
-                    while (i < automataIntoString.Length)
-                    {
-                        if(!checkIfStateIsCorrect(automataIntoString[i]))
-                        {
-                            errorsFound.Add(i);
-                        }
-                        /*if (!rememberStates.Contains(automataIntoString[i]))
-                        {
-                            errorsFound.Add(i);
-                        }*/
-                        i++;
-                    }
-                }
-            }
-
-            return errorsFound;
-        }
-
         public bool checkIfStateHasCycle(string state)
         {
-            foreach(var symbol in alphabet)
+            foreach (var symbol in alphabet)
             {
-                if(delta.ContainsKey((state, symbol)) && delta[(state, symbol)] == state)
+                if (delta.ContainsKey((state, symbol)) && delta[(state, symbol)] == state)
                 {
                     return true;
                 }
             }
             return false;
+        }
+
+        public HashSet<string> getFinalStates()
+        {
+            return finalStates;
+        }
+
+        public void setFinalState(string state)
+        {
+            if(states.Contains(state))
+            {
+                finalStates.Add(state);
+            }
+            else
+            {
+                throw new StateNotPresentException();
+            }
+        }
+
+        public Dictionary<(string, char), string> getDelta()
+        {
+            return delta;
+        }
+
+        public string getElementBasedOnDelta(string state, char symbol)
+        {
+            return delta[(state, symbol)];
+        }
+
+        public void setStartState(string state)
+        {
+            StartState = state;
+        }
+
+        public void setSymbolInAlphabet(char symbol)
+        {
+            if(symbol == ':')
+            {
+                throw new IncorrectAlphabetSymbolException();
+            }
+            alphabet.Add(symbol);
+        }
+
+        public void setAlphabet(HashSet<char> alphabet)
+        {
+            foreach(var symbol in alphabet)
+            {
+                this.alphabet.Add(symbol);
+            }
+        }
+
+        public HashSet<string> getStates()
+        {
+            return states;
+        } 
+
+        public void addState(string state)
+        {
+            states.Add(state);
         }
 
     }

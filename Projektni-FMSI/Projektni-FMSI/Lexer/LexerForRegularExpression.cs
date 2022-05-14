@@ -25,7 +25,6 @@ namespace Projektni_FMSI
             else if(sourcePosition > source.Length)
             {
                 return null;
-                //throw new TokenException();
             }
 
             while(sourcePosition < source.Length && source[sourcePosition] == "")
@@ -64,14 +63,11 @@ namespace Projektni_FMSI
             }
 
             sourcePosition++;
+
+            
+
             return null;
-            //throw new TokenException();
 
-        }
-
-        public int getSourcePosition() 
-        {
-            return sourcePosition;
         }
     }
 }

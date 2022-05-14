@@ -11,5 +11,10 @@ namespace Projektni_FMSI
         protected int sourcePosition;
 
         public abstract IToken Next();
+
+        public int getSourcePosition()
+        {
+            return sourcePosition;
+        }
     }
 }

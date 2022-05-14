@@ -11,5 +11,17 @@ namespace Projektni_FMSI
         public string Type { get; set; }
         public string Value { get; set; }
 
+        public void printToken()
+        {
+            if(Value.Equals(null))
+            {
+                Console.WriteLine("\nToken type: " + Type + "\nToken value: null");
+            }
+            else
+            {
+                Console.WriteLine("\nToken type: " + Type + "\nToken value: " + Value);
+            }
+        }
+
     }
 }

@@ -6,8 +6,4 @@
     <RootNamespace>Projektni_FMSI</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Exceptions\" />
-  </ItemGroup>
-
 </Project>

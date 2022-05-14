@@ -5,7 +5,7 @@ using System.IO;
 
 //Automat.enterSpecification();
 
-/*class MainClass
+class MainClass
 {
     static void Main(string[] args)
     {
@@ -165,7 +165,7 @@ using System.IO;
             }
             else if (input == "15")
             {
-                Automat.enterSpecification(args);
+                AutomataSpecification.enterSpecification(args);
             }
             else if (input == "--exit")
             {
@@ -177,11 +177,13 @@ using System.IO;
             }
         } while (input != "--exit");
     }
-}*/
+}
 
-var path = Path.Combine("./" + "regexp" + ".txt");
-string[] elements = File.ReadAllLines(path);
-List <int> list = Automat.tryLexicalAnalysis(elements);
+//var path = Path.Combine("./" + "newdoc" + ".txt");
+//string[] elements = File.ReadAllLines(path);
+/*LexicalAnalysis lexicalAnalysis = new(elements);
+bool res = lexicalAnalysis.lexicalAnalysisForAutomata(elements);*/
+
 
 //Automat g = new();
 //Automat a = new(), b = new();

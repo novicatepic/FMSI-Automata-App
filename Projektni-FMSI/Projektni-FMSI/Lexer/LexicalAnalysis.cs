@@ -15,20 +15,63 @@ namespace Projektni_FMSI
             stringToAnalayse = analyseString;
         }
 
-        public List<int> lexicalAnalysisForRegularExpression(string[] regularExpression)
+        public bool lexicalAnalysisForRegularExpression(string[] regularExpression)
         {
-            List<int> errorsFound = new();
+            bool errorFound = false;
             LexerForRegularExpression lexer = new(regularExpression);
+            bool temp = true;
 
-            while(lexer.Next().Type != "EOF")
+            while(temp)
             {
-                if(lexer.Next() == null)
+                TokenRegEx token = lexer.Next();
+                if (token == null)
                 {
-                    errorsFound.Add(lexer.getSourcePosition());
+                    errorFound = true;
+                    Console.WriteLine();
+                    Console.WriteLine("Error at line: " + (lexer.getSourcePosition() - 1));
+                    Console.WriteLine();
+                }
+                else if (token.Type.Equals("EOF"))
+                {
+                    temp = false;
+                }
+                else
+                {
+                    Console.Write("Token recognized at line :" + (lexer.getSourcePosition() - 1));
+                    token.printToken();
+                    Console.WriteLine();
                 }
             }
 
-            return errorsFound;
+            return errorFound;
+        }
+
+        public bool lexicalAnalysisForAutomata(string[] automataExpression)
+        {
+            bool errorFound = false;
+            LexerForAutomata lexer = new(automataExpression);
+            bool temp = true;
+
+            while(temp)
+            {
+                TokenAutomata token = lexer.Next();
+                if(token == null)
+                {
+                    errorFound = true;
+                    Console.WriteLine("Error at line: " + (lexer.getSourcePosition() - 1));
+                }
+                else if(token.Type.Equals("EOF"))
+                {
+                    temp = false;
+                }
+                else
+                {
+                    Console.Write("Token recognized at line :" + (lexer.getSourcePosition() - 1));
+                    token.printToken();
+                    Console.WriteLine();
+                }
+            }
+            return errorFound;
         }
     }
 }

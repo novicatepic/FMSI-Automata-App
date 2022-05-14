@@ -129,18 +129,18 @@ namespace Projektni_FMSI
             HashSet<string> rememberAllAlreadyVisited = new();
             List<List<bool>> checkIfCycleExistsSomewhere = new List<List<bool>>();
 
-            for(int i = 0; i < visit.states.Count; i++)
+            for(int i = 0; i < visit.getStates().Count; i++)
             {
                 checkIfCycleExistsSomewhere.Add(new List<bool>());
             } 
 
-            for (int i = 0; i < visit.states.Count; i++)
+            for (int i = 0; i < visit.getStates().Count; i++)
             {
                 whichOnesWereVisited.Add(new HashSet<string>());
             }
 
-            whichOnesWereVisited.ElementAt(0).Add(visit.StartState);
-            if(visit.checkIfStateHasCycle(visit.StartState))
+            whichOnesWereVisited.ElementAt(0).Add(visit.getStartState());
+            if(visit.checkIfStateHasCycle(visit.getStartState()))
             {
                 checkIfCycleExistsSomewhere.ElementAt(0).Add(true);
             }
@@ -149,7 +149,7 @@ namespace Projektni_FMSI
                 checkIfCycleExistsSomewhere.ElementAt(0).Add(false);
             }
 
-            queue.Enqueue(visit.StartState);
+            queue.Enqueue(visit.getStartState());
             int counterForSortedSet = 1;
 
             while (queue.Count > 0)
@@ -196,7 +196,7 @@ namespace Projektni_FMSI
                 }
                 counterForSortedSet++;
 
-                Console.WriteLine("Which ones were visited: ");
+                /*Console.WriteLine("Which ones were visited: ");
                 for(int i = 0; i < nodes.Length; i++)
                 {
                     foreach(var element in whichOnesWereVisited.ElementAt(i))
@@ -216,7 +216,7 @@ namespace Projektni_FMSI
                     }
                     Console.WriteLine();
                 }
-                Console.WriteLine();
+                Console.WriteLine();*/
 
                 /*Console.WriteLine("Remember all already visited: ");
                 foreach(var elem in rememberAllAlreadyVisited)
@@ -235,7 +235,7 @@ namespace Projektni_FMSI
                 foreach (var element in queue)
                 {
                     int wordLength = 0;
-                    if (visit.finalStates.Contains(element))
+                    if (visit.getFinalStates().Contains(element))
                     {
                         for (int g = 0; g < whichOnesWereVisited.Count; g++)
                         {
@@ -305,9 +305,12 @@ namespace Projektni_FMSI
             queue.Enqueue(automata.getStartState());
             SortedSet<char> alphabetSorted = automata.sortAutomataAlphabet();
             HashSet<char> alphabetS = new HashSet<char>(alphabetSorted);
-            resultAutomat.alphabet = alphabetS;
-            resultAutomat.StartState = "a0";
-            resultAutomat.states.Add("a0");
+            //resultAutomat.alphabet = alphabetS;
+            resultAutomat.setAlphabet(alphabetS);
+            //resultAutomat.StartState = "a0";
+            resultAutomat.setStartState("a0");
+            //resultAutomat.states.Add("a0");
+            resultAutomat.addState("a0");
             int counter = 0;
 
             while (queue.Count > 0)
@@ -316,19 +319,23 @@ namespace Projektni_FMSI
                 string newStateName = "a" + counter;
                 if (newStateName != "a0")
                 {
-                    resultAutomat.states.Add(newStateName);
+                    //resultAutomat.states.Add(newStateName);
+                    resultAutomat.addState(newStateName);
                 }
                 originalSet.Add(temp);
-                if (automata.finalStates.Contains(temp))
+                if (automata.getFinalStates().Contains(temp))
                 {
-                    resultAutomat.finalStates.Add(newStateName);
+                    resultAutomat.setFinalState(newStateName);
+                    //resultAutomat.finalStates.Add(newStateName);
                 }
                 counter++;
                 resultSet.Add(newStateName);
                 foreach (char symbol in alphabetSorted)
                 {
-                    if (!queue.Contains(automata.delta[(temp, symbol)]) && !originalSet.Contains(automata.delta[(temp, symbol)]))
-                        queue.Enqueue(automata.delta[(temp, symbol)]);
+                    /*if (!queue.Contains(automata.delta[(temp, symbol)]) && !originalSet.Contains(automata.delta[(temp, symbol)]))
+                        queue.Enqueue(automata.delta[(temp, symbol)]);*/
+                    if (!queue.Contains(automata.getDelta()[(temp, symbol)]) && !originalSet.Contains(automata.getElementBasedOnDelta(temp, symbol)))
+                        queue.Enqueue(automata.getDelta()[(temp, symbol)]);
                 }
             }
 
@@ -337,7 +344,7 @@ namespace Projektni_FMSI
                 foreach (var symbol in alphabetSorted)
                 {
                     int j;
-                    string tempState = automata.delta[(originalSet.ElementAt(i), symbol)];
+                    string tempState = automata.getDelta()[(originalSet.ElementAt(i), symbol)];//delta[(originalSet.ElementAt(i), symbol)];
                     for (j = 0; j < originalSet.Count; j++)
                     {
                         if (tempState == originalSet.ElementAt(j))
@@ -345,7 +352,8 @@ namespace Projektni_FMSI
                             break;
                         }
                     }
-                    resultAutomat.delta[(resultSet.ElementAt(i), symbol)] = resultSet.ElementAt(j);
+                    //resultAutomat.delta[(resultSet.ElementAt(i), symbol)] = resultSet.ElementAt(j);
+                    resultAutomat.setDelta(resultSet.ElementAt(i), symbol, resultSet.ElementAt(j));
                 }
             }
 
@@ -360,29 +368,33 @@ namespace Projektni_FMSI
         public bool minimiseAutomataHelper(Automat a)
         {
             bool checkIfThereIsNone = false;
-            for (int i = 0; i < a.states.Count; i++)
+            for (int i = 0; i < a.getStates().Count; i++)
             {
-                for (int j = 0; j < a.states.Count; j++)
+                for (int j = 0; j < a.getStates().Count; j++)
                 {
                     if (ms[i, j] != -1 && ms[i, j] != 1)
                     {
-                        foreach (var symbol in a.alphabet)
+                        foreach (var symbol in a.getAlphabet())
                         {
                             //ADDED FIRST ROW
-                            if (a.delta.ContainsKey((nodes.ElementAt(i), symbol)) && a.delta.ContainsKey((nodes.ElementAt(j), symbol)) &&
-                                nodes.Contains(a.delta[(nodes.ElementAt(i), symbol)]) && nodes.Contains(a.delta[(nodes.ElementAt(j), symbol)]))
+                            //if (a.delta.ContainsKey((nodes.ElementAt(i), symbol)) && a.delta.ContainsKey((nodes.ElementAt(j), symbol)) &&
+                                //nodes.Contains(a.delta[(nodes.ElementAt(i), symbol)]) && nodes.Contains(a.delta[(nodes.ElementAt(j), symbol)]))
+                            if(a.getDelta().ContainsKey((nodes.ElementAt(i), symbol)) && a.getDelta().ContainsKey((nodes.ElementAt(j), symbol)) &&
+                                nodes.Contains(a.getDelta()[(nodes.ElementAt(i), symbol)]) && nodes.Contains(a.getDelta()[(nodes.ElementAt(j), symbol)]))
                             {
-                                string firstState = a.delta[(nodes.ElementAt(i), symbol)];
-                                string secondState = a.delta[(nodes.ElementAt(j), symbol)];
+                                //string firstState = a.delta[(nodes.ElementAt(i), symbol)];
+                                //string secondState = a.delta[(nodes.ElementAt(j), symbol)];
+                                string firstState = a.getDelta()[(nodes.ElementAt(i), symbol)];
+                                string secondState = a.getDelta()[(nodes.ElementAt(j), symbol)];
                                 int position1, position2;
-                                for (position1 = 0; position1 < a.states.Count; position1++)
+                                for (position1 = 0; position1 < a.getStates().Count; position1++)
                                 {
                                     if (nodes.ElementAt(position1) == firstState)
                                     {
                                         break;
                                     }
                                 }
-                                for (position2 = 0; position2 < a.states.Count; position2++)
+                                for (position2 = 0; position2 < a.getStates().Count; position2++)
                                 {
                                     if (nodes.ElementAt(position2) == secondState)
                                     {
