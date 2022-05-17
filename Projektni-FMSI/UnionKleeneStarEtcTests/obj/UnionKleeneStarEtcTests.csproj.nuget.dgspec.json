@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\UnionKleeneStarEtcTests\\UnionKleeneStarEtcTests.csproj": {}
+    "C:\\Users\\User\\Desktop\\формалне-пројекат\\projekat\\Projektni-FMSI\\UnionKleeneStarEtcTests\\UnionKleeneStarEtcTests.csproj": {}
   },
   "projects": {
-    "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\AutomataLibrary\\AutomataLibrary.csproj": {
+    "C:\\Users\\User\\Desktop\\формалне-пројекат\\projekat\\Projektni-FMSI\\AutomataLibrary\\AutomataLibrary.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\AutomataLibrary\\AutomataLibrary.csproj",
+        "projectUniqueName": "C:\\Users\\User\\Desktop\\формалне-пројекат\\projekat\\Projektni-FMSI\\AutomataLibrary\\AutomataLibrary.csproj",
         "projectName": "AutomataLibrary",
-        "projectPath": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\AutomataLibrary\\AutomataLibrary.csproj",
-        "packagesPath": "C:\\Users\\acivo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\AutomataLibrary\\obj\\",
+        "projectPath": "C:\\Users\\User\\Desktop\\формалне-пројекат\\projekat\\Projektni-FMSI\\AutomataLibrary\\AutomataLibrary.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\User\\Desktop\\формалне-пројекат\\projekat\\Projektni-FMSI\\AutomataLibrary\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\acivo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -54,21 +58,25 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.405\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.201\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\Projektni-FMSI\\Project-FirstApp.csproj": {
+    "C:\\Users\\User\\Desktop\\формалне-пројекат\\projekat\\Projektni-FMSI\\Projektni-FMSI\\Project-FirstApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\Projektni-FMSI\\Project-FirstApp.csproj",
+        "projectUniqueName": "C:\\Users\\User\\Desktop\\формалне-пројекат\\projekat\\Projektni-FMSI\\Projektni-FMSI\\Project-FirstApp.csproj",
         "projectName": "Project-FirstApp",
-        "projectPath": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\Projektni-FMSI\\Project-FirstApp.csproj",
-        "packagesPath": "C:\\Users\\acivo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\Projektni-FMSI\\obj\\",
+        "projectPath": "C:\\Users\\User\\Desktop\\формалне-пројекат\\projekat\\Projektni-FMSI\\Projektni-FMSI\\Project-FirstApp.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\User\\Desktop\\формалне-пројекат\\projekat\\Projektni-FMSI\\Projektni-FMSI\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\acivo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -82,8 +90,8 @@
           "net5.0": {
             "targetAlias": "net5.0",
             "projectReferences": {
-              "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\AutomataLibrary\\AutomataLibrary.csproj": {
-                "projectPath": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\AutomataLibrary\\AutomataLibrary.csproj"
+              "C:\\Users\\User\\Desktop\\формалне-пројекат\\projekat\\Projektni-FMSI\\AutomataLibrary\\AutomataLibrary.csproj": {
+                "projectPath": "C:\\Users\\User\\Desktop\\формалне-пројекат\\projekat\\Projektni-FMSI\\AutomataLibrary\\AutomataLibrary.csproj"
               }
             }
           }
@@ -107,26 +115,36 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[5.0.15, 5.0.15]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.405\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.201\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\UnionKleeneStarEtcTests\\UnionKleeneStarEtcTests.csproj": {
+    "C:\\Users\\User\\Desktop\\формалне-пројекат\\projekat\\Projektni-FMSI\\UnionKleeneStarEtcTests\\UnionKleeneStarEtcTests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\UnionKleeneStarEtcTests\\UnionKleeneStarEtcTests.csproj",
+        "projectUniqueName": "C:\\Users\\User\\Desktop\\формалне-пројекат\\projekat\\Projektni-FMSI\\UnionKleeneStarEtcTests\\UnionKleeneStarEtcTests.csproj",
         "projectName": "UnionKleeneStarEtcTests",
-        "projectPath": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\UnionKleeneStarEtcTests\\UnionKleeneStarEtcTests.csproj",
-        "packagesPath": "C:\\Users\\acivo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\UnionKleeneStarEtcTests\\obj\\",
+        "projectPath": "C:\\Users\\User\\Desktop\\формалне-пројекат\\projekat\\Projektni-FMSI\\UnionKleeneStarEtcTests\\UnionKleeneStarEtcTests.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\User\\Desktop\\формалне-пројекат\\projekat\\Projektni-FMSI\\UnionKleeneStarEtcTests\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\acivo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -140,8 +158,8 @@
           "net5.0": {
             "targetAlias": "net5.0",
             "projectReferences": {
-              "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\Projektni-FMSI\\Project-FirstApp.csproj": {
-                "projectPath": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\Projektni-FMSI\\Project-FirstApp.csproj"
+              "C:\\Users\\User\\Desktop\\формалне-пројекат\\projekat\\Projektni-FMSI\\Projektni-FMSI\\Project-FirstApp.csproj": {
+                "projectPath": "C:\\Users\\User\\Desktop\\формалне-пројекат\\projekat\\Projektni-FMSI\\Projektni-FMSI\\Project-FirstApp.csproj"
               }
             }
           }
@@ -188,7 +206,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.405\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.201\\RuntimeIdentifierGraph.json"
         }
       }
     }

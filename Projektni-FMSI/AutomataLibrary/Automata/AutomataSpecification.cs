@@ -114,7 +114,7 @@ namespace Projektni_FMSI
                     while (elements[i] != "ALPHABET:")
                     {
                         i++;
-                        if (elements[i] != "ALPHABET:")
+                        if (elements[i] != "ALPHABET:" && elements[i].Length > 0)
                         {
                             if (firstState == true)
                             {
@@ -132,7 +132,7 @@ namespace Projektni_FMSI
                     while (elements[i] != "DELTA TRANSITIONS:")
                     {
                         i++;
-                        if (elements[i] != "DELTA TRANSITIONS:")
+                        if (elements[i] != "DELTA TRANSITIONS:" && elements[i].Length > 0)
                         {
                             //Console.WriteLine(elements[1]);
                             char symbol = char.Parse(elements[i]);
@@ -146,7 +146,7 @@ namespace Projektni_FMSI
                     while (elements[i] != "FINAL STATES:")
                     {
                         i++;
-                        if (elements[i] != "FINAL STATES:")
+                        if (elements[i] != "FINAL STATES:" && elements[i].Length > 0)
                         {
                             string[] splitDelta = elements[i].Split(':');
                             char symbol = char.Parse(splitDelta[1]);

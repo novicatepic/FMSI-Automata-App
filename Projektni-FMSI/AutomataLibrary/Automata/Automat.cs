@@ -193,7 +193,7 @@ namespace Projektni_FMSI
                 }
             }
 
-            //result = result.minimiseAutomata();
+            result = result.minimiseAutomata();
 
             return result;
         }
@@ -293,6 +293,8 @@ namespace Projektni_FMSI
                 }
             }
 
+            result = result.minimiseAutomata();
+
             return result;
         }
 
@@ -343,6 +345,8 @@ namespace Projektni_FMSI
 
                 }
             }
+
+            result = result.minimiseAutomata();
 
             return result;
         }
@@ -1927,7 +1931,112 @@ namespace Projektni_FMSI
                 }
             }
 
+            makeMinimisedAutomataWithoutSeparators(minimized);
+
+            //minimized.delta = newDelta;
+
             return minimized;
+        }
+
+        private void makeMinimisedAutomataWithoutSeparators(Automat minimized)
+        {
+            HashSet<string> newStates = new();
+            HashSet<string> newFinalSt = new();
+            Dictionary<(string, char), string> newDelta = new();
+            foreach (var state in minimized.states)
+            {
+                bool isFinalState = false;
+                bool isStartState = false;
+                string temp = "";
+                if (state.Contains(':'))
+                {
+                    string[] splitStates = state.Split(':');
+                    foreach (var s in splitStates)
+                    {
+                        if (StartState.Contains(s))
+                        {
+                            isStartState = true;
+                        }
+                        if (finalStates.Contains(s))
+                        {
+                            isFinalState = true;
+                        }
+                        if (s != "")
+                            temp += s;
+                    }
+                    newStates.Add(temp);
+                    if (isFinalState)
+                    {
+                        newFinalSt.Add(temp);
+                        isFinalState = false;
+                    }
+                    if (isStartState)
+                    {
+                        minimized.StartState = temp;
+                    }
+                }
+                else
+                {
+                    newStates.Add(state);
+                    if (minimized.finalStates.Contains(state))
+                    {
+                        newFinalSt.Add(state);
+                    }
+                }
+            }
+
+            foreach (var symbol in minimized.alphabet)
+            {
+                foreach (var state in minimized.states)
+                {
+                    if (minimized.delta.ContainsKey((state, symbol)))
+                    {
+                        string[] splitFirst = state.Split(':');
+                        string stateFoundFrom = findStateForMinimisation(newStates, splitFirst[0]);
+                        string stateTo = minimized.delta[(state, symbol)];
+                        string[] splitSecond = stateTo.Split(':');
+                        string stateFoundTo = findStateForMinimisation(newStates, splitSecond[0]);
+                        newDelta[(stateFoundFrom, symbol)] = stateFoundTo;
+                    }
+                }
+            }
+
+            minimized.states.Clear();
+            minimized.finalStates.Clear();
+            minimized.delta.Clear();
+
+            foreach (var elem in newStates)
+            {
+                minimized.states.Add(elem);
+            }
+
+            foreach (var elem in newFinalSt)
+            {
+                minimized.finalStates.Add(elem);
+            }
+
+            foreach (var state in minimized.states)
+            {
+                foreach (var symbol in minimized.alphabet)
+                {
+                    if (newDelta.ContainsKey((state, symbol)))
+                    {
+                        minimized.delta[(state, symbol)] = newDelta[(state, symbol)];
+                    }
+                }
+            }
+        }
+
+        private static string findStateForMinimisation(HashSet<string> newStates, string state)
+        {
+            for(int i = 0; i < newStates.Count; i++)
+            {
+                if(newStates.ElementAt(i).Contains(state))
+                {
+                    return newStates.ElementAt(i);
+                }
+            }
+            return null;
         }
 
         private void helpForMinimization(Automat minimized)
@@ -2118,6 +2227,7 @@ namespace Projektni_FMSI
             {
                 result.ESwitching(finalState, 'E', result.finalStates.ElementAt(0));
             }
+
 
             return result;
         }

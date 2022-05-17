@@ -1,4 +1,6 @@
 AUTOMATA-STATES:
+
+
 q1
 q2
 
@@ -6,10 +8,13 @@ q3
 ALPHABET:
 E
 
+
+
 a
+
 b
 DELTA TRANSITIONS:
-q1:ag:q2
+q1:a:q2
 q1:b:q2
 q1:b:q3
 
@@ -18,6 +23,6 @@ q2:a:q1
 q2:b:q2
 q3:E:q1
 q3:a:q2
-;q3:b:q2
+q3:b:q2
 FINAL STATES:
 q2

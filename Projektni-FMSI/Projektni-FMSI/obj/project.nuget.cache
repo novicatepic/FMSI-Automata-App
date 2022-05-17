@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "nCq3bX5AXFShbAEiHeTTifstj0FbkUvlqd5AK5KatfEixTl+vEf2s7kNGFllpqdMXgCnmgtFmfZIg1+wQmoBGA==",
+  "dgSpecHash": "RVRxupxGZdboGELiOhLColYIN3TDb/d+Visi1dK8ZDIMpTVWT0Mm+anqtyrmiCP5qhqOGH3kqiFB1YAhNKaUxQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\acivo\\Desktop\\формалне-пројекат\\фмуси-пројекат\\Projektni-FMSI\\Projektni-FMSI\\Project-FirstApp.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "C:\\Users\\User\\Desktop\\формалне-пројекат\\projekat\\Projektni-FMSI\\Projektni-FMSI\\Project-FirstApp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\User\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\5.0.15\\microsoft.netcore.app.host.win-x64.5.0.15.nupkg.sha512"
+  ],
   "logs": []
 }

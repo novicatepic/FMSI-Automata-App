@@ -14,7 +14,7 @@ namespace Projektni_FMSI
 
         public void printToken()
         {
-            if(Value.Equals(null))
+            if(Value == null)
             {
                 Console.WriteLine("\nToken type: " + Type + "\nToken value: null");
             }

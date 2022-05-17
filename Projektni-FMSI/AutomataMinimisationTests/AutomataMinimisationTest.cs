@@ -110,6 +110,7 @@ namespace MinimiseDKATest
         {
             Automat minimise = c.minimiseAutomata();
             Assert.IsTrue(minimise.getStates().Count == 5);
+            Assert.IsTrue(minimise.AcceptsDKA("abbbaba"));
         }
 
         [Test]
@@ -117,6 +118,9 @@ namespace MinimiseDKATest
         {
             Automat minimise = c.minimiseAutomata();
             Assert.IsTrue(minimise.AcceptsDKA("bbbabbaaa"));
+            Assert.IsFalse(minimise.AcceptsDKA("aabbbbbbbbb"));
+            Assert.IsFalse(minimise.AcceptsDKA("aabab"));
+            Assert.IsTrue(minimise.AcceptsDKA("aaaba"));
         }
     }
 }

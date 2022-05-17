@@ -10,3 +10,14 @@ C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројек
 C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\AutomataLibrary\obj\Debug\net5.0\AutomataLibrary.dll
 C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\AutomataLibrary\obj\Debug\net5.0\ref\AutomataLibrary.dll
 C:\Users\acivo\Desktop\формалне-пројекат\фмуси-пројекат\Projektni-FMSI\AutomataLibrary\obj\Debug\net5.0\AutomataLibrary.pdb
+C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\AutomataLibrary\bin\Debug\net5.0\AutomataLibrary.deps.json
+C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\AutomataLibrary\bin\Debug\net5.0\AutomataLibrary.dll
+C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\AutomataLibrary\bin\Debug\net5.0\ref\AutomataLibrary.dll
+C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\AutomataLibrary\bin\Debug\net5.0\AutomataLibrary.pdb
+C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\AutomataLibrary\obj\Debug\net5.0\AutomataLibrary.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\AutomataLibrary\obj\Debug\net5.0\AutomataLibrary.AssemblyInfoInputs.cache
+C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\AutomataLibrary\obj\Debug\net5.0\AutomataLibrary.AssemblyInfo.cs
+C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\AutomataLibrary\obj\Debug\net5.0\AutomataLibrary.csproj.CoreCompileInputs.cache
+C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\AutomataLibrary\obj\Debug\net5.0\AutomataLibrary.dll
+C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\AutomataLibrary\obj\Debug\net5.0\ref\AutomataLibrary.dll
+C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\AutomataLibrary\obj\Debug\net5.0\AutomataLibrary.pdb
