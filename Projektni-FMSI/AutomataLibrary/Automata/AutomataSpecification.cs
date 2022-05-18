@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using Projektni_FMSI.Exceptions;
+using AutomataLibrary.Exceptions;
 
 namespace Projektni_FMSI
 {
@@ -97,7 +98,6 @@ namespace Projektni_FMSI
         //If everything is good, go on, load everything supposed to be loaded
         private static void helpMethodForLoadingAutomataSpecificationFromFileOrFromCommandLine(Automat result, string[] elements)
         {
-            //List<int> lexicalAnalysis = lexicalAnalysisForAutomata(elements);
             LexicalAnalysis lexicalAnalysis = new(elements);
 
             if (lexicalAnalysis.lexicalAnalysisForAutomata(elements))
@@ -118,11 +118,9 @@ namespace Projektni_FMSI
                         {
                             if (firstState == true)
                             {
-                                //result.StartState = elements[i];
                                 result.setStartState(elements[i]);
                                 firstState = false;
                             }
-                            //result.states.Add(elements[i]);
                             result.addState(elements[i]);
                         }
                     }
@@ -134,9 +132,11 @@ namespace Projektni_FMSI
                         i++;
                         if (elements[i] != "DELTA TRANSITIONS:" && elements[i].Length > 0)
                         {
-                            //Console.WriteLine(elements[1]);
+                            if(elements[i].Length > 1)
+                            {
+                                throw new ParsingException();
+                            }
                             char symbol = char.Parse(elements[i]);
-                            //result.alphabet.Add(symbol);
                             result.setSymbolInAlphabet(symbol);
                         }
                     }
@@ -149,11 +149,26 @@ namespace Projektni_FMSI
                         if (elements[i] != "FINAL STATES:" && elements[i].Length > 0)
                         {
                             string[] splitDelta = elements[i].Split(':');
+                            if(splitDelta.Length != 3)
+                            {
+                                throw new ParsingException();
+                            }
+                            if(splitDelta[1].Length > 1)
+                            {
+                                throw new ParsingException();
+                            }
                             char symbol = char.Parse(splitDelta[1]);
+                            if(!result.getAlphabet().Contains(symbol))
+                            {
+                                throw new ParsingException();
+                            }
+                            if(!result.getStates().Contains(splitDelta[0]) || !result.getStates().Contains(splitDelta[2]))
+                            {
+                                throw new ParsingException();
+                            }
                             if (!result.checkIfIsENKA())
                             {
                                 result.setDelta(splitDelta[0], symbol, splitDelta[2]);
-                                //result.delta[(splitDelta[0], symbol)] = splitDelta[2];
                             }
                             else
                             {
@@ -167,9 +182,15 @@ namespace Projektni_FMSI
                     i++;
                     while (i < elements.Length)
                     {
-                        //result.finalStates.Add(elements[i++]);
-                        result.setFinalState(elements[i]);
-                        i++;
+                        if(elements[i].Length != 0)
+                        {
+                            if(!result.getStates().Contains(elements[i]))
+                            {
+                                throw new ParsingException();
+                            }
+                            result.setFinalState(elements[i]);
+                            i++;
+                        }
                     }
                 }
             }
