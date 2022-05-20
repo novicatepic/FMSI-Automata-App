@@ -539,33 +539,5 @@ namespace Projektni_FMSI
             }
             return strings;
         }
-
-        /*public static List<int> lexicalAnalysisForRegularExpression(string[] regularExpression)
-        {
-            List<int> errorsFound = new();
-            LexicalAnalysis lexicalAnalysis = new(regularExpression);
-            errorsFound = lexicalAnalysis.lexicalAnalysisForRegularExpression(regularExpression);
-
-            foreach (var error in errorsFound)
-            {
-                Console.WriteLine("Error at line: " + error);
-            }
-
-            return errorsFound;
-        }
-
-        public static List<int> lexicalAnalysisForAutomata(string[] automataIntoString)
-        {
-            List<int> errorsFound = new();
-            LexicalAnalysis lexicalAnalysis = new(automataIntoString);
-            errorsFound = lexicalAnalysis.lexicalAnalysisForAutomata(automataIntoString);
-
-            foreach (var error in errorsFound)
-            {
-                Console.WriteLine("Error at line: " + error);
-            }
-
-            return errorsFound;
-        }*/
     }
 }

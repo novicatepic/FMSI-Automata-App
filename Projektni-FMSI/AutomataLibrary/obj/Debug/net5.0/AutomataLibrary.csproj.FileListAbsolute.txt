@@ -21,3 +21,4 @@ C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\
 C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\AutomataLibrary\obj\Debug\net5.0\AutomataLibrary.dll
 C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\AutomataLibrary\obj\Debug\net5.0\ref\AutomataLibrary.dll
 C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\AutomataLibrary\obj\Debug\net5.0\AutomataLibrary.pdb
+C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\AutomataLibrary\obj\Debug\net5.0\AutomataLibrary.csproj.AssemblyReference.cache
