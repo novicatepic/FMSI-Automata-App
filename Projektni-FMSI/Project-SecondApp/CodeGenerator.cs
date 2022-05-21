@@ -7,6 +7,9 @@ using System.IO;
 
 namespace Project_SecondApp
 {
+    //Tried out if code works
+    //Used string builder to make it
+    //And write it to a file
     public class CodeGenerator
     {
         public CodeGenerator()

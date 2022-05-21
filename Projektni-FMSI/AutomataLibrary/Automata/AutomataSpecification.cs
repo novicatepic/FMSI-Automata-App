@@ -287,23 +287,25 @@ namespace Projektni_FMSI
                 }
                 else if (extraInput == "3")
                 {
-                    Console.WriteLine("NOTE: Each line corresponds to ONE operator or ONE operand");
-                    Console.WriteLine("If you want to stop, input --exit!");
+                    //Console.WriteLine("NOTE: Each line corresponds to ONE operator or ONE operand");                    
                     Console.WriteLine("Enter your regular expression which you want to evaluate: ");
+                    Console.WriteLine("If you want to stop, input --exit!");
                     List<string> regularExpressionHelper = new();
                     string userInput;
-                    do
+                    userInput = Console.ReadLine();
+                    /*do
                     {
                         userInput = Console.ReadLine();
                         if (userInput != "--exit")
                         {
                             regularExpressionHelper.Add(userInput);
                         }
-                    } while (userInput != "--exit");
-                    string[] regularExpression = new string[regularExpressionHelper.Count];
+                    } while (userInput != "--exit");*/
+                    //string[] regularExpression = new string[regularExpressionHelper.Count];
+                    string[] regularExpression = new string[userInput.Length];
                     for (int i = 0; i < regularExpression.Length; i++)
                     {
-                        regularExpression[i] = regularExpressionHelper.ElementAt(i);
+                        regularExpression[i] = userInput[i].ToString();
                     }
                     printSpecification(regularExpression);
                     lexicalAnalysisOfRegularExpressionAndEvaluation(regularExpression, 'c');
@@ -502,18 +504,18 @@ namespace Projektni_FMSI
         }
 
         //Important function
-        //Allows me to block user if he wants to load both language and strings from same place
+        //Allows me to block user if he wants to load both language and strings from command line
         private static HashSet<string> stringLoaderHelper(char flag, string[] args)
         {
             HashSet<string> strings;
             Console.WriteLine("Do you want to load strings from console (c), or from file (f), or from command line(cl): ");
             string whereToLoadFrom = Console.ReadLine();
             strings = new();
-            if (whereToLoadFrom == "c" && flag != 'c')
+            if (whereToLoadFrom == "c")
             {
                 strings = getStringsFromUserFromConsole();
             }
-            else if (whereToLoadFrom == "f" && flag != 'f')
+            else if (whereToLoadFrom == "f")
             {
                 strings = getStringsFromUserFromFile();
             }

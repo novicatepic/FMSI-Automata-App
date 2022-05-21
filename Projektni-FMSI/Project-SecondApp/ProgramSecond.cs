@@ -96,7 +96,7 @@ namespace Project_SecondApp
     }*/
 
 
-
+    //Just calling func
     class ProgramSecond
     {
         static void Main(string[] args)

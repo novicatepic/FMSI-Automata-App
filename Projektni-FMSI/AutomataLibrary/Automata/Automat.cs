@@ -2334,6 +2334,10 @@ namespace Projektni_FMSI
                     }
                     else
                     {
+                        if(stack.Count == 0)
+                        {
+                            throw new Exception("Invalid expression!");
+                        }
                         string element = stack.Pop();
                     }
                 }
