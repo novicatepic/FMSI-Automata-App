@@ -1,0 +1,135 @@
+using System;
+using System.Collections.Generic;
+
+public class Specification
+{
+ private HashSet<Action<string>> actions = new HashSet<Action<string>>();
+public void addAction(Action<string> action)
+{
+actions.Add(action);
+}public void removeAction(Action<string> action)
+{
+actions.Remove(action);
+}
+public void deleteAllActions()
+{
+actions.Clear();
+}public void doActionsForState(string state)
+{
+foreach(var action in actions)
+
+{
+action.Invoke(state);
+}
+}
+}
+
+
+
+
+public class GeneratedAutomata
+{private string switchq0_0State(Specification spec0, Specification spec1, Specification spec2, char symbol)
+{
+string currentState = null;
+switch(symbol)
+{
+case 'a':
+currentState = "q1_0";
+spec0.doActionsForState(currentState);
+break;
+case 'c':
+currentState = "q3_0";
+spec1.doActionsForState(currentState);
+break;
+default:
+throw new Exception();
+}return currentState;
+}
+
+
+private string switchq1_0State(Specification spec0, Specification spec1, Specification spec2, char symbol)
+{
+string currentState = null;
+switch(symbol)
+{
+case 'a':
+currentState = "q1_0";
+spec0.doActionsForState(currentState);
+break;
+default:
+throw new Exception();
+}return currentState;
+}
+
+
+private string switchq2_0State(Specification spec0, Specification spec1, Specification spec2, char symbol)
+{
+string currentState = null;
+switch(symbol)
+{
+case 'a':
+currentState = "q0_0";
+spec0.doActionsForState(currentState);
+break;
+case 'b':
+currentState = "q1_0";
+spec1.doActionsForState(currentState);
+break;
+case 'c':
+currentState = "q2_0";
+spec2.doActionsForState(currentState);
+break;
+default:
+throw new Exception();
+}return currentState;
+}
+
+
+private string switchq3_0State(Specification spec0, Specification spec1, Specification spec2, char symbol)
+{
+string currentState = null;
+switch(symbol)
+{
+case 'c':
+currentState = "q3_0";
+spec0.doActionsForState(currentState);
+break;
+default:
+throw new Exception();
+}return currentState;
+}
+
+
+public void chainNStuff(Specification input, Specification output, Specification spec0, Specification spec1, Specification spec2, HashSet<char> alphabet)
+{
+string initState = "q0_0";
+foreach(var symbol in alphabet)
+{
+if(initState == "q0_0")
+{
+output.doActionsForState(initState);
+initState = switchq0_0State(spec0, spec1, spec2, symbol);
+input.doActionsForState(initState);
+}
+if(initState == "q1_0")
+{
+output.doActionsForState(initState);
+initState = switchq1_0State(spec0, spec1, spec2, symbol);
+input.doActionsForState(initState);
+}
+if(initState == "q2_0")
+{
+output.doActionsForState(initState);
+initState = switchq2_0State(spec0, spec1, spec2, symbol);
+input.doActionsForState(initState);
+}
+if(initState == "q3_0")
+{
+output.doActionsForState(initState);
+initState = switchq3_0State(spec0, spec1, spec2, symbol);
+input.doActionsForState(initState);
+}
+}
+}
+}
+

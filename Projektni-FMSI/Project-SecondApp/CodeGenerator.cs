@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using Projektni_FMSI;
 
 namespace Project_SecondApp
 {
@@ -12,90 +13,100 @@ namespace Project_SecondApp
     //And write it to a file
     public class CodeGenerator
     {
-        public CodeGenerator()
-        {
+        Automat toGenerate;
 
+        public CodeGenerator(Automat a)
+        {
+            toGenerate = a;
         }
 
-        public void generateCode()
+        public void generate()
         {
-            var path = Path.Combine("./" + "generator" + ".txt");
-            if(!File.Exists(path))
+            var path = Path.Combine("./" + "gen" + ".txt");
+            StringBuilder resultString = new StringBuilder();
+            appendSpecificationClass(resultString);
+            generateClass(resultString);
+            using (StreamWriter sw = new StreamWriter(path))
             {
-                //File.Create(path);
-                //TextWriter writeFile = new StreamWriter(path);
-                StringBuilder resultString = new StringBuilder();
-                appendSpecificationClass(resultString);
-                appendGenerationClass(resultString);
-                using(StreamWriter sw = new StreamWriter(path))
+                sw.WriteLine(resultString);
+            }
+        }
+
+        private void generateClass(StringBuilder resultString)
+        {
+            if(toGenerate.checkIfIsENKA())
+            {
+                throw new Exception("Only DKA supported!");
+            }
+
+            HashSet<string> listOfSpecFuncs = new();
+            List<string> listOfTemp2s = new();
+            resultString.Append("\npublic class GeneratedAutomata\n{");
+            foreach (var state in toGenerate.getStates())
+            {
+                string temp2 = "(";
+                int counter = 0;
+
+                foreach (var symbol in toGenerate.getAlphabet())
                 {
-                    sw.WriteLine(resultString);
+                    string innerTemp = "spec" + counter++;
+                    listOfSpecFuncs.Add(innerTemp);
+                    temp2 += "Specification " + innerTemp + ", ";
+                    string tmp = "Specification " + innerTemp + ", ";
+                    listOfTemp2s.Add(tmp);
                 }
-                /*string str = resultString.ToString();
-                string[] strArray = str.Split('\n');
-                File.WriteAllLinesAsync(path, strArray);*/
-                //File.WriteAllLinesAsync(path, resultString.ToString().ToCharArray());
-                //File.WriteAllLinesAsync(path, )
-                //writeFile.Write(resultString);
-                //writeFile.Close();
+                temp2 += "char symbol)\n{\n";
+                string temp = "private string switch" + state + "State" + temp2;
+                resultString.Append(temp);
+                resultString.Append("string currentState = null;\n");
+                resultString.Append("switch(symbol)\n{\n");
+                counter = 0;
+                foreach (var symbol in toGenerate.getAlphabet())
+                {
+                    if(toGenerate.getDelta().ContainsKey((state, symbol)))
+                    {
+                        string tmp = "case " + "'" + symbol + "':\n";
+                        resultString.Append(tmp);
+                        tmp = "";
+                        tmp = "currentState = " + "\"" + toGenerate.getDelta()[(state, symbol)] + "\";\n";
+                        resultString.Append(tmp);
+                        tmp = "";
+                        resultString.Append(listOfSpecFuncs.ElementAt(counter++) + ".doActionsForState(currentState);\n");
+                        resultString.Append("break;\n");
+                    }
+                    /*else
+                    {
+                        counter++;
+                    }*/
+                }
+                resultString.Append("default:\nthrow new Exception();\n}");
+                resultString.Append("return currentState;\n}\n\n\n");
             }
-            else
+
+
+            resultString.Append("public void chainNStuff(Specification input, Specification output, ");
+            foreach (var element in listOfSpecFuncs)
             {
-                Console.WriteLine("File already exists, code generated!");
+                resultString.Append("Specification ");
+                resultString.Append(element + ", ");
             }
+            resultString.Append("HashSet<char> alphabet)\n{\n");
+            resultString.Append("string initState = " + "\"" + toGenerate.getStartState() + "\";\n");
+            resultString.Append("foreach(var symbol in alphabet)\n{\n");
+            foreach (var state in toGenerate.getStates())
+            {
+                resultString.Append("if(initState == " + "\"" + state + "\")\n{\n");
+                resultString.Append("output.doActionsForState(initState);\n");
+                resultString.Append("initState = switch" + state + "State(");
+                foreach (var elem in listOfSpecFuncs)
+                {
+                    resultString.Append(elem + ", ");
+                }
+                resultString.Append("symbol);\n");
+                resultString.Append("input.doActionsForState(initState);\n}\n");
+            }
+            resultString.Append("}\n}\n}\n");
 
-        }
-
-        private static void appendGenerationClass(StringBuilder resultString)
-        {
-            resultString.Append("public class GeneratedAutomata\n{");
-            resultString.Append("private string switchFirstState(Specification spec0, Specification spec1, char symbol)\n{\n");
-            resultString.Append("string currentState = null;\n" +
-                "switch(symbol)\n{\n" +
-                "case 'a':\n" +
-                "currentState = \"q0\";\n" +
-                "spec0.doActionsForState(currentState);\n" +
-                "break;\n" +
-                "case 'b':\n" +
-                "currentState = \"q1\";\n" +
-                "spec1.doActionsForState(currentState);\n" +
-                "break;\n" +
-                "default:\n" +
-                "throw new Exception();\n" +
-                "}\n" +
-                "return currentState;\n}\n");
-
-            resultString.Append("private string switchSecondState(Specification spec0, Specification spec1, char symbol)\n{\n");
-            resultString.Append("string currentState = null;\n" +
-                "switch(symbol)\n{\n" +
-                "case 'a':\n" +
-                "currentState = \"q1\";\n" +
-                "spec1.doActionsForState(currentState);\n" +
-                "break;\n" +
-                "case 'b':\n" +
-                "currentState = \"q0\";\n" +
-                "spec0.doActionsForState(currentState);\n" +
-                "break;\n" +
-                "default:\n" +
-                "throw new Exception();\n" +
-                "}\n" +
-                "return currentState;\n}\n");
-
-            resultString.Append("public void chainNStuff(Specification input, Specification output, Specification spec0, Specification spec1, HashSet<char> alphabet)\n{\n");
-            resultString.Append("string initState = \"q0\";\n" +
-                "foreach(var symbol in alphabet)\n{\n" +
-                " if(initState == \"q0\")\n{\n" +
-                "output.doActionsForState(initState);\n" +
-                "initState = switchFirstState(spec0, spec1, symbol);\n" +
-                "input.doActionsForState(initState);\n" +
-                "}\n" +
-                "else if(initState == \"q1\")\n{\n" +
-                "output.doActionsForState(initState);\n" +
-                "initState = switchSecondState(spec0, spec1, symbol);\n" +
-                "input.doActionsForState(initState);\n}\n" +
-                "else\n{\n" +
-                "throw new Exception();\n" +
-                "}\n}\n}\n}\n");
         }
 
         private static void appendSpecificationClass(StringBuilder resultString)
@@ -112,7 +123,7 @@ namespace Project_SecondApp
                 "actions.Clear();\n}");
             resultString.Append("public void doActionsForState(string state)\n{\n" +
                 "foreach(var action in actions)\n" +
-                "\n{\naction.Invoke(state);\n}\n}\n}");
+                "\n{\naction.Invoke(state);\n}\n}\n}\n\n\n\n");
         }
     }
 }

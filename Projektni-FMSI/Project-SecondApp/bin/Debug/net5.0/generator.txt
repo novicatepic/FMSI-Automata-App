@@ -23,7 +23,11 @@ action.Invoke(state);
 }
 }
 }public class GeneratedAutomata
-{private string switchFirstState(Specification spec0, Specification spec1, char symbol)
+{
+
+
+
+private string switchFirstState(Specification spec0, Specification spec1, char symbol)
 {
 string currentState = null;
 switch(symbol)
@@ -41,6 +45,10 @@ throw new Exception();
 }
 return currentState;
 }
+
+
+
+
 private string switchSecondState(Specification spec0, Specification spec1, char symbol)
 {
 string currentState = null;
@@ -59,6 +67,11 @@ throw new Exception();
 }
 return currentState;
 }
+
+
+
+
+
 public void chainNStuff(Specification input, Specification output, Specification spec0, Specification spec1, HashSet<char> alphabet)
 {
 string initState = "q0";
