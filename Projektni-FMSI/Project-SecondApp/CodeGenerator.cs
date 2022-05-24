@@ -34,13 +34,14 @@ namespace Project_SecondApp
 
         private void generateClass(StringBuilder resultString)
         {
-            if(toGenerate.checkIfIsENKA())
+            if (toGenerate.checkIfIsENKA())
             {
                 throw new Exception("Only DKA supported!");
             }
+            toGenerate.addDeadState();
 
             HashSet<string> listOfSpecFuncs = new();
-            List<string> listOfTemp2s = new();
+            HashSet<string> listOfTemp2s = new();
             resultString.Append("\npublic class GeneratedAutomata\n{");
             foreach (var state in toGenerate.getStates())
             {
@@ -63,7 +64,7 @@ namespace Project_SecondApp
                 counter = 0;
                 foreach (var symbol in toGenerate.getAlphabet())
                 {
-                    if(toGenerate.getDelta().ContainsKey((state, symbol)))
+                    if (toGenerate.getDelta().ContainsKey((state, symbol)))
                     {
                         string tmp = "case " + "'" + symbol + "':\n";
                         resultString.Append(tmp);

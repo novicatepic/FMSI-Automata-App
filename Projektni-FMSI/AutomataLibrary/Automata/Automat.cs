@@ -2508,7 +2508,7 @@ namespace Projektni_FMSI
 
         //Help for minimization and stuff
         //Add dead state so minimization doesn't cause any errors
-        private void addDeadState()
+        public void addDeadState()
         {
             string deadState = "DEADSTATE" + id;
             bool first = true;

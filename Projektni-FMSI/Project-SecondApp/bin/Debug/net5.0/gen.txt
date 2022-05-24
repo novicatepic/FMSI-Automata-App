@@ -37,9 +37,13 @@ case 'a':
 currentState = "q1_0";
 spec0.doActionsForState(currentState);
 break;
-case 'c':
-currentState = "q3_0";
+case 'b':
+currentState = "DEADSTATE_0";
 spec1.doActionsForState(currentState);
+break;
+case 'c':
+currentState = "q2_0";
+spec2.doActionsForState(currentState);
 break;
 default:
 throw new Exception();
@@ -53,8 +57,16 @@ string currentState = null;
 switch(symbol)
 {
 case 'a':
-currentState = "q1_0";
+currentState = "DEADSTATE_0";
 spec0.doActionsForState(currentState);
+break;
+case 'b':
+currentState = "DEADSTATE_0";
+spec1.doActionsForState(currentState);
+break;
+case 'c':
+currentState = "q0_0";
+spec2.doActionsForState(currentState);
 break;
 default:
 throw new Exception();
@@ -68,15 +80,15 @@ string currentState = null;
 switch(symbol)
 {
 case 'a':
-currentState = "q0_0";
+currentState = "q1_0";
 spec0.doActionsForState(currentState);
 break;
 case 'b':
-currentState = "q1_0";
+currentState = "q2_0";
 spec1.doActionsForState(currentState);
 break;
 case 'c':
-currentState = "q2_0";
+currentState = "DEADSTATE_0";
 spec2.doActionsForState(currentState);
 break;
 default:
@@ -85,14 +97,22 @@ throw new Exception();
 }
 
 
-private string switchq3_0State(Specification spec0, Specification spec1, Specification spec2, char symbol)
+private string switchDEADSTATE_0State(Specification spec0, Specification spec1, Specification spec2, char symbol)
 {
 string currentState = null;
 switch(symbol)
 {
-case 'c':
-currentState = "q3_0";
+case 'a':
+currentState = "DEADSTATE_0";
 spec0.doActionsForState(currentState);
+break;
+case 'b':
+currentState = "DEADSTATE_0";
+spec1.doActionsForState(currentState);
+break;
+case 'c':
+currentState = "DEADSTATE_0";
+spec2.doActionsForState(currentState);
 break;
 default:
 throw new Exception();
@@ -123,10 +143,10 @@ output.doActionsForState(initState);
 initState = switchq2_0State(spec0, spec1, spec2, symbol);
 input.doActionsForState(initState);
 }
-if(initState == "q3_0")
+if(initState == "DEADSTATE_0")
 {
 output.doActionsForState(initState);
-initState = switchq3_0State(spec0, spec1, spec2, symbol);
+initState = switchDEADSTATE_0State(spec0, spec1, spec2, symbol);
 input.doActionsForState(initState);
 }
 }

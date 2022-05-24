@@ -5,6 +5,7 @@ using Projektni_FMSI;
 namespace Project_SecondApp
 {
 
+
     //Just calling func
     class ProgramSecond
     {
