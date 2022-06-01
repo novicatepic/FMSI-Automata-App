@@ -1,0 +1,28 @@
+//RUNNING AUTOMATAS
+Foreach loop and contains, O(n^2) FOR DKA
+For E-NKA, O(n^3) so O(n^3) and Omega(n^2)
+
+//UNIONFORDKA O(n^5) -> because of conversion from e-nka to dka
+//INTERSECTION O(n^5) -> same reason								----> if it was not for conversion, complexity would be Omega(n^3)
+//DIFFERENCE O(n^5) -> same reason
+
+
+//CONCATENATION O(n^5) -> same reason or Omega(n^2) if it's DKA without need to convert automata
+//COMPLEMENT n^3 * (n^3) = n^6 - because of help function for E-NKA or Omega(n^2) if it's DKA without need to convert
+//Kleene star 0(n^6) -> because of 6 nested loops including help functions, Omega(n^6), cannot run away from E-NKA
+
+
+//convert e-nka to dka -> n * [(n + e) + n^4] = n^5 where e-number of edges, n number of states -> time complexity is O(n^5), same for omega
+
+
+//transform regexp to automata:
+infix to postfix help func n^2 + n^4 in main func for transformation -> O(n^4), same for omega
+
+//shortest word in language omega(n^2), else O(n^5)
+
+//longest word in language: O(n^5) because of conversion, otherwise it would be omega(n^4)
+
+//is language final O(n^5) because of the transformation, otherwise omega(n^2)
+
+//automata minimisation O(n^4) plenty of nested loops:
+O(n^5) if it has to be converted to DKA, otherwise Omega(n^3)

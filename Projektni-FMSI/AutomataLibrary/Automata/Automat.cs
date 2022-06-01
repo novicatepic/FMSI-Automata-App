@@ -1211,10 +1211,21 @@ namespace Projektni_FMSI
         //BFS, when we get to a final state, we break, we remember path length
         public int findShortestPath()
         {
+            Automat possibleDKA = new();
+
+            //Easier to work with DKA
+            if (checkIfIsENKA())
+            {
+                possibleDKA = convertENKAtoDKA();
+            }
+            else
+            {
+                possibleDKA = this;
+            }
 
             int shortestPathLength = 0;
 
-            if (finalStates.Contains(StartState))
+            if (possibleDKA.finalStates.Contains(possibleDKA.StartState))
             {
                 return shortestPathLength;
             }
@@ -1226,17 +1237,17 @@ namespace Projektni_FMSI
             }
 
             Queue<string> queue = new();
-            queue.Enqueue(StartState);
+            queue.Enqueue(possibleDKA.StartState);
 
             while (queue.Count > 0)
             {
                 string temp = queue.Dequeue();
                 foreach (char symbol in alphabet)
                 {
-                    if (delta.ContainsKey((temp, symbol)) && delta[(temp, symbol)] != temp)
+                    if (possibleDKA.delta.ContainsKey((temp, symbol)) && possibleDKA.delta[(temp, symbol)] != temp)
                     {
-                        string nextState = delta[(temp, symbol)];
-                        if (finalStates.Contains(nextState))
+                        string nextState = possibleDKA.delta[(temp, symbol)];
+                        if (possibleDKA.finalStates.Contains(nextState))
                         {
                             shortestPathLength++;
                             return shortestPathLength;

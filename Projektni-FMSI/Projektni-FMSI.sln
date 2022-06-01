@@ -21,7 +21,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnionKleeneStarEtcTests", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{115A8E71-5944-45B5-8F31-9293DADFA637}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project-SecondApp", "Project-SecondApp\Project-SecondApp.csproj", "{D1365773-B7A7-4784-9BF5-64B457090AE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Project-SecondApp", "Project-SecondApp\Project-SecondApp.csproj", "{D1365773-B7A7-4784-9BF5-64B457090AE9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CAA240DC-0319-4CED-A777-F8BF9C4A3046}"
+	ProjectSection(SolutionItems) = preProject
+		ComplexityFile.txt = ComplexityFile.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
