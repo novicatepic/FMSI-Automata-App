@@ -14,7 +14,7 @@ namespace Projektni_FMSI
             Value = value;
         }
 
-        //Two functions to check validity of tokens
+        //Two functions to check validity of tokens for automata
         public static bool isStateTokenValid(string stateToken)
         {
             foreach(var symbol in stateToken)

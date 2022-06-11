@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using Projektni_FMSI;
 
@@ -75,10 +74,6 @@ namespace Project_SecondApp
                         resultString.Append(listOfSpecFuncs.ElementAt(counter++) + ".doActionsForState(currentState);\n");
                         resultString.Append("break;\n");
                     }
-                    /*else
-                    {
-                        counter++;
-                    }*/
                 }
                 resultString.Append("default:\nthrow new Exception();\n}");
                 resultString.Append("return currentState;\n}\n\n\n");

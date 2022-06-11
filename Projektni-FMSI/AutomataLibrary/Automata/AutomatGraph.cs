@@ -198,42 +198,6 @@ namespace Projektni_FMSI
                 }
                 counterForSortedSet++;
 
-                /*Console.WriteLine("Which ones were visited: ");
-                for(int i = 0; i < nodes.Length; i++)
-                {
-                    foreach(var element in whichOnesWereVisited.ElementAt(i))
-                    {
-                        Console.Write(element + " ");
-                    }
-                    Console.WriteLine();
-                }
-                Console.WriteLine();
-
-                Console.WriteLine("Check if cycle exists: ");
-                for (int i = 0; i < nodes.Length; i++)
-                {
-                    foreach (var element in checkIfCycleExistsSomewhere.ElementAt(i))
-                    {
-                        Console.Write(element + " ");
-                    }
-                    Console.WriteLine();
-                }
-                Console.WriteLine();*/
-
-                /*Console.WriteLine("Remember all already visited: ");
-                foreach(var elem in rememberAllAlreadyVisited)
-                {
-                    Console.Write(elem + " ");
-                }
-                Console.WriteLine();*/
-
-                /*Console.WriteLine("QUEUE: ");
-                foreach (var element in queue)
-                {
-                    Console.Write(element + " ");
-                }
-                Console.WriteLine();*/
-
                 foreach (var element in queue)
                 {
                     int wordLength = 0;

@@ -14,7 +14,7 @@ namespace Projektni_FMSI
             Value = value;
         }
 
-        //Check validity of token
+        //Check validity of token for regexp
         public static bool isTokenValid(string token)
         {
             if (token.Length == 1 && (char.IsDigit(token[0]) || char.IsLetter(token[0])))

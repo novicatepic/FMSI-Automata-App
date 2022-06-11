@@ -5,6 +5,9 @@ using System.IO;
 
 class FirstApp
 {
+    //MAIN FUNCTION FOR FIRST APP
+    //OPTIONS OFFERED FOR USER
+    //HE CHOOSES AND PROGRAM STARTS
     static void Main(string[] args)
     {
         Console.WriteLine("===================================");
@@ -52,7 +55,6 @@ class FirstApp
                 Automat res = a.findIntersection(b);
                 Console.WriteLine("Result: ");
                 res.printStatesAndAlphabet();
-
             }
             else if (input == "4")
             {
@@ -192,32 +194,3 @@ class FirstApp
         } while (input != "--exit");
     }
 }
-
-/*Automat b;
-b = new();
-            b.setStartState("q0");
-            b.addState("q0");
-            b.addState("q1");
-            b.addState("q2");
-            b.addState("q3");
-            b.addState("q4");
-            b.setSymbolInAlphabet('a');
-            b.setSymbolInAlphabet('b');
-            b.setFinalState("q3");
-            b.addTransition("q0", 'a', "q1");
-            b.addTransition("q0", 'b', "q4");
-            b.addTransition("q1", 'a', "q1");
-            b.addTransition("q1", 'b', "q2");
-            b.addTransition("q2", 'a', "q1");
-            b.addTransition("q2", 'b', "q3");
-            b.addTransition("q3", 'a', "q1");
-            b.addTransition("q3", 'b', "q4");
-            b.addTransition("q4", 'a', "q1");
-            b.addTransition("q4", 'b', "q4");
-Automat minimise = b.minimiseAutomata();
-minimise.printStatesAndAlphabet();
-if (minimise.AcceptsDKA("aaabb"))
-{
-    Console.WriteLine("ACCEPTS!");
-}
-*/
