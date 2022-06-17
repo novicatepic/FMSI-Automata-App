@@ -218,7 +218,7 @@ namespace Projektni_FMSI
         //Function that connects all help function and allows user to play with options
         public static void enterSpecification(string[] args)
         {
-            Console.WriteLine("Do you want to load specification from file or from console: ");
+            Console.WriteLine("Do you want to load specification from file or from console or from command line: ");
             Console.WriteLine("f for file, c for console, cl for command line");
             string inputLoad;
             inputLoad = Console.ReadLine();
@@ -286,22 +286,12 @@ namespace Projektni_FMSI
                     }
                 }
                 else if (extraInput == "3")
-                {
-                    //Console.WriteLine("NOTE: Each line corresponds to ONE operator or ONE operand");                    
+                {                
                     Console.WriteLine("Enter your regular expression which you want to evaluate: ");
                     Console.WriteLine("If you want to stop, input --exit!");
                     List<string> regularExpressionHelper = new();
                     string userInput;
                     userInput = Console.ReadLine();
-                    /*do
-                    {
-                        userInput = Console.ReadLine();
-                        if (userInput != "--exit")
-                        {
-                            regularExpressionHelper.Add(userInput);
-                        }
-                    } while (userInput != "--exit");*/
-                    //string[] regularExpression = new string[regularExpressionHelper.Count];
                     string[] regularExpression = new string[userInput.Length];
                     for (int i = 0; i < regularExpression.Length; i++)
                     {

@@ -193,7 +193,7 @@ namespace Projektni_FMSI
                 }
             }
 
-            result = result.minimiseAutomata();
+            //result = result.minimiseAutomata();
 
             return result;
         }
@@ -293,7 +293,7 @@ namespace Projektni_FMSI
                 }
             }
 
-            result = result.minimiseAutomata();
+            //result = result.minimiseAutomata();
 
             return result;
         }
@@ -346,7 +346,7 @@ namespace Projektni_FMSI
                 }
             }
 
-            result = result.minimiseAutomata();
+            //result = result.minimiseAutomata();
 
             return result;
         }
@@ -363,10 +363,10 @@ namespace Projektni_FMSI
 
             try
             {
-                if (!first.checkIfAlphabetIsTheSame(other))
+                /*if (!first.checkIfAlphabetIsTheSame(other))
                 {
                     throw new Exception("I can't merge two languages that don't have the same alphabet, sorry!");
-                }
+                }*/
                 result.StartState = first.StartState;
 
                 //It's gonna contain 'E' by definiton
@@ -375,6 +375,10 @@ namespace Projektni_FMSI
                     result.alphabet.Add('E');
                 }
                 foreach (var symbol in first.alphabet)
+                {
+                    result.alphabet.Add(symbol);
+                }
+                foreach(var symbol in other.alphabet)
                 {
                     result.alphabet.Add(symbol);
                 }
@@ -1266,6 +1270,9 @@ namespace Projektni_FMSI
 
         //Self explanatory function name
         //Same logic implemented as we've practiced live
+        //Find E-closures for each state
+        //check for each symbol
+        //continue with e-closures till the end
         public Automat convertENKAtoDKA()
         {
             Automat DKA = new();
@@ -1630,7 +1637,6 @@ namespace Projektni_FMSI
                 }
             }
 
-            //Console.WriteLine("Isti!");
             return true;
         }
 
@@ -1782,15 +1788,18 @@ namespace Projektni_FMSI
                         }
 
                     }
+                    //IF I FOUND SOMETHING SIMILAR, CONNECT IT
                     foreach (var match in matches)
                     {
                         temp += match;
                         temp += ":";
                     }
+                    //IF THERE WAS NOTHING FOUND, ADD THAT STATE THAT IS ALREADY MINIMISED
                     if (matches.Count == 0)
                     {
                         fullMinimization.Add(statesToMinimize.ElementAt(i));
                     }
+                    //ELSE ADD NEWLY MERGED STATE
                     else
                     {
                         string temp2 = "";
@@ -1878,6 +1887,7 @@ namespace Projektni_FMSI
                         for (int i = 0; i < fullMinimization.Count; i++)
                         {
                             //ADDED FIRST CONDITION
+                            //IF STATE WASN'T MINIMISED AND IT GOES TO ONE OF THE MINIMISED STATES, REMEMBER IT!
                             if (delta.ContainsKey((state, symbol)) && fullMinimization.ElementAt(i).Contains(delta[(state, symbol)]))
                             {
                                 stateToGoTo = fullMinimization.ElementAt(i);
@@ -1886,10 +1896,12 @@ namespace Projektni_FMSI
                             }
                         }
 
+                        //IF IT WASN'T REMEMBERED GO INTO STATE GONE TO BEFORE
                         if (!flag)
                         {
                             minimized.delta[(state, symbol)] = delta[(state, symbol)];
                         }
+                        //ELSE GO TO MINIMIZED STATE
                         else
                         {
                             minimized.delta[(state, symbol)] = stateToGoTo;
@@ -1905,7 +1917,7 @@ namespace Projektni_FMSI
                         bool flag = false;
                         foreach (var splitState in splitStates)
                         {
-                            if (splitState != "" && state.Contains(delta[(splitState, symbol)]))
+                            if (delta.ContainsKey((splitState, symbol)) && splitState != "" && state.Contains(delta[(splitState, symbol)]))
                             {
                                 flag = true;
                                 break;
@@ -2572,24 +2584,6 @@ namespace Projektni_FMSI
             }
 
         }
-
-        //To check if two regular expressions are the same
-        //Transform them to automatas
-        //Compare those two automatas
-        /*public bool checkIfTwoRegularExpressionsAreTheSame(string regexp1, string regexp2)
-        {
-            Automat convertFirstRegularExpression = makeAutomataFromRegularExpression(regexp1);
-            Automat convertSecondRegularExpression = makeAutomataFromRegularExpression(regexp2);
-
-            if (convertFirstRegularExpression.compareTwoAutomatas(convertSecondRegularExpression))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }*/
 
         //Help for finding a cycle in any state
         //Why? Helps us for finding longest word

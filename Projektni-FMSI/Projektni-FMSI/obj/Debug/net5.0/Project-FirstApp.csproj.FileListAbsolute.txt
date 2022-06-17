@@ -35,7 +35,6 @@ C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\
 C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\Projektni-FMSI\obj\Debug\net5.0\ref\Project-FirstApp.dll
 C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\Projektni-FMSI\obj\Debug\net5.0\Project-FirstApp.pdb
 C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\Projektni-FMSI\obj\Debug\net5.0\Project-FirstApp.genruntimeconfig.cache
-C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\Projektni-FMSI\obj\Debug\net5.0\Project-FirstApp.csproj.CopyComplete
 C:\Users\acivo\Desktop\formalne-projekat\FMSI\Projektni-FMSI\Projektni-FMSI\bin\Debug\net5.0\Project-FirstApp.exe
 C:\Users\acivo\Desktop\formalne-projekat\FMSI\Projektni-FMSI\Projektni-FMSI\bin\Debug\net5.0\Project-FirstApp.deps.json
 C:\Users\acivo\Desktop\formalne-projekat\FMSI\Projektni-FMSI\Projektni-FMSI\bin\Debug\net5.0\Project-FirstApp.runtimeconfig.json
@@ -55,3 +54,4 @@ C:\Users\acivo\Desktop\formalne-projekat\FMSI\Projektni-FMSI\Projektni-FMSI\obj\
 C:\Users\acivo\Desktop\formalne-projekat\FMSI\Projektni-FMSI\Projektni-FMSI\obj\Debug\net5.0\ref\Project-FirstApp.dll
 C:\Users\acivo\Desktop\formalne-projekat\FMSI\Projektni-FMSI\Projektni-FMSI\obj\Debug\net5.0\Project-FirstApp.pdb
 C:\Users\acivo\Desktop\formalne-projekat\FMSI\Projektni-FMSI\Projektni-FMSI\obj\Debug\net5.0\Project-FirstApp.genruntimeconfig.cache
+C:\Users\User\Desktop\формалне-пројекат\projekat\Projektni-FMSI\Projektni-FMSI\obj\Debug\net5.0\Project-FirstApp.csproj.CopyComplete

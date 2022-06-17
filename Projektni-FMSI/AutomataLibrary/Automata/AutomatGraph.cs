@@ -129,6 +129,7 @@ namespace Projektni_FMSI
             Queue<string> queue = new();
             HashSet<HashSet<string>> whichOnesWereVisited = new HashSet<HashSet<string>>();
             HashSet<string> rememberAllAlreadyVisited = new();
+            //IF IT'S TRUE, THERE IS CYCLE SOMEWHERE IN BETWEEN
             List<List<bool>> checkIfCycleExistsSomewhere = new List<List<bool>>();
 
             for(int i = 0; i < visit.getStates().Count; i++)
@@ -141,7 +142,9 @@ namespace Projektni_FMSI
                 whichOnesWereVisited.Add(new HashSet<string>());
             }
 
+            //ON LEVEL 0, ADD START STATE!
             whichOnesWereVisited.ElementAt(0).Add(visit.getStartState());
+            //IF START STATE HAS CYCLE, IT'S ALREADY OVER!
             if(visit.checkIfStateHasCycle(visit.getStartState()))
             {
                 checkIfCycleExistsSomewhere.ElementAt(0).Add(true);
@@ -177,6 +180,7 @@ namespace Projektni_FMSI
 
                                 if(checkIfCycleExistsSomewhere.ElementAt(g).Contains(false))
                                 {
+                                    //IF THERE WAS NO CYCLE, CHECK IF THERE IS NOW
                                     if(visit.checkIfStateHasCycle(element) || checkIfCycleExistsSomewhere.ElementAt(pos[0]).ElementAt(pos[1]))
                                     {
                                         checkIfCycleExistsSomewhere.ElementAt(g + 1).Add(true);
@@ -188,6 +192,7 @@ namespace Projektni_FMSI
                                 }
                                 else
                                 {
+                                    //PROPAGATE TRUE TILL THE END
                                     checkIfCycleExistsSomewhere.ElementAt(g + 1).Add(true);
                                 }
 
@@ -206,16 +211,19 @@ namespace Projektni_FMSI
                         for (int g = 0; g < whichOnesWereVisited.Count; g++)
                         {
                             int[] pos = findPositionForLongestWord(element, whichOnesWereVisited);
+                            //IF THERE WAS CYCLE STOP, MAX WORD INFINITY
                             if (checkIfCycleExistsSomewhere.ElementAt(pos[0]).ElementAt(pos[1]))
                             {
                                 Console.WriteLine("There is no longest word, returning MAX length possible!");
                                 return int.MaxValue;
                             }
+                            //ELSE UPDATE WORD LENGTH
                             if (whichOnesWereVisited.ElementAt(g).Contains(element))
                             {
                                 wordLength = g;
                             }
                         }
+                        //AND CHECK IT IT'S LONGER THAT LONGEST WORD
                         if (wordLength > longestWord)
                         {
                             longestWord = wordLength;
@@ -338,6 +346,8 @@ namespace Projektni_FMSI
             {
                 for (int j = 0; j < a.getStates().Count; j++)
                 {
+                    //ONLY IF THERE IS SOMETHING THAT CAN BE UPDATED
+                    //IF MS[i,j] == 1 CONNECTION ALREADY MADE
                     if (ms[i, j] != -1 && ms[i, j] != 1)
                     {
                         foreach (var symbol in a.getAlphabet())
@@ -350,9 +360,12 @@ namespace Projektni_FMSI
                             {
                                 //string firstState = a.delta[(nodes.ElementAt(i), symbol)];
                                 //string secondState = a.delta[(nodes.ElementAt(j), symbol)];
+
+                                //FIND STATES THAT WE GO TO FOR A SYMBOL AND TWO STATES CORRESPONDING TO i AND j
                                 string firstState = a.getDelta()[(nodes.ElementAt(i), symbol)];
                                 string secondState = a.getDelta()[(nodes.ElementAt(j), symbol)];
                                 int position1, position2;
+                                //FIND WHICH NODE FIRST STATE ACTUALLY IS
                                 for (position1 = 0; position1 < a.getStates().Count; position1++)
                                 {
                                     if (nodes.ElementAt(position1) == firstState)
@@ -360,6 +373,7 @@ namespace Projektni_FMSI
                                         break;
                                     }
                                 }
+                                //FIND WHICH NODE SECOND STATE ACTUALLY IS
                                 for (position2 = 0; position2 < a.getStates().Count; position2++)
                                 {
                                     if (nodes.ElementAt(position2) == secondState)
@@ -367,6 +381,7 @@ namespace Projektni_FMSI
                                         break;
                                     }
                                 }
+                                //IF THERE IS SOMETHING TO UPDATE, UPDATE IT
                                 if (ms[position1, position2] == 1 || ms[position2, position1] == 1)
                                 {
                                     //Console.WriteLine(i + " " + j);
